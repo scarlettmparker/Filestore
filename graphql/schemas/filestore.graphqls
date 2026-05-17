@@ -1,0 +1,7 @@
+type FilestoreQueries {
+  health: String
+}
+
+extend type Query {
+  filestoreQueries: FilestoreQueries!
+}
