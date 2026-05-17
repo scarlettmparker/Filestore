@@ -9,8 +9,6 @@ const Folder = () => {
     ListKeysQuery["filestoreQueries"]["listKeys"]
   >("keys", "filestore/:alias/:path", { alias, path });
 
-  console.log("keys", keys);
-
   return <></>;
 };
 

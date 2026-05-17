@@ -12,8 +12,6 @@ const Bucket = () => {
     ListKeysQuery["filestoreQueries"]["listKeys"]
   >("keys", "filestore/:alias", { alias });
 
-  console.log("keys", keys);
-
   return <></>;
 };
 

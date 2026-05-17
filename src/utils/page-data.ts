@@ -20,6 +20,20 @@ function notifyCacheHydrated() {
   cacheHydratedListeners.forEach((listener) => listener());
 }
 
+const FILESTORE_CACHE_TTL = 30000; // 30 seconds
+
+/**
+ * Cache TTL configuration in milliseconds.
+ * Maps cache key patterns to their time-to-live values.
+ * Default is 5 minutes (300000ms) if pattern not specified.
+ */
+const CACHE_TTL_MS: Record<string, number> = {
+  "filestore/:alias": FILESTORE_CACHE_TTL,
+  "filestore/:alias/:path": FILESTORE_CACHE_TTL,
+};
+
+const DEFAULT_CACHE_TTL_MS = 300000; // 5 minutes default
+
 /**
  * Cache for React Suspense-based data loading.
  * Stores the status of data fetches: 'pending', 'resolved', or 'rejected'.
@@ -32,8 +46,35 @@ export const suspenseCache = new Map<
     result?: Record<string, unknown>;
     promise?: Promise<unknown>;
     error?: unknown;
+    timestamp?: number;
   }
 >();
+
+/**
+ * Gets the TTL for a given cache key pattern.
+ * @param pattern The route pattern
+ * @returns TTL in milliseconds
+ */
+function getCacheTTL(pattern: string): number {
+  const normalized = pattern.startsWith("/") ? pattern : "/" + pattern;
+  return CACHE_TTL_MS[normalized] ?? DEFAULT_CACHE_TTL_MS;
+}
+
+/**
+ * Checks if a cache entry has expired.
+ * @param record The cache record
+ * @param pattern The route pattern
+ * @returns True if expired, false otherwise
+ */
+function isCacheExpired(
+  record: { timestamp?: number },
+  pattern: string,
+): boolean {
+  if (!record.timestamp) return false;
+  const ttl = getCacheTTL(pattern);
+  const age = Date.now() - record.timestamp;
+  return age > ttl;
+}
 /**
  * Hydrates the page data cache with initial data from the server.
  * This populates the suspense cache with resolved data for each key in the initialData object.
@@ -50,8 +91,12 @@ export function hydratePageData(
   }
 
   Object.keys(initialData).forEach((key) => {
-    // Set the data in the suspense cache as resolved
-    suspenseCache.set(key, { status: "resolved", result: initialData[key] });
+    // Set the data in the suspense cache as resolved with current timestamp
+    suspenseCache.set(key, {
+      status: "resolved",
+      result: initialData[key],
+      timestamp: Date.now(),
+    });
 
     // Handle normalized keys: if the key contains a colon, normalize the pattern part
     const colonIndex = key.indexOf(":");
@@ -68,6 +113,7 @@ export function hydratePageData(
         suspenseCache.set(normalizedKey, {
           status: "resolved",
           result: initialData[key],
+          timestamp: Date.now(),
         });
       }
     }
@@ -178,6 +224,16 @@ function readPageData<T>(
   const cacheKey = makeCacheKey(`${pattern}:${key}`, params);
   let record = suspenseCache.get(cacheKey);
 
+  // Check if cached record exists and has expired
+  if (
+    record &&
+    record.status === "resolved" &&
+    isCacheExpired(record, pattern)
+  ) {
+    suspenseCache.delete(cacheKey);
+    record = undefined;
+  }
+
   if (!record) {
     // Find the loaders registered for this pattern
     const loaders = pageDataLoaders[pattern];
@@ -216,6 +272,7 @@ function readPageData<T>(
 
         record!.status = "resolved";
         record!.result = merged;
+        record!.timestamp = Date.now();
         return merged[key];
       })
       .catch((err) => {
@@ -255,10 +312,30 @@ export function getPageData<T>(
 
   let record = suspenseCache.get(cacheKey);
 
+  // Check if cached record has expired
+  if (
+    record &&
+    record.status === "resolved" &&
+    isCacheExpired(record, pattern)
+  ) {
+    suspenseCache.delete(cacheKey);
+    record = undefined;
+  }
+
   // Fallback check to support key structures that were populated via hydratePageData
   if (!record) {
     const legacyHydrationKey = makeCacheKey(pattern, params);
     record = suspenseCache.get(legacyHydrationKey);
+
+    // Check expiration on legacy key too
+    if (
+      record &&
+      record.status === "resolved" &&
+      isCacheExpired(record, pattern)
+    ) {
+      suspenseCache.delete(legacyHydrationKey);
+      record = undefined;
+    }
   }
 
   // If cache is invalidated or doesn't exist, execute/trigger fetch strategy
