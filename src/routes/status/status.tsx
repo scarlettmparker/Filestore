@@ -1,0 +1,46 @@
+import { HealthQuery } from "~/generated/graphql";
+import { fetchListBlogPosts } from "~/utils/api";
+import { getPageData, pageDataRegistry } from "~/utils/page-data";
+
+/**
+ * Status page, check for health of Vite app and Garage.
+ */
+const StatusPage = () => {
+  const { data: health } = getPageData<
+    HealthQuery["filestoreQueries"]["health"]
+  >("health", "filestore");
+
+  if (!health) {
+    return <>Loading...</>;
+  }
+
+  return <>{health}</>;
+};
+
+/**
+ * Server-side data fetching function for StatusPage.
+ */
+export async function getHealthData(): Promise<Record<string, unknown> | null> {
+  try {
+    const result = await fetchListBlogPosts();
+    if (result?.data && result?.success) {
+      const health = (result.data as HealthQuery).filestoreQueries.health;
+      if (health) {
+        return { health };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Failed to fetch stem player details data:", error);
+    return null;
+  }
+}
+
+/**
+ * Register the data loader for this page.
+ */
+export function registerStatusDataLoader(): void {
+  pageDataRegistry.registerPageDataLoader("filestore", getHealthData);
+}
+
+export default StatusPage;

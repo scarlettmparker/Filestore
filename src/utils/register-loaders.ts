@@ -4,8 +4,7 @@
  * stem-player etc. data loaders registered here.
  */
 
-// Example usage:
-// import { registerBlogDataLoader } from "../routes/blog/blog";
+import { registerStatusDataLoader } from "~/routes/status/status";
 
 // // Register all loaders
-// registerBlogDataLoader();
+registerStatusDataLoader();

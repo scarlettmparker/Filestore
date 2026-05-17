@@ -4,6 +4,7 @@
  */
 
 import { print, DocumentNode } from "graphql";
+import { HealthDocument } from "~/generated/graphql";
 
 export type ApiResponse<T> = {
   success: boolean;
@@ -16,11 +17,9 @@ export type ApiResponse<T> = {
  * Type definition for the operation registry with strong typing.
  */
 type OperationRegistry = {
-  // Exmaple queries:
-  // blogQueries: {
-  //   listBlogPosts: DocumentNode;
-  //   locateBlogPost: DocumentNode;
-  // };
+  filestoreQueries: {
+    health: DocumentNode;
+  };
 };
 
 /**
@@ -28,10 +27,9 @@ type OperationRegistry = {
  */
 const operationRegistry: OperationRegistry = {
   // Example queries:
-  // blogQueries: {
-  //   listBlogPosts: ListBlogPostsDocument,
-  //   locateBlogPost: LocateBlogPostDocument,
-  // },
+  filestoreQueries: {
+    health: HealthDocument,
+  },
 };
 
 /**
@@ -176,20 +174,12 @@ export async function fetchGraphQLData<T>(
   }
 }
 
-// Example queries
-// /**
-//  * List operation for blog posts.
-//  */
-// export async function fetchListBlogPosts() {
-//   return fetchGraphQLData("blogQueries.listBlogPosts");
-// }
-
-// /**
-//  * Locate operation for blog posts.
-//  */
-// export async function fetchLocateBlogPost(id: string) {
-//   return fetchGraphQLData("blogQueries.locateBlogPost", { id });
-// }
+/**
+ * Health operation for status page.
+ */
+export async function fetchListBlogPosts() {
+  return fetchGraphQLData("filestoreQueries.health");
+}
 
 // Example mutation
 // /**
