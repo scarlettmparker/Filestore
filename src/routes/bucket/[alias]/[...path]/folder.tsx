@@ -3,14 +3,11 @@ import { ListKeysQuery } from "~/generated/graphql";
 import { fetchListKeys } from "~/utils/api";
 import { getPageData, pageDataRegistry } from "~/utils/page-data";
 
-/**
- * File overview for a single bucket. Top level view
- */
-const Bucket = () => {
-  const { alias } = useParams<{ alias: string }>();
+const Folder = () => {
+  const { alias, path } = useParams<{ alias: string; path: string }>();
   const { data: keys } = getPageData<
     ListKeysQuery["filestoreQueries"]["listKeys"]
-  >("keys", "filestore/:alias", { alias });
+  >("keys", "filestore/:alias/:path", { alias, path });
 
   console.log("keys", keys);
 
@@ -21,10 +18,17 @@ const Bucket = () => {
  * Server-side data fetching function to list keys in a bucket.
  */
 export async function listKeys(
+  /**
+   * Bucket alias.
+   */
   alias: string,
+  /**
+   * Path in bucket.
+   */
+  path: string,
 ): Promise<Record<string, unknown> | null> {
   try {
-    const result = await fetchListKeys(alias);
+    const result = await fetchListKeys(alias, `${path}/`);
     if (result?.data && result?.success) {
       const keys = (result.data as ListKeysQuery).filestoreQueries.listKeys;
       if (keys) {
@@ -41,15 +45,16 @@ export async function listKeys(
 /**
  * Register the data loader for this page.
  */
-export function registerBucketOverviewDataLoader(): void {
+export function registerFolderOverviewDataLoader(): void {
   pageDataRegistry.registerPageDataLoader(
-    "filestore/:alias",
+    "filestore/:alias/:path",
     async (params) => {
       const alias = params?.alias as string;
-      if (!alias) return null;
-      return listKeys(alias);
+      const path = params?.path as string;
+      if (!alias || !path) return null;
+      return listKeys(alias, path);
     },
   );
 }
 
-export default Bucket;
+export default Folder;

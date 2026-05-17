@@ -1,10 +1,11 @@
 import { RouteObject, useRoutes } from "react-router-dom";
 import { lazy } from "react";
-import Bucket from "./routes/bucket/[alias]";
 
 const Index = lazy(() => import("~/routes/index"));
 const NotFound = lazy(() => import("~/routes/not-found"));
 const Status = lazy(() => import("~/routes/status"));
+const Bucket = lazy(() => import("~/routes/bucket/[alias]"));
+const Folder = lazy(() => import("./routes/bucket/[alias]/[...path]"));
 
 /**
  * List of routes.
@@ -21,6 +22,10 @@ export const routes: RouteObject[] = [
   {
     path: "bucket/:alias",
     element: <Bucket />,
+  },
+  {
+    path: "bucket/:alias/:path",
+    element: <Folder />,
   },
   {
     path: "*",

@@ -5,6 +5,7 @@
  */
 
 import { registerBucketsDataLoader } from "~/routes";
+import { registerFolderOverviewDataLoader } from "~/routes/bucket/[alias]/[...path]/folder";
 import { registerBucketOverviewDataLoader } from "~/routes/bucket/[alias]/bucket";
 import { registerStatusDataLoader } from "~/routes/status/status";
 
@@ -12,3 +13,4 @@ import { registerStatusDataLoader } from "~/routes/status/status";
 registerStatusDataLoader();
 registerBucketsDataLoader();
 registerBucketOverviewDataLoader();
+registerFolderOverviewDataLoader();
