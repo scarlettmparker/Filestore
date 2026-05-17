@@ -1,4 +1,7 @@
+import { CardHeader, CardTitle } from "@sun/components";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import KeyCard from "~/components/key-card";
 import { ListKeysQuery } from "~/generated/graphql";
 import { fetchListKeys } from "~/utils/api";
 import { getPageData, pageDataRegistry } from "~/utils/page-data";
@@ -10,9 +13,19 @@ const Bucket = () => {
   const { alias } = useParams<{ alias: string }>();
   const { data: keys } = getPageData<
     ListKeysQuery["filestoreQueries"]["listKeys"]
-  >("keys", "filestore/:alias", { alias });
+  >("keys", `filestore/:alias`, { alias });
 
-  return <></>;
+  if (!keys || !alias) return null;
+
+  const { t } = useTranslation("bucket");
+
+  return (
+    <KeyCard keys={keys} bucketName={alias} t={t}>
+      <CardHeader>
+        <CardTitle>{alias}</CardTitle>
+      </CardHeader>
+    </KeyCard>
+  );
 };
 
 /**

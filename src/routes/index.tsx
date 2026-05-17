@@ -1,9 +1,18 @@
 import { ListBucketsQuery } from "~/generated/graphql";
 import { fetchListBuckets } from "~/utils/api";
 import { getPageData, pageDataRegistry } from "~/utils/page-data";
-import { Button, Card, CardBody } from "@sun/components";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@sun/components";
 import { Folder } from "lucide-react";
 import styles from "./index.module.css";
+import { useTranslation } from "react-i18next";
 
 /**
  * Home page displaying admin panel.
@@ -17,25 +26,30 @@ const Index = () => {
     return <>Loading...</>;
   }
 
+  const { t } = useTranslation("home");
+
   return (
-    <>
-      <Card className={styles.buckets_card}>
-        <CardBody>
-          {buckets.map((bucket, idx) => (
-            <a
-              key={idx}
-              href={`/bucket/${bucket.globalAliases}`}
-              className={styles.bucket_link}
-            >
-              <Button variant="secondary" className={styles.bucket_button}>
-                <Folder width={16} height={16} />
-                {bucket.globalAliases}
-              </Button>
-            </a>
-          ))}
-        </CardBody>
-      </Card>
-    </>
+    <Card className={styles.buckets_card}>
+      <CardHeader>
+        <CardTitle>{t("card-title")}</CardTitle>
+        <CardDescription>{t("card-description")}</CardDescription>
+      </CardHeader>
+      <CardBody>
+        {buckets.map((bucket, idx) => (
+          <a
+            key={idx}
+            href={`/bucket/${bucket.globalAliases}`}
+            className={styles.bucket_link}
+          >
+            <Button variant="secondary" className={styles.bucket_button}>
+              <Folder width={16} height={16} />
+              {bucket.globalAliases}
+            </Button>
+          </a>
+        ))}
+      </CardBody>
+      <CardFooter>{t("items", { count: buckets.length })}</CardFooter>
+    </Card>
   );
 };
 

@@ -1,4 +1,4 @@
-.buckets_card {
+.keys_card {
   width: 100%;
   max-width: 600px;
   position: absolute;
@@ -7,11 +7,8 @@
   transform: translate(-50%, -50%);
 }
 
-.bucket_link {
+.keys_card_body {
   display: flex;
-}
-
-.bucket_button {
+  flex-direction: column;
   gap: var(--lg);
-  flex-grow: 1;
 }

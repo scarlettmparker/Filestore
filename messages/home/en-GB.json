@@ -1,1 +1,7 @@
-{}
+{
+  "card-title": "Filestore",
+  "card-description": "Please select a bucket",
+  "items_zero": "No buckets",
+  "items_one": "{{count}} bucket",
+  "items_other": "{{count}} buckets"
+}

@@ -1,0 +1,14 @@
+
+.key_link {
+  display: flex;
+}
+
+.key_button {
+  gap: var(--lg);
+  flex-grow: 1;
+}
+
+.key_last_modified {
+  margin-left: auto;
+  text-wrap: none;
+}

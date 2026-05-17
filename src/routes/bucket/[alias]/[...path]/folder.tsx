@@ -1,15 +1,31 @@
+import { CardHeader, CardTitle } from "@sun/components";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import KeyCard from "~/components/key-card";
 import { ListKeysQuery } from "~/generated/graphql";
 import { fetchListKeys } from "~/utils/api";
 import { getPageData, pageDataRegistry } from "~/utils/page-data";
 
+/**
+ * Component displaying a folder and its keys as a card.
+ */
 const Folder = () => {
   const { alias, path } = useParams<{ alias: string; path: string }>();
   const { data: keys } = getPageData<
     ListKeysQuery["filestoreQueries"]["listKeys"]
-  >("keys", "filestore/:alias/:path", { alias, path });
+  >("keys", `filestore/:alias/:path`, { alias, path });
 
-  return <></>;
+  if (!keys || !alias) return null;
+
+  const { t } = useTranslation("bucket");
+
+  return (
+    <KeyCard keys={keys} bucketName={alias} t={t}>
+      <CardHeader>
+        <CardTitle>{`${alias}/${path}`}</CardTitle>
+      </CardHeader>
+    </KeyCard>
+  );
 };
 
 /**

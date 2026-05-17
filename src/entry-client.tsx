@@ -76,8 +76,7 @@ i18n
     resources: {
       [window.__locale__ || "en"]: {
         home: window.__translations__ || {},
-        login: window.__translations__ || {},
-        blog: window.__translations__ || {},
+        bucket: window.__translations__ || {},
       },
     },
     interpolation: { escapeValue: false },
