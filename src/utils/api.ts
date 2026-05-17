@@ -4,7 +4,7 @@
  */
 
 import { print, DocumentNode } from "graphql";
-import { HealthDocument } from "~/generated/graphql";
+import { HealthDocument, ListBucketsDocument } from "~/generated/graphql";
 
 export type ApiResponse<T> = {
   success: boolean;
@@ -19,6 +19,7 @@ export type ApiResponse<T> = {
 type OperationRegistry = {
   filestoreQueries: {
     health: DocumentNode;
+    listBuckets: DocumentNode;
   };
 };
 
@@ -29,6 +30,7 @@ const operationRegistry: OperationRegistry = {
   // Example queries:
   filestoreQueries: {
     health: HealthDocument,
+    listBuckets: ListBucketsDocument,
   },
 };
 
@@ -177,8 +179,15 @@ export async function fetchGraphQLData<T>(
 /**
  * Health operation for status page.
  */
-export async function fetchListBlogPosts() {
+export async function fetchHealth() {
   return fetchGraphQLData("filestoreQueries.health");
+}
+
+/**
+ * Buckets operation for home page.
+ */
+export async function fetchListBuckets() {
+  return fetchGraphQLData("filestoreQueries.listBuckets");
 }
 
 // Example mutation

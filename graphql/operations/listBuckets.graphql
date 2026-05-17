@@ -1,0 +1,10 @@
+query listBuckets {
+  filestoreQueries {
+    listBuckets {
+      id
+      created
+      globalAliases
+      localAliases
+    }
+  }
+}

@@ -4,7 +4,9 @@
  * stem-player etc. data loaders registered here.
  */
 
+import { registerBucketsDataLoader } from "~/routes";
 import { registerStatusDataLoader } from "~/routes/status/status";
 
 // // Register all loaders
 registerStatusDataLoader();
+registerBucketsDataLoader();

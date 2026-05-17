@@ -1,5 +1,5 @@
 import { HealthQuery } from "~/generated/graphql";
-import { fetchListBlogPosts } from "~/utils/api";
+import { fetchHealth } from "~/utils/api";
 import { getPageData, pageDataRegistry } from "~/utils/page-data";
 
 /**
@@ -22,7 +22,7 @@ const StatusPage = () => {
  */
 export async function getHealthData(): Promise<Record<string, unknown> | null> {
   try {
-    const result = await fetchListBlogPosts();
+    const result = await fetchHealth();
     if (result?.data && result?.success) {
       const health = (result.data as HealthQuery).filestoreQueries.health;
       if (health) {
@@ -31,7 +31,7 @@ export async function getHealthData(): Promise<Record<string, unknown> | null> {
     }
     return null;
   } catch (error) {
-    console.error("Failed to fetch stem player details data:", error);
+    console.error("Failed to fetch health data:", error);
     return null;
   }
 }
