@@ -13,6 +13,9 @@ import {
   ListFilesDocument,
   ListFilesQuery,
   ListFilesQueryVariables,
+  ListKeysDocument,
+  ListKeysQuery,
+  ListKeysQueryVariables,
   PutFileDocument,
   PutFileMutation,
   PutFileMutationVariables,
@@ -39,6 +42,7 @@ type OperationRegistry = {
     health: DocumentNode;
     listBuckets: DocumentNode;
     listFiles: DocumentNode;
+    listKeys: DocumentNode;
   };
   filestoreMutations: {
     putFile: DocumentNode;
@@ -57,6 +61,7 @@ const operationRegistry: OperationRegistry = {
     health: HealthDocument,
     listBuckets: ListBucketsDocument,
     listFiles: ListFilesDocument,
+    listKeys: ListKeysDocument,
   },
   filestoreMutations: {
     putFile: PutFileDocument,
@@ -134,10 +139,7 @@ const retryWithBackoff = async <T>(
 export async function fetchGraphQLData<
   T,
   V extends Record<string, unknown> | undefined = Record<string, unknown>,
->(
-  operationName: string,
-  variables?: V,
-): Promise<ApiResponse<T>> {
+>(operationName: string, variables?: V): Promise<ApiResponse<T>> {
   const endpoint =
     process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql";
 
@@ -238,6 +240,19 @@ export async function fetchListFiles(bucket: string) {
 }
 
 /**
+ * List keys under a prefix in the specified bucket.
+ *
+ * @param bucket The bucket to query.
+ * @param prefix Optional folder prefix to list.
+ */
+export async function fetchListKeys(bucket: string, prefix?: string) {
+  return fetchGraphQLData<ListKeysQuery, ListKeysQueryVariables>(
+    "filestoreQueries.listKeys",
+    { bucket, prefix },
+  );
+}
+
+/**
  * Upload a file directly with content.
  *
  * @param bucket The bucket to upload into.
@@ -261,10 +276,7 @@ export async function mutatePutFile(
  * @param bucket The bucket to upload into.
  * @param key The file key for the multipart upload.
  */
-export async function mutateStartMultipartUpload(
-  bucket: string,
-  key: string,
-) {
+export async function mutateStartMultipartUpload(bucket: string, key: string) {
   return fetchGraphQLData<
     StartMultipartUploadMutation,
     StartMultipartUploadMutationVariables
