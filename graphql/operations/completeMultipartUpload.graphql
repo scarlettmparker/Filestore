@@ -1,0 +1,15 @@
+mutation completeMultipartUpload(
+  $bucket: String!
+  $key: String!
+  $uploadId: String!
+  $parts: [CompletedPart!]!
+) {
+  filestoreMutations {
+    completeMultipartUpload(
+      bucket: $bucket
+      key: $key
+      uploadId: $uploadId
+      parts: $parts
+    )
+  }
+}

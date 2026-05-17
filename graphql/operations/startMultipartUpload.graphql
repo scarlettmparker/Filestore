@@ -1,0 +1,5 @@
+mutation startMultipartUpload($bucket: String!, $key: String!) {
+  filestoreMutations {
+    startMultipartUpload(bucket: $bucket, key: $key)
+  }
+}

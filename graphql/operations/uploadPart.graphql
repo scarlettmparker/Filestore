@@ -1,0 +1,17 @@
+mutation uploadPart(
+  $bucket: String!
+  $key: String!
+  $uploadId: String!
+  $partNumber: Int!
+  $content: String!
+) {
+  filestoreMutations {
+    uploadPart(
+      bucket: $bucket
+      key: $key
+      uploadId: $uploadId
+      partNumber: $partNumber
+      content: $content
+    )
+  }
+}
