@@ -4,7 +4,25 @@
  */
 
 import { print, DocumentNode } from "graphql";
-import { HealthDocument, ListBucketsDocument } from "~/generated/graphql";
+import {
+  CompleteMultipartUploadDocument,
+  CompleteMultipartUploadMutation,
+  CompleteMultipartUploadMutationVariables,
+  HealthDocument,
+  ListBucketsDocument,
+  ListFilesDocument,
+  ListFilesQuery,
+  ListFilesQueryVariables,
+  PutFileDocument,
+  PutFileMutation,
+  PutFileMutationVariables,
+  StartMultipartUploadDocument,
+  StartMultipartUploadMutation,
+  StartMultipartUploadMutationVariables,
+  UploadPartDocument,
+  UploadPartMutation,
+  UploadPartMutationVariables,
+} from "~/generated/graphql";
 
 export type ApiResponse<T> = {
   success: boolean;
@@ -20,6 +38,13 @@ type OperationRegistry = {
   filestoreQueries: {
     health: DocumentNode;
     listBuckets: DocumentNode;
+    listFiles: DocumentNode;
+  };
+  filestoreMutations: {
+    putFile: DocumentNode;
+    startMultipartUpload: DocumentNode;
+    uploadPart: DocumentNode;
+    completeMultipartUpload: DocumentNode;
   };
 };
 
@@ -27,10 +52,17 @@ type OperationRegistry = {
  * Registry of GraphQL operations mapped to their query documents.
  */
 const operationRegistry: OperationRegistry = {
-  // Example queries:
+  // Queries:
   filestoreQueries: {
     health: HealthDocument,
     listBuckets: ListBucketsDocument,
+    listFiles: ListFilesDocument,
+  },
+  filestoreMutations: {
+    putFile: PutFileDocument,
+    startMultipartUpload: StartMultipartUploadDocument,
+    uploadPart: UploadPartDocument,
+    completeMultipartUpload: CompleteMultipartUploadDocument,
   },
 };
 
@@ -99,9 +131,12 @@ const retryWithBackoff = async <T>(
  * @param variables Variables for the operation (if any).
  * @returns Promise resolving to ApiResponse.
  */
-export async function fetchGraphQLData<T>(
+export async function fetchGraphQLData<
+  T,
+  V extends Record<string, unknown> | undefined = Record<string, unknown>,
+>(
   operationName: string,
-  variables?: Record<string, unknown>,
+  variables?: V,
 ): Promise<ApiResponse<T>> {
   const endpoint =
     process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql";
@@ -190,16 +225,95 @@ export async function fetchListBuckets() {
   return fetchGraphQLData("filestoreQueries.listBuckets");
 }
 
-// Example mutation
-// /**
-//  * Create blog post mutation.
-//  */
-// export async function mutateCreateBlogPost(
-//   title: string,
-//   input: BlogPostInput,
-// ) {
-//   return fetchGraphQLData<CreateBlogPostMutation>(
-//     "blogMutations.createBlogPost",
-//     { title, input },
-//   );
-// }
+/**
+ * List files in the given bucket.
+ *
+ * @param bucket The bucket name to query.
+ */
+export async function fetchListFiles(bucket: string) {
+  return fetchGraphQLData<ListFilesQuery, ListFilesQueryVariables>(
+    "filestoreQueries.listFiles",
+    { bucket },
+  );
+}
+
+/**
+ * Upload a file directly with content.
+ *
+ * @param bucket The bucket to upload into.
+ * @param key The key (path/file name) for the file.
+ * @param content The file content as a string.
+ */
+export async function mutatePutFile(
+  bucket: string,
+  key: string,
+  content: string,
+) {
+  return fetchGraphQLData<PutFileMutation, PutFileMutationVariables>(
+    "filestoreMutations.putFile",
+    { bucket, key, content },
+  );
+}
+
+/**
+ * Begin a multipart upload and return the upload ID.
+ *
+ * @param bucket The bucket to upload into.
+ * @param key The file key for the multipart upload.
+ */
+export async function mutateStartMultipartUpload(
+  bucket: string,
+  key: string,
+) {
+  return fetchGraphQLData<
+    StartMultipartUploadMutation,
+    StartMultipartUploadMutationVariables
+  >("filestoreMutations.startMultipartUpload", { bucket, key });
+}
+
+/**
+ * Upload a single part of a multipart upload.
+ *
+ * @param bucket The bucket of the file.
+ * @param key The file key.
+ * @param uploadId The multipart upload ID.
+ * @param partNumber The part number for this chunk.
+ * @param content The part contents as a string.
+ */
+export async function mutateUploadPart(
+  bucket: string,
+  key: string,
+  uploadId: string,
+  partNumber: number,
+  content: string,
+) {
+  return fetchGraphQLData<UploadPartMutation, UploadPartMutationVariables>(
+    "filestoreMutations.uploadPart",
+    { bucket, key, uploadId, partNumber, content },
+  );
+}
+
+/**
+ * Complete a multipart upload with the uploaded part metadata.
+ *
+ * @param bucket The bucket of the file.
+ * @param key The file key.
+ * @param uploadId The multipart upload ID.
+ * @param parts Array of uploaded part metadata (partNumber + etag).
+ */
+export async function mutateCompleteMultipartUpload(
+  bucket: string,
+  key: string,
+  uploadId: string,
+  parts: Array<{ partNumber: number; etag: string }>,
+) {
+  return fetchGraphQLData<
+    CompleteMultipartUploadMutation,
+    CompleteMultipartUploadMutationVariables
+  >("filestoreMutations.completeMultipartUpload", {
+    bucket,
+    key,
+    uploadId,
+    parts,
+  });
+}
