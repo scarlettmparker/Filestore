@@ -1,6 +1,9 @@
 import { ListBucketsQuery } from "~/generated/graphql";
 import { fetchListBuckets } from "~/utils/api";
 import { getPageData, pageDataRegistry } from "~/utils/page-data";
+import { Button, Card, CardBody } from "@sun/components";
+import { Folder } from "lucide-react";
+import styles from "./index.module.css";
 
 /**
  * Home page displaying admin panel.
@@ -14,9 +17,26 @@ const Index = () => {
     return <>Loading...</>;
   }
 
-  console.log("buckets", buckets);
-
-  return <></>;
+  return (
+    <>
+      <Card className={styles.buckets_card}>
+        <CardBody>
+          {buckets.map((bucket, idx) => (
+            <a
+              key={idx}
+              href={`/bucket/${bucket.globalAliases}`}
+              className={styles.bucket_link}
+            >
+              <Button variant="secondary" className={styles.bucket_button}>
+                <Folder width={16} height={16} />
+                {bucket.globalAliases}
+              </Button>
+            </a>
+          ))}
+        </CardBody>
+      </Card>
+    </>
+  );
 };
 
 /**

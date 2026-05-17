@@ -5,8 +5,10 @@
  */
 
 import { registerBucketsDataLoader } from "~/routes";
+import { registerBucketOverviewDataLoader } from "~/routes/bucket/[alias]/bucket";
 import { registerStatusDataLoader } from "~/routes/status/status";
 
 // // Register all loaders
 registerStatusDataLoader();
 registerBucketsDataLoader();
+registerBucketOverviewDataLoader();
