@@ -33,7 +33,11 @@ const KeyCard = (props: KeyCardProps) => {
           <Key
             key={idx}
             keyEntry={key}
-            href={key.isDirectory ? `${bucketName}/${key.key}` : null}
+            href={
+              key.isDirectory
+                ? `${bucketName}/${key.key}`
+                : `/rest/buckets/${bucketName}/download?key=${encodeURIComponent(key.key)}`
+            }
           />
         ))}
       </CardBody>

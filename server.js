@@ -18,12 +18,15 @@ import {
 import { setupRoutes } from "./routes/index.js";
 import { executeMutation } from "./src/utils/mutations.ts";
 import { ServerRedirectError } from "./src/utils/server-redirect";
+import { registerDownloadProxyRoute } from "./src/server/routes/download-proxy.ts";
 import { Buffer } from "buffer";
 
 import "./src/utils/register-loaders.ts";
 import "./src/utils/register-mutations.ts";
 
 const app = Fastify({ logger: false });
+registerDownloadProxyRoute(app);
+
 await app.register(fastifyStatic, {
   root: path.resolve("./public"),
   prefix: "/",

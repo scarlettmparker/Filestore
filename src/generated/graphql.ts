@@ -118,6 +118,19 @@ export type Query = {
   filestoreQueries: FilestoreQueries;
 };
 
+export type QueryResult = QuerySuccess | StandardError;
+
+export type QuerySuccess = {
+  __typename?: 'QuerySuccess';
+  id?: Maybe<Scalars['ID']['output']>;
+  message: Scalars['String']['output'];
+};
+
+export type StandardError = {
+  __typename?: 'StandardError';
+  message: Scalars['String']['output'];
+};
+
 export type CompleteMultipartUploadMutationVariables = Exact<{
   bucket: Scalars['String']['input'];
   key: Scalars['String']['input'];

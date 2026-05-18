@@ -42,8 +42,14 @@ export function setupRoutes(app, vite) {
    * @param {import("fastify").FastifyReply} reply - Fastify reply object.
    */
   app.setNotFoundHandler({ method: ["GET"] }, async (request, reply) => {
-    const mutationPayloadCookie = getCookieValue(request.headers.cookie, "mutation_payload");
-    const invalidateCacheCookie = getCookieValue(request.headers.cookie, "invalidate_cache");
+    const mutationPayloadCookie = getCookieValue(
+      request.headers.cookie,
+      "mutation_payload",
+    );
+    const invalidateCacheCookie = getCookieValue(
+      request.headers.cookie,
+      "invalidate_cache",
+    );
     let mutationPayload = null;
     if (mutationPayloadCookie) {
       try {
