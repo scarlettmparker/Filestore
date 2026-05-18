@@ -28,8 +28,8 @@ const FILESTORE_CACHE_TTL = 30000; // 30 seconds
  * Default is 5 minutes (300000ms) if pattern not specified.
  */
 const CACHE_TTL_MS: Record<string, number> = {
-  "filestore/:alias": FILESTORE_CACHE_TTL,
-  "filestore/:alias/:path": FILESTORE_CACHE_TTL,
+  "/filestore/:alias": FILESTORE_CACHE_TTL,
+  "/filestore/:alias/:path": FILESTORE_CACHE_TTL,
 };
 
 const DEFAULT_CACHE_TTL_MS = 300000; // 5 minutes default
