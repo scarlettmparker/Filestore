@@ -4,9 +4,9 @@
  * stem-player etc. data loaders registered here.
  */
 
+import { registerBucketOverviewDataLoader } from "~/components/bucket/bucket";
 import { registerBucketsDataLoader } from "~/routes";
 import { registerFolderOverviewDataLoader } from "~/routes/bucket/[alias]/[...path]/folder";
-import { registerBucketOverviewDataLoader } from "~/routes/bucket/[alias]/bucket";
 import { registerStatusDataLoader } from "~/routes/status/status";
 
 // // Register all loaders

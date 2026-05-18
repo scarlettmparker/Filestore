@@ -1,10 +1,13 @@
+import { Breadcrumb } from "@sun/components";
 import { CardHeader, CardTitle } from "@sun/components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import FilestoreBreadcrumb from "~/components/filestore-breadcrumb";
 import KeyCard from "~/components/key-card";
 import { ListKeysQuery } from "~/generated/graphql";
 import { fetchListKeys } from "~/utils/api";
 import { getPageData, pageDataRegistry } from "~/utils/page-data";
+import styles from "./folder.module.css";
 
 /**
  * Component displaying a folder and its keys as a card.
@@ -20,11 +23,17 @@ const Folder = () => {
   const { t } = useTranslation("bucket");
 
   return (
-    <KeyCard keys={keys} bucketName={alias} currentPath={path} t={t}>
-      <CardHeader>
-        <CardTitle>{`${alias}/${path}`}</CardTitle>
-      </CardHeader>
-    </KeyCard>
+    <div className={styles.card_wrapper}>
+      <Breadcrumb>
+        <FilestoreBreadcrumb alias={alias} path={path}>
+          <KeyCard keys={keys} bucketName={alias} currentPath={path} t={t}>
+            <CardHeader>
+              <CardTitle>{`${alias}/${path}`}</CardTitle>
+            </CardHeader>
+          </KeyCard>
+        </FilestoreBreadcrumb>
+      </Breadcrumb>
+    </div>
   );
 };
 

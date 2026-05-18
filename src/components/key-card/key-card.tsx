@@ -40,9 +40,9 @@ const KeyCard = (props: KeyCardProps) => {
   const ICON_SIZE = 16;
 
   return (
-    <ContextMenu>
+    <ContextMenu className={styles.keys_card}>
       <ContextMenuTrigger>
-        <Card className={styles.keys_card}>
+        <Card>
           {children}
           <CardBody className={styles.keys_card_body}>
             {keys.map((key, idx) => (

@@ -4,7 +4,7 @@ import { lazy, Suspense } from "react";
 const Index = lazy(() => import("~/routes/index"));
 const NotFound = lazy(() => import("~/routes/not-found"));
 const Status = lazy(() => import("~/routes/status"));
-const Bucket = lazy(() => import("~/routes/bucket/[alias]"));
+const BucketPage = lazy(() => import("~/routes/bucket/[alias]"));
 const Folder = lazy(() => import("./routes/bucket/[alias]/[...path]"));
 
 /**
@@ -23,7 +23,7 @@ export const routes: RouteObject[] = [
     path: "bucket/:alias",
     element: (
       <Suspense fallback={null}>
-        <Bucket />
+        <BucketPage />
       </Suspense>
     ),
   },
