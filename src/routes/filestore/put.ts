@@ -31,7 +31,7 @@ async function handlePutFileOrKey(
     const redirectTo = folderPath
       ? `/bucket/${bucket}/${folderPath}`
       : `/bucket/${bucket}`;
-    const pattern = folderPath ? `bucket/:alias/:path` : `bucket/:alias`;
+    const pattern = folderPath ? `bucket/:alias/*` : `bucket/:alias`;
 
     const params: Record<string, unknown> = folderPath
       ? { alias: bucket, path: folderPath }

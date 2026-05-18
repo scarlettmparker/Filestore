@@ -52,7 +52,7 @@ const KeyCard = (props: KeyCardProps) => {
                 currentPath={currentPath}
                 href={
                   key.isDirectory
-                    ? `${bucketName}/${key.key}`
+                    ? `/bucket/${bucketName}/${key.key}`
                     : `/rest/buckets/${bucketName}/download?key=${encodeURIComponent(key.key)}`
                 }
               />
@@ -74,7 +74,7 @@ const KeyCard = (props: KeyCardProps) => {
                   const file = (e.target as HTMLInputElement).files?.[0];
                   if (file) {
                     const content = await file.text();
-                    const key = `${currentPath}/${file.name}`;
+                    const key = `${currentPath}${file.name}`;
                     await executeMutation("filestore/put", {
                       bucket: bucketName,
                       key,
@@ -92,7 +92,8 @@ const KeyCard = (props: KeyCardProps) => {
             </ContextMenuItem>
             <ContextMenuItem
               onClick={async () => {
-                const key = `${currentPath}/new-key`;
+                const base = currentPath ? currentPath.replace(/\/$/, "") : "";
+                const key = `${base ? base + "/" : ""}new-key`;
                 await executeMutation("filestore/put", {
                   bucket: bucketName,
                   key,

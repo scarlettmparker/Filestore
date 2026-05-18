@@ -13,10 +13,14 @@ import styles from "./folder.module.css";
  * Component displaying a folder and its keys as a card.
  */
 const Folder = () => {
-  const { alias, path } = useParams<{ alias: string; path: string }>();
+  const params = useParams();
+  const alias = params.alias;
+  const rawPath = params["*"] || "";
+  const path = rawPath.replace(/\/?$/, "/");
+
   const { data: keys } = getPageData<
     ListKeysQuery["filestoreQueries"]["listKeys"]
-  >("keys", `bucket/:alias/:path`, { alias, path });
+  >("keys", `bucket/:alias/*`, { alias, path });
 
   if (!keys || !alias) return null;
 
@@ -51,7 +55,7 @@ export async function listKeys(
   path: string,
 ): Promise<Record<string, unknown> | null> {
   try {
-    const result = await fetchListKeys(alias, `${path}/`);
+    const result = await fetchListKeys(alias, path);
     if (result?.data && result?.success) {
       const keys = (result.data as ListKeysQuery).filestoreQueries.listKeys;
       if (keys) {
@@ -69,15 +73,12 @@ export async function listKeys(
  * Register the data loader for this page.
  */
 export function registerFolderOverviewDataLoader(): void {
-  pageDataRegistry.registerPageDataLoader(
-    "bucket/:alias/:path",
-    async (params) => {
-      const alias = params?.alias as string;
-      const path = params?.path as string;
-      if (!alias || !path) return null;
-      return listKeys(alias, path);
-    },
-  );
+  pageDataRegistry.registerPageDataLoader("bucket/:alias/*", async (params) => {
+    const alias = params?.alias as string;
+    const path = params?.path as string;
+    if (!alias || !path) return null;
+    return listKeys(alias, path);
+  });
 }
 
 export default Folder;

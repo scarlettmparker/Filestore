@@ -20,18 +20,18 @@ export const routes: RouteObject[] = [
     element: <Status />,
   },
   {
-    path: "bucket/:alias",
+    path: "bucket/:alias/*",
     element: (
       <Suspense fallback={null}>
-        <BucketPage />
+        <Folder />
       </Suspense>
     ),
   },
   {
-    path: "bucket/:alias/:path",
+    path: "bucket/:alias",
     element: (
       <Suspense fallback={null}>
-        <Folder />
+        <BucketPage />
       </Suspense>
     ),
   },
