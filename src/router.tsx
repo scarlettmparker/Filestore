@@ -1,5 +1,5 @@
 import { RouteObject, useRoutes } from "react-router-dom";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 
 const Index = lazy(() => import("~/routes/index"));
 const NotFound = lazy(() => import("~/routes/not-found"));
@@ -21,11 +21,19 @@ export const routes: RouteObject[] = [
   },
   {
     path: "bucket/:alias",
-    element: <Bucket />,
+    element: (
+      <Suspense fallback={null}>
+        <Bucket />
+      </Suspense>
+    ),
   },
   {
     path: "bucket/:alias/:path",
-    element: <Folder />,
+    element: (
+      <Suspense fallback={null}>
+        <Folder />
+      </Suspense>
+    ),
   },
   {
     path: "*",

@@ -10,6 +10,10 @@ type KeyProps = {
    */
   keyEntry: KeyEntry;
   /**
+   * Current path for stripping out of dirs.
+   */
+  currentPath?: string;
+  /**
    * Optional href.
    */
   href?: string | null;
@@ -19,7 +23,13 @@ type KeyProps = {
  * A single key in a list.
  */
 const Key = (props: KeyProps) => {
-  const { keyEntry: key, href, className, ...rest } = props;
+  const { keyEntry: key, href, currentPath = "", className, ...rest } = props;
+
+  // Strip out current path from key name
+  const displayName =
+    currentPath && key.key.startsWith(currentPath)
+      ? key.key.slice(currentPath.length).replace(/^\//, "") // Removes leading slash if left over
+      : key.key;
 
   /**
    * Get a key icon. TODO: can be expanded in future to
@@ -44,7 +54,7 @@ const Key = (props: KeyProps) => {
         {...rest}
       >
         {getKeyIcon()}
-        {key.key}
+        {displayName}
         {/* This is in bytes for whatever reason so we will deal with it */}
         {!key.isDirectory && (
           <>

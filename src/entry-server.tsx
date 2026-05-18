@@ -10,6 +10,8 @@ import { inlineCss, generateCssTag } from "./utils/css-inlining";
 import "./utils/register-loaders";
 import { suspenseCache } from "./utils/page-data";
 import { MutationResult } from "./server/actions/utils";
+import fs from "fs";
+import path from "path";
 
 type i18n = {
   translations: Record<string, string>;
@@ -29,13 +31,16 @@ type RenderProps = {
   invalidateCacheCookie?: string;
 };
 
-function invalidateCache(invalidateCacheCookie: string, url: string): boolean {
-  console.log("[entry-server] invalidateCache called", { invalidateCacheCookie, url });
+/**
+ * Invalidate page cache.
+ *
+ * @param invalidateCacheCookie Cache cookie to invalidate.
+ */
+function invalidateCache(invalidateCacheCookie: string): boolean {
   suspenseCache.delete(invalidateCacheCookie);
   // also clear base pattern key (without :keys suffix)
-  const baseKey = invalidateCacheCookie.replace(/:keys({.*})$/, '$1');
+  const baseKey = invalidateCacheCookie.replace(/:keys({.*})$/, "$1");
   if (baseKey !== invalidateCacheCookie) suspenseCache.delete(baseKey);
-  console.log("[entry-server] deleted provided key + base", invalidateCacheCookie);
   return true;
 }
 
@@ -58,8 +63,7 @@ export async function render({
 
   let shouldDeleteCookie = false;
   if (invalidateCacheCookie) {
-    console.log("[entry-server] render received invalidateCacheCookie", invalidateCacheCookie);
-    shouldDeleteCookie = invalidateCache(invalidateCacheCookie, url);
+    shouldDeleteCookie = invalidateCache(invalidateCacheCookie);
   }
 
   for (const [key, record] of suspenseCache.entries()) {
@@ -75,7 +79,22 @@ export async function render({
     resources: {},
     interpolation: { escapeValue: false },
   });
-  const translations = i18n.getResourceBundle(locale, pageName) || {};
+
+  // Load full translations including plurals for the current page namespace
+  let translations: Record<string, unknown> = {};
+  try {
+    const filePath = path.resolve(
+      process.cwd(),
+      `messages/${pageName}/${locale}.json`,
+    );
+    if (fs.existsSync(filePath)) {
+      const fileContent = fs.readFileSync(filePath, "utf-8");
+      translations = JSON.parse(fileContent);
+      i18n.addResourceBundle(locale, pageName, translations, true, true);
+    }
+  } catch {
+    // fallback to empty
+  }
 
   const matches = matchRoutes(routes, url);
   const didMatch = Boolean(matches);

@@ -32,11 +32,12 @@ async function handlePutFileOrKey(
       ? `/bucket/${bucket}/${folderPath}`
       : `/bucket/${bucket}`;
     const pattern = folderPath ? `bucket/:alias/:path` : `bucket/:alias`;
+
     const params: Record<string, unknown> = folderPath
       ? { alias: bucket, path: folderPath }
       : { alias: bucket };
     const cacheKey = makeCacheKey(`${pattern}:keys`, params);
-    console.log("[put-mutation] throwing redirect for invalidate", { redirectTo, cacheKey, params });
+
     throw new ServerRedirectError(redirectTo, cacheKey, {
       __typename: "QuerySuccess",
       message: "Uploaded",

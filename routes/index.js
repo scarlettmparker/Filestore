@@ -74,6 +74,9 @@ export function setupRoutes(app, vite) {
     const langHeader = request.headers["accept-language"] || "en";
     const locale = langHeader.split(",")[0] || "en";
 
+    // Compute pageName the same way as client getPageName()
+    const pageName = url.split("/")[1] || "home";
+
     try {
       await renderApp(
         {
@@ -81,6 +84,7 @@ export function setupRoutes(app, vite) {
           isProduction,
           url,
           locale,
+          pageName,
           mutationPayload,
           invalidateCacheCookie,
         },

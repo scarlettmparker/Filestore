@@ -49,6 +49,7 @@ const KeyCard = (props: KeyCardProps) => {
               <Key
                 key={idx}
                 keyEntry={key}
+                currentPath={currentPath}
                 href={
                   key.isDirectory
                     ? `${bucketName}/${key.key}`
@@ -91,7 +92,7 @@ const KeyCard = (props: KeyCardProps) => {
             </ContextMenuItem>
             <ContextMenuItem
               onClick={async () => {
-                const key = "new-key";
+                const key = `${currentPath}/new-key`;
                 await executeMutation("filestore/put", {
                   bucket: bucketName,
                   key,

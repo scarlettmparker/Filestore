@@ -11,11 +11,10 @@ import { getPageData, pageDataRegistry } from "~/utils/page-data";
  */
 const Bucket = () => {
   const { alias } = useParams<{ alias: string }>();
-  console.log("[Bucket] rendering, calling getPageData for keys");
+
   const { data: keys } = getPageData<
     ListKeysQuery["filestoreQueries"]["listKeys"]
   >("keys", `bucket/:alias`, { alias });
-  console.log("[Bucket] got keys data", { count: keys?.length });
 
   if (!keys || !alias) return null;
 

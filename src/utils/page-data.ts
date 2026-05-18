@@ -247,11 +247,9 @@ function readPageData<T>(
       }) || [];
 
     if (!relevantLoaders.length) {
-      console.log("[page-data] readPageData: no loaders registered for pattern", pattern);
       return { data: null as T };
     }
 
-    console.log("[page-data] readPageData: running loaders for", { pattern, key, params, cacheKey });
     // Create record FIRST to ensure consistent reference in promise callbacks
     record = { status: "pending" };
     suspenseCache.set(cacheKey, record);
@@ -265,7 +263,6 @@ function readPageData<T>(
             Object.assign(merged, r);
           }
         }
-        console.log("[page-data] loaders returned merged data", { mergedKeys: Object.keys(merged) });
 
         if (merged[key] == null) {
           record!.status = "rejected";
@@ -312,8 +309,6 @@ export function getPageData<T>(
   params?: Record<string, unknown>,
 ): { data: T } {
   const cacheKey = makeCacheKey(`${pattern}:${key}`, params);
-  console.log("[page-data] getPageData called", { key, pattern, params, cacheKey, hasRecord: suspenseCache.has(cacheKey) });
-
   let record = suspenseCache.get(cacheKey);
 
   // Check if cached record has expired
@@ -344,7 +339,6 @@ export function getPageData<T>(
 
   // If cache is invalidated or doesn't exist, execute/trigger fetch strategy
   if (typeof window === "undefined" || !record) {
-    console.log("[page-data] getPageData → calling readPageData (SSR or no record)", { key, pattern, params });
     return readPageData(key, pattern, params);
   }
 
