@@ -28,8 +28,8 @@ const FILESTORE_CACHE_TTL = 30000; // 30 seconds
  * Default is 5 minutes (300000ms) if pattern not specified.
  */
 const CACHE_TTL_MS: Record<string, number> = {
-  "/filestore/:alias": FILESTORE_CACHE_TTL,
-  "/filestore/:alias/:path": FILESTORE_CACHE_TTL,
+  "/bucket/:alias": FILESTORE_CACHE_TTL,
+  "/bucket/:alias/:path": FILESTORE_CACHE_TTL,
 };
 
 const DEFAULT_CACHE_TTL_MS = 300000; // 5 minutes default
@@ -247,9 +247,11 @@ function readPageData<T>(
       }) || [];
 
     if (!relevantLoaders.length) {
+      console.log("[page-data] readPageData: no loaders registered for pattern", pattern);
       return { data: null as T };
     }
 
+    console.log("[page-data] readPageData: running loaders for", { pattern, key, params, cacheKey });
     // Create record FIRST to ensure consistent reference in promise callbacks
     record = { status: "pending" };
     suspenseCache.set(cacheKey, record);
@@ -263,6 +265,7 @@ function readPageData<T>(
             Object.assign(merged, r);
           }
         }
+        console.log("[page-data] loaders returned merged data", { mergedKeys: Object.keys(merged) });
 
         if (merged[key] == null) {
           record!.status = "rejected";
@@ -309,6 +312,7 @@ export function getPageData<T>(
   params?: Record<string, unknown>,
 ): { data: T } {
   const cacheKey = makeCacheKey(`${pattern}:${key}`, params);
+  console.log("[page-data] getPageData called", { key, pattern, params, cacheKey, hasRecord: suspenseCache.has(cacheKey) });
 
   let record = suspenseCache.get(cacheKey);
 
@@ -340,6 +344,7 @@ export function getPageData<T>(
 
   // If cache is invalidated or doesn't exist, execute/trigger fetch strategy
   if (typeof window === "undefined" || !record) {
+    console.log("[page-data] getPageData → calling readPageData (SSR or no record)", { key, pattern, params });
     return readPageData(key, pattern, params);
   }
 

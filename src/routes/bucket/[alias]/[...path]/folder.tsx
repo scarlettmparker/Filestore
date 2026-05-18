@@ -13,14 +13,14 @@ const Folder = () => {
   const { alias, path } = useParams<{ alias: string; path: string }>();
   const { data: keys } = getPageData<
     ListKeysQuery["filestoreQueries"]["listKeys"]
-  >("keys", `filestore/:alias/:path`, { alias, path });
+  >("keys", `bucket/:alias/:path`, { alias, path });
 
   if (!keys || !alias) return null;
 
   const { t } = useTranslation("bucket");
 
   return (
-    <KeyCard keys={keys} bucketName={alias} t={t}>
+    <KeyCard keys={keys} bucketName={alias} currentPath={path} t={t}>
       <CardHeader>
         <CardTitle>{`${alias}/${path}`}</CardTitle>
       </CardHeader>
@@ -61,7 +61,7 @@ export async function listKeys(
  */
 export function registerFolderOverviewDataLoader(): void {
   pageDataRegistry.registerPageDataLoader(
-    "filestore/:alias/:path",
+    "bucket/:alias/:path",
     async (params) => {
       const alias = params?.alias as string;
       const path = params?.path as string;

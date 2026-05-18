@@ -11,9 +11,11 @@ import { getPageData, pageDataRegistry } from "~/utils/page-data";
  */
 const Bucket = () => {
   const { alias } = useParams<{ alias: string }>();
+  console.log("[Bucket] rendering, calling getPageData for keys");
   const { data: keys } = getPageData<
     ListKeysQuery["filestoreQueries"]["listKeys"]
-  >("keys", `filestore/:alias`, { alias });
+  >("keys", `bucket/:alias`, { alias });
+  console.log("[Bucket] got keys data", { count: keys?.length });
 
   if (!keys || !alias) return null;
 
@@ -53,14 +55,11 @@ export async function listKeys(
  * Register the data loader for this page.
  */
 export function registerBucketOverviewDataLoader(): void {
-  pageDataRegistry.registerPageDataLoader(
-    "filestore/:alias",
-    async (params) => {
-      const alias = params?.alias as string;
-      if (!alias) return null;
-      return listKeys(alias);
-    },
-  );
+  pageDataRegistry.registerPageDataLoader("bucket/:alias", async (params) => {
+    const alias = params?.alias as string;
+    if (!alias) return null;
+    return listKeys(alias);
+  });
 }
 
 export default Bucket;

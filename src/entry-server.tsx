@@ -8,7 +8,7 @@ import NotFound from "./routes/not-found";
 import { matchRoutes } from "react-router-dom";
 import { inlineCss, generateCssTag } from "./utils/css-inlining";
 import "./utils/register-loaders";
-import { suspenseCache, makeCacheKey } from "./utils/page-data";
+import { suspenseCache } from "./utils/page-data";
 import { MutationResult } from "./server/actions/utils";
 
 type i18n = {
@@ -30,20 +30,13 @@ type RenderProps = {
 };
 
 function invalidateCache(invalidateCacheCookie: string, url: string): boolean {
-  const matches = matchRoutes(routes, url);
-  if (matches && matches.length > 0) {
-    const matched = matches[0];
-    const pattern = matched.route.path;
-    if (pattern) {
-      const params = matched.params;
-      const currentCacheKey = makeCacheKey(pattern, params);
-      if (invalidateCacheCookie === currentCacheKey) {
-        suspenseCache.delete(invalidateCacheCookie);
-        return true;
-      }
-    }
-  }
-  return false;
+  console.log("[entry-server] invalidateCache called", { invalidateCacheCookie, url });
+  suspenseCache.delete(invalidateCacheCookie);
+  // also clear base pattern key (without :keys suffix)
+  const baseKey = invalidateCacheCookie.replace(/:keys({.*})$/, '$1');
+  if (baseKey !== invalidateCacheCookie) suspenseCache.delete(baseKey);
+  console.log("[entry-server] deleted provided key + base", invalidateCacheCookie);
+  return true;
 }
 
 export async function render({
@@ -65,6 +58,7 @@ export async function render({
 
   let shouldDeleteCookie = false;
   if (invalidateCacheCookie) {
+    console.log("[entry-server] render received invalidateCacheCookie", invalidateCacheCookie);
     shouldDeleteCookie = invalidateCache(invalidateCacheCookie, url);
   }
 

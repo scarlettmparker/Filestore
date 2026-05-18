@@ -15,21 +15,25 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 type Documents = {
     "mutation completeMultipartUpload($bucket: String!, $key: String!, $uploadId: String!, $parts: [CompletedPart!]!) {\n  filestoreMutations {\n    completeMultipartUpload(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      parts: $parts\n    )\n  }\n}": typeof types.CompleteMultipartUploadDocument,
+    "mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}": typeof types.DeleteFileDocument,
     "query health {\n  filestoreQueries {\n    health\n  }\n}": typeof types.HealthDocument,
     "query listBuckets {\n  filestoreQueries {\n    listBuckets {\n      id\n      created\n      globalAliases\n      localAliases\n    }\n  }\n}": typeof types.ListBucketsDocument,
     "query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}": typeof types.ListFilesDocument,
     "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}": typeof types.ListKeysDocument,
     "mutation putFile($bucket: String!, $key: String!, $content: String!) {\n  filestoreMutations {\n    putFile(bucket: $bucket, key: $key, content: $content)\n  }\n}": typeof types.PutFileDocument,
+    "mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": typeof types.PutKeyDocument,
     "mutation startMultipartUpload($bucket: String!, $key: String!) {\n  filestoreMutations {\n    startMultipartUpload(bucket: $bucket, key: $key)\n  }\n}": typeof types.StartMultipartUploadDocument,
     "mutation uploadPart($bucket: String!, $key: String!, $uploadId: String!, $partNumber: Int!, $content: String!) {\n  filestoreMutations {\n    uploadPart(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      partNumber: $partNumber\n      content: $content\n    )\n  }\n}": typeof types.UploadPartDocument,
 };
 const documents: Documents = {
     "mutation completeMultipartUpload($bucket: String!, $key: String!, $uploadId: String!, $parts: [CompletedPart!]!) {\n  filestoreMutations {\n    completeMultipartUpload(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      parts: $parts\n    )\n  }\n}": types.CompleteMultipartUploadDocument,
+    "mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}": types.DeleteFileDocument,
     "query health {\n  filestoreQueries {\n    health\n  }\n}": types.HealthDocument,
     "query listBuckets {\n  filestoreQueries {\n    listBuckets {\n      id\n      created\n      globalAliases\n      localAliases\n    }\n  }\n}": types.ListBucketsDocument,
     "query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}": types.ListFilesDocument,
     "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}": types.ListKeysDocument,
     "mutation putFile($bucket: String!, $key: String!, $content: String!) {\n  filestoreMutations {\n    putFile(bucket: $bucket, key: $key, content: $content)\n  }\n}": types.PutFileDocument,
+    "mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": types.PutKeyDocument,
     "mutation startMultipartUpload($bucket: String!, $key: String!) {\n  filestoreMutations {\n    startMultipartUpload(bucket: $bucket, key: $key)\n  }\n}": types.StartMultipartUploadDocument,
     "mutation uploadPart($bucket: String!, $key: String!, $uploadId: String!, $partNumber: Int!, $content: String!) {\n  filestoreMutations {\n    uploadPart(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      partNumber: $partNumber\n      content: $content\n    )\n  }\n}": types.UploadPartDocument,
 };
@@ -55,6 +59,10 @@ export function graphql(source: "mutation completeMultipartUpload($bucket: Strin
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}"): (typeof documents)["mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "query health {\n  filestoreQueries {\n    health\n  }\n}"): (typeof documents)["query health {\n  filestoreQueries {\n    health\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -72,6 +80,10 @@ export function graphql(source: "query listKeys($bucket: String!, $prefix: Strin
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation putFile($bucket: String!, $key: String!, $content: String!) {\n  filestoreMutations {\n    putFile(bucket: $bucket, key: $key, content: $content)\n  }\n}"): (typeof documents)["mutation putFile($bucket: String!, $key: String!, $content: String!) {\n  filestoreMutations {\n    putFile(bucket: $bucket, key: $key, content: $content)\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}"): (typeof documents)["mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

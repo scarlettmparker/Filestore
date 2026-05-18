@@ -2,8 +2,6 @@
  * Registers all mutation handlers.
  */
 
-// Example usage:
-// import { registerBlogCreateMutation } from "~/routes/blog/create/create-blog-post";
+import { registerFilestorePutMutation } from "~/routes/filestore/put";
 
-// // Register all mutation handlers
-// registerBlogCreateMutation();
+registerFilestorePutMutation();

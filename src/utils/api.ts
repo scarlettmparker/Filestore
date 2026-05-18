@@ -19,6 +19,9 @@ import {
   PutFileDocument,
   PutFileMutation,
   PutFileMutationVariables,
+  PutKeyDocument,
+  PutKeyMutation,
+  PutKeyMutationVariables,
   StartMultipartUploadDocument,
   StartMultipartUploadMutation,
   StartMultipartUploadMutationVariables,
@@ -46,6 +49,7 @@ type OperationRegistry = {
   };
   filestoreMutations: {
     putFile: DocumentNode;
+    putKey: DocumentNode;
     startMultipartUpload: DocumentNode;
     uploadPart: DocumentNode;
     completeMultipartUpload: DocumentNode;
@@ -65,6 +69,7 @@ const operationRegistry: OperationRegistry = {
   },
   filestoreMutations: {
     putFile: PutFileDocument,
+    putKey: PutKeyDocument,
     startMultipartUpload: StartMultipartUploadDocument,
     uploadPart: UploadPartDocument,
     completeMultipartUpload: CompleteMultipartUploadDocument,
@@ -328,4 +333,17 @@ export async function mutateCompleteMultipartUpload(
     uploadId,
     parts,
   });
+}
+
+/**
+ * Create a new key (folder) using putKey.
+ *
+ * @param bucket The bucket.
+ * @param key The key for the folder, default "new-key".
+ */
+export async function mutatePutKey(bucket: string, key: string) {
+  return fetchGraphQLData<PutKeyMutation, PutKeyMutationVariables>(
+    "filestoreMutations.putKey",
+    { bucket, key },
+  );
 }

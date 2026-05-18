@@ -94,6 +94,7 @@ app.route({
       return reply.send(result);
     } catch (error) {
       if (error instanceof ServerRedirectError) {
+        console.log("[server] caught ServerRedirectError", { redirectTo: error.redirectTo, cacheInvalidateKey: error.cacheInvalidateKey });
         const payloadString = JSON.stringify(error.clientPayload || {});
         const encodedPayload = Buffer.from(payloadString).toString("base64");
 
