@@ -27,15 +27,15 @@ import "./src/utils/register-mutations.ts";
 const app = Fastify({ logger: false });
 registerDownloadProxyRoute(app);
 
-await app.register(fastifyStatic, {
-  root: path.resolve("./public"),
-  prefix: "/",
-  decorateReply: false,
-});
-
 let vite;
 
 if (!isProduction) {
+  await app.register(fastifyStatic, {
+    root: path.resolve("./public"),
+    prefix: "/",
+    decorateReply: false,
+  });
+
   const fastifyMiddie = (await import("@fastify/middie")).default;
   await app.register(fastifyMiddie);
 
