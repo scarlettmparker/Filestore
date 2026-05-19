@@ -268,10 +268,11 @@ export async function mutatePutFile(
   bucket: string,
   key: string,
   content: string,
+  contentType?: string,
 ) {
   return fetchGraphQLData<PutFileMutation, PutFileMutationVariables>(
     "filestoreMutations.putFile",
-    { bucket, key, content },
+    { bucket, key, content, contentType },
   );
 }
 

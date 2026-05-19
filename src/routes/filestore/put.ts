@@ -10,7 +10,7 @@ import { ServerRedirectError } from "~/utils/server-redirect";
 async function handlePutFileOrKey(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
-  const { bucket, key, content, isFile } = body;
+  const { bucket, key, content, contentType, isFile } = body;
 
   if (typeof bucket !== "string" || typeof key !== "string") {
     return {
@@ -21,7 +21,7 @@ async function handlePutFileOrKey(
 
   let result;
   if (isFile && typeof content === "string") {
-    result = await mutatePutFile(bucket, key, content);
+    result = await mutatePutFile(bucket, key, content, typeof contentType === "string" ? contentType : undefined);
   } else {
     result = await mutatePutKey(bucket, key);
   }
