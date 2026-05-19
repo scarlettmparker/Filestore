@@ -2,6 +2,7 @@ import { mutationRegistry } from "~/utils/mutations";
 import { MutationResult } from "~/server/actions/utils";
 import {
   mutateCompleteMultipartUpload,
+  mutateGetPresignedUploadUrl,
   mutatePutFile,
   mutatePutKey,
   mutateStartMultipartUpload,
@@ -96,10 +97,10 @@ async function handleMultipartUpload(
     content as string,
   );
 
-  const eTag = result?.data?.filestoreMutations?.uploadPart;
-  if (eTag) {
+  const etag = result?.data?.filestoreMutations?.uploadPart;
+  if (etag) {
     // Return the ETag in the 'id' field so the client can store it for completion
-    return { __typename: "QuerySuccess", message: "Part uploaded", id: eTag };
+    return { __typename: "QuerySuccess", message: "Part uploaded", id: etag };
   }
 
   return { __typename: "StandardError", message: "Failed to upload part" };
@@ -145,6 +146,29 @@ async function handleMultipartComplete(
 }
 
 /**
+ * Handle getting a presigned upload URL
+ */
+async function handleGetPresignedUploadUrl(
+  body: Record<string, unknown>,
+): Promise<MutationResult> {
+  const { bucket, key, contentType } = body;
+  const url = await mutateGetPresignedUploadUrl(
+    bucket as string,
+    key as string,
+    typeof contentType === "string" ? contentType : undefined,
+  );
+
+  if (url) {
+    return { __typename: "QuerySuccess", message: "URL generated", id: url };
+  }
+
+  return {
+    __typename: "StandardError",
+    message: "Failed to generate presigned URL",
+  };
+}
+
+/**
  * Register the mutation handler for filestore put operations.
  */
 export function registerFilestorePutMutations(): void {
@@ -161,4 +185,9 @@ export function registerFilestorePutMutations(): void {
     "filestore/multipart-complete",
     handleMultipartComplete,
   );
+  mutationRegistry.registerMutationHandler(
+    "filestore/get-presigned-upload-url",
+    handleGetPresignedUploadUrl,
+  );
+  console.log("[mutations] Registered filestore/get-presigned-upload-url handler");
 }

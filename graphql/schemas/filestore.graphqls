@@ -40,7 +40,12 @@ input CompletedPart {
 # Mutations for filestore operations including multipart upload support.
 type FilestoreMutations {
   # Upload or overwrite a file.
-  putFile(bucket: String!, key: String!, content: String!, contentType: String): Boolean
+  putFile(
+    bucket: String!
+    key: String!
+    content: String!
+    contentType: String
+  ): Boolean
   # Create a directory key (folder).
   putKey(bucket: String!, key: String!): Boolean
   # Delete a file.
@@ -62,6 +67,12 @@ type FilestoreMutations {
     uploadId: String!
     parts: [CompletedPart!]!
   ): Boolean
+  # Returns a presigned PUT URL for direct browser upload.
+  getPresignedUploadUrl(
+    bucket: String!
+    key: String!
+    contentType: String
+  ): String
 }
 
 extend type Query {

@@ -8,6 +8,9 @@ import {
   CompleteMultipartUploadDocument,
   CompleteMultipartUploadMutation,
   CompleteMultipartUploadMutationVariables,
+  GetPresignedUploadUrlDocument,
+  GetPresignedUploadUrlMutation,
+  GetPresignedUploadUrlMutationVariables,
   HealthDocument,
   ListBucketsDocument,
   ListFilesDocument,
@@ -53,6 +56,7 @@ type OperationRegistry = {
     startMultipartUpload: DocumentNode;
     uploadPart: DocumentNode;
     completeMultipartUpload: DocumentNode;
+    getPresignedUploadUrl: DocumentNode;
   };
 };
 
@@ -73,6 +77,7 @@ const operationRegistry: OperationRegistry = {
     startMultipartUpload: StartMultipartUploadDocument,
     uploadPart: UploadPartDocument,
     completeMultipartUpload: CompleteMultipartUploadDocument,
+    getPresignedUploadUrl: GetPresignedUploadUrlDocument,
   },
 };
 
@@ -346,4 +351,22 @@ export async function mutatePutKey(bucket: string, key: string) {
     "filestoreMutations.putKey",
     { bucket, key },
   );
+}
+
+/**
+ * Get a presigned PUT URL for direct upload.
+ */
+export async function mutateGetPresignedUploadUrl(
+  bucket: string,
+  key: string,
+  contentType?: string,
+) {
+  return fetchGraphQLData<
+    GetPresignedUploadUrlMutation,
+    GetPresignedUploadUrlMutationVariables
+  >("filestoreMutations.getPresignedUploadUrl", {
+    bucket,
+    key,
+    contentType: contentType || null,
+  }).then((res) => res?.data?.filestoreMutations?.getPresignedUploadUrl);
 }
