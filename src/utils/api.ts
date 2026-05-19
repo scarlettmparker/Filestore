@@ -8,6 +8,9 @@ import {
   CompleteMultipartUploadDocument,
   CompleteMultipartUploadMutation,
   CompleteMultipartUploadMutationVariables,
+  GetPresignedDownloadUrlDocument,
+  GetPresignedDownloadUrlMutation,
+  GetPresignedDownloadUrlMutationVariables,
   GetPresignedUploadUrlDocument,
   GetPresignedUploadUrlMutation,
   GetPresignedUploadUrlMutationVariables,
@@ -57,6 +60,7 @@ type OperationRegistry = {
     uploadPart: DocumentNode;
     completeMultipartUpload: DocumentNode;
     getPresignedUploadUrl: DocumentNode;
+    getPresignedDownloadUrl: DocumentNode;
   };
 };
 
@@ -78,6 +82,7 @@ const operationRegistry: OperationRegistry = {
     uploadPart: UploadPartDocument,
     completeMultipartUpload: CompleteMultipartUploadDocument,
     getPresignedUploadUrl: GetPresignedUploadUrlDocument,
+    getPresignedDownloadUrl: GetPresignedDownloadUrlDocument,
   },
 };
 
@@ -369,4 +374,20 @@ export async function mutateGetPresignedUploadUrl(
     key,
     contentType: contentType || null,
   }).then((res) => res?.data?.filestoreMutations?.getPresignedUploadUrl);
+}
+
+/**
+ * Get a presigned GET URL for direct download.
+ */
+export async function mutateGetPresignedDownloadUrl(
+  bucket: string,
+  key: string,
+) {
+  return fetchGraphQLData<
+    GetPresignedDownloadUrlMutation,
+    GetPresignedDownloadUrlMutationVariables
+  >("filestoreMutations.getPresignedDownloadUrl", {
+    bucket,
+    key,
+  }).then((res) => res?.data?.filestoreMutations?.getPresignedDownloadUrl);
 }

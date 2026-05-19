@@ -15,6 +15,88 @@ import {
 import { FileIcon, FolderIcon } from "lucide-react";
 import { executeMutation } from "~/server/actions/utils";
 
+/**
+ * Options required to process a direct-to-storage file upload.
+ */
+interface UploadOptions {
+  bucketName: string;
+  currentPath: string;
+  file: File;
+}
+
+/**
+ * Uploads a file directly to storage using a presigned URL.
+ * Requests a secure upload URL from the server, executes an asynchronous PUT request with
+ * XHR progress tracking, and notifies the backend upon successful completion.
+ *
+ * @param options Required data payloads containing file metadata and destination paths.
+ * @returns Promise that resolves when the upload and backend synchronization are finished.
+ */
+const uploadFileToStorage = async ({
+  bucketName,
+  currentPath,
+  file,
+}: UploadOptions): Promise<void> => {
+  const key = `${currentPath}${file.name}`;
+  const contentType = file.type || "application/octet-stream";
+
+  const urlRes = await executeMutation("filestore/get-presigned-upload-url", {
+    bucket: bucketName,
+    key,
+    contentType,
+  });
+
+  if (urlRes.__typename !== "QuerySuccess" || !urlRes.id) {
+    console.error("Failed to get presigned upload URL");
+    return;
+  }
+
+  const presignedUrl = urlRes.id;
+
+  const putRes = await new Promise<XMLHttpRequest>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", presignedUrl, true);
+    xhr.setRequestHeader("Content-Type", contentType);
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        console.log(`Progress: ${percent}% (${event.loaded}/${event.total})`);
+      }
+    };
+
+    xhr.onload = () => resolve(xhr);
+    xhr.onerror = () => reject(new Error("Network error"));
+    xhr.send(file);
+  });
+
+  if (putRes.status !== 200) {
+    console.error("Direct upload failed", putRes.status);
+    return;
+  }
+
+  console.log(`[Upload] Completed upload for ${key}`);
+
+  await executeMutation("filestore/upload-complete", {
+    bucket: bucketName,
+    key,
+    path: currentPath,
+  });
+};
+
+/**
+ * Resolves the destination directory path string by appending a predictable tailing slash.
+ * Prevents double slashes if the root path configuration is already established.
+ *
+ * @param currentPath Current directory hierarchy path.
+ * @param targetName String name of the item being generated.
+ * @returns Formatted path combination string.
+ */
+const formatKeyPath = (currentPath: string, targetName: string): string => {
+  const base = currentPath ? currentPath.replace(/\/$/, "") : "";
+  return `${base ? base + "/" : ""}${targetName}`;
+};
+
 type KeyCardProps = {
   /**
    * List of keys to display.
@@ -42,7 +124,7 @@ const KeyCard = (props: KeyCardProps) => {
   const ICON_SIZE = 16;
 
   /**
-   * Handle uploading a file using a presigned URL (direct PUT to storage).
+   * Prompts the user to select a file from their native file explorer and coordinates the upload pipeline.
    */
   const handleFileUpload = () => {
     const input = document.createElement("input");
@@ -51,59 +133,38 @@ const KeyCard = (props: KeyCardProps) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
-      const key = `${currentPath}${file.name}`;
-      const contentType = file.type || "application/octet-stream";
-
-      const urlRes = await executeMutation(
-        "filestore/get-presigned-upload-url",
-        {
-          bucket: bucketName,
-          key,
-          contentType,
-        },
-      );
-
-      if (urlRes.__typename !== "QuerySuccess" || !urlRes.id) {
-        console.error("Failed to get presigned upload URL");
-        return;
-      }
-
-      const presignedUrl = urlRes.id;
-
-      const putRes = await fetch(presignedUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": contentType },
-      });
-
-      if (!putRes.ok) {
-        console.error("Direct upload failed", putRes.status);
-        return;
-      }
-
-      // Trigger redirect + cache invalidation
-      await executeMutation("filestore/put", {
-        bucket: bucketName,
-        key,
-        isFile: true,
-        path: currentPath,
-      });
+      await uploadFileToStorage({ bucketName, currentPath, file });
     };
     input.click();
   };
 
   /**
-   * Handle creating a key (directory placeholder).
+   * Mandates the creation of a structural directory placeholder down the active route path.
    */
   const handleCreateKey = async () => {
-    const base = currentPath ? currentPath.replace(/\/$/, "") : "";
-    const key = `${base ? base + "/" : ""}new-key`;
+    const key = formatKeyPath(currentPath, "new-key");
     await executeMutation("filestore/put", {
       bucket: bucketName,
       key,
       isFile: false,
       path: currentPath,
     });
+  };
+
+  /**
+   * Downloads a file using a presigned GET URL (direct from storage).
+   */
+  const handleFileDownload = async (keyPath: string) => {
+    const res = await executeMutation("filestore/get-presigned-download-url", {
+      bucket: bucketName,
+      key: keyPath,
+    });
+
+    if (res.__typename === "QuerySuccess" && res.id) {
+      window.open(res.id, "_blank");
+    } else {
+      console.error("Failed to get presigned download URL");
+    }
   };
 
   return (
@@ -118,9 +179,12 @@ const KeyCard = (props: KeyCardProps) => {
                 keyEntry={key}
                 currentPath={currentPath}
                 href={
+                  key.isDirectory ? `/bucket/${bucketName}/${key.key}` : "#"
+                }
+                onClick={
                   key.isDirectory
-                    ? `/bucket/${bucketName}/${key.key}`
-                    : `/rest/buckets/${bucketName}/download?key=${encodeURIComponent(key.key)}`
+                    ? undefined
+                    : () => handleFileDownload(key.key)
                 }
               />
             ))}

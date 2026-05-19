@@ -2,6 +2,7 @@ import { mutationRegistry } from "~/utils/mutations";
 import { MutationResult } from "~/server/actions/utils";
 import {
   mutateCompleteMultipartUpload,
+  mutateGetPresignedDownloadUrl,
   mutateGetPresignedUploadUrl,
   mutatePutFile,
   mutatePutKey,
@@ -169,6 +170,53 @@ async function handleGetPresignedUploadUrl(
 }
 
 /**
+ * Handle getting a presigned download URL
+ */
+async function handleGetPresignedDownloadUrl(
+  body: Record<string, unknown>,
+): Promise<MutationResult> {
+  const { bucket, key } = body;
+  const url = await mutateGetPresignedDownloadUrl(
+    bucket as string,
+    key as string,
+  );
+
+  if (url) {
+    return { __typename: "QuerySuccess", message: "URL generated", id: url };
+  }
+
+  return {
+    __typename: "StandardError",
+    message: "Failed to generate presigned download URL",
+  };
+}
+
+/**
+ * Handle post-upload redirect + cache invalidation after a direct presigned upload.
+ */
+async function handleUploadComplete(
+  body: Record<string, unknown>,
+): Promise<MutationResult> {
+  const { bucket, path } = body;
+  const folderPath = (path as string) || "";
+  const redirectTo = folderPath
+    ? `/bucket/${bucket}/${folderPath}`
+    : `/bucket/${bucket}`;
+  const pattern = folderPath ? `bucket/:alias/*` : `bucket/:alias`;
+
+  const params: Record<string, unknown> = folderPath
+    ? { alias: bucket, path: folderPath }
+    : { alias: bucket };
+  const cacheKey = makeCacheKey(`${pattern}:keys`, params);
+
+  throw new ServerRedirectError(redirectTo, cacheKey, {
+    __typename: "QuerySuccess",
+    message: "Uploaded successfully",
+    id: "",
+  });
+}
+
+/**
  * Register the mutation handler for filestore put operations.
  */
 export function registerFilestorePutMutations(): void {
@@ -189,5 +237,12 @@ export function registerFilestorePutMutations(): void {
     "filestore/get-presigned-upload-url",
     handleGetPresignedUploadUrl,
   );
-  console.log("[mutations] Registered filestore/get-presigned-upload-url handler");
+  mutationRegistry.registerMutationHandler(
+    "filestore/get-presigned-download-url",
+    handleGetPresignedDownloadUrl,
+  );
+  mutationRegistry.registerMutationHandler(
+    "filestore/upload-complete",
+    handleUploadComplete,
+  );
 }
