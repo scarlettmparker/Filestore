@@ -2,6 +2,6 @@
  * Registers all mutation handlers.
  */
 
-import { registerFilestorePutMutation } from "~/routes/filestore/put";
+import { registerFilestorePutMutations } from "~/routes/filestore/put";
 
-registerFilestorePutMutation();
+registerFilestorePutMutations();

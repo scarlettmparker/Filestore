@@ -32,6 +32,22 @@ type KeyCardProps = {
   t: TFunction<"bucket">;
 } & React.PropsWithChildren;
 
+const CHUNK_SIZE = 1024 * 512; // 512 kb
+/**
+ * Convert a Blob/File slice to a raw base64 string
+ */
+const readBlobAsBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      resolve(dataUrl.split(",")[1]);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
 /**
  * Card displaying list of keys.
  */
@@ -47,29 +63,78 @@ const KeyCard = (props: KeyCardProps) => {
     input.type = "file";
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const reader = new FileReader();
+      if (!file) return;
 
-        // Set up what happens when the file is done reading
-        reader.onload = async () => {
-          const dataUrl = reader.result as string;
-          // dataUrl looks like "data:image/png;base64,iVBORw0KGgo..."
-          // We split it to send just the raw base64 string to the backend
-          const base64Content = dataUrl.split(",")[1];
+      const key = `${currentPath}${file.name}`;
+      if (file.size <= CHUNK_SIZE) {
+        const base64Content = await readBlobAsBase64(file);
+        await executeMutation("filestore/put", {
+          bucket: bucketName,
+          key,
+          content: base64Content,
+          contentType: file.type || "application/octet-stream",
+          isFile: true,
+          path: currentPath,
+        });
+      } else {
+        console.log(
+          `[Multipart] Starting upload for ${file.name} (${file.size} bytes)`,
+        );
 
-          const key = `${currentPath}${file.name}`;
-          await executeMutation("filestore/put", {
+        const startRes = await executeMutation("filestore/multipart-start", {
+          bucket: bucketName,
+          key,
+        });
+
+        if (startRes.__typename !== "QuerySuccess") {
+          console.error("Failed to start multipart upload");
+          return;
+        }
+
+        // We pass the uploadId back in the 'id' field of QuerySuccess
+        const uploadId = startRes.id;
+        const parts: Array<{ partNumber: number; eTag: string }> = [];
+        const totalParts = Math.ceil(file.size / CHUNK_SIZE);
+
+        for (let i = 0; i < totalParts; i++) {
+          const start = i * CHUNK_SIZE;
+          const end = Math.min(start + CHUNK_SIZE, file.size);
+          const chunk = file.slice(start, end);
+
+          const base64Content = await readBlobAsBase64(chunk);
+          const partNumber = i + 1;
+
+          const partRes = await executeMutation("filestore/multipart-upload", {
             bucket: bucketName,
             key,
+            uploadId,
+            partNumber,
             content: base64Content,
-            contentType: file.type || "application/octet-stream",
-            isFile: true,
-            path: currentPath,
           });
-        };
 
-        // Start reading the file as a binary-safe data URL
-        reader.readAsDataURL(file);
+          if (partRes.__typename !== "QuerySuccess" || !partRes.id) {
+            console.error(`Failed to upload part ${partNumber}`);
+            return;
+          }
+
+          parts.push({
+            partNumber,
+            eTag: partRes.id,
+          });
+
+          console.log(
+            `Completed part ${partNumber}/${totalParts} (${Math.round((end / file.size) * 100)}%)`,
+          );
+        }
+
+        // Final completion triggers the server redirect + cache invalidation
+        await executeMutation("filestore/multipart-complete", {
+          bucket: bucketName,
+          key,
+          uploadId,
+          parts,
+          path: currentPath,
+        });
       }
     };
     input.click();

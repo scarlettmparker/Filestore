@@ -1,6 +1,12 @@
 import { mutationRegistry } from "~/utils/mutations";
 import { MutationResult } from "~/server/actions/utils";
-import { mutatePutFile, mutatePutKey } from "~/utils/api";
+import {
+  mutateCompleteMultipartUpload,
+  mutatePutFile,
+  mutatePutKey,
+  mutateStartMultipartUpload,
+  mutateUploadPart,
+} from "~/utils/api";
 import { makeCacheKey } from "~/utils/page-data";
 import { ServerRedirectError } from "~/utils/server-redirect";
 
@@ -10,7 +16,7 @@ import { ServerRedirectError } from "~/utils/server-redirect";
 async function handlePutFileOrKey(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
-  const { bucket, key, content, contentType, isFile } = body;
+  const { bucket, key, content, isFile } = body;
 
   if (typeof bucket !== "string" || typeof key !== "string") {
     return {
@@ -21,7 +27,7 @@ async function handlePutFileOrKey(
 
   let result;
   if (isFile && typeof content === "string") {
-    result = await mutatePutFile(bucket, key, content, typeof contentType === "string" ? contentType : undefined);
+    result = await mutatePutFile(bucket, key, content);
   } else {
     result = await mutatePutKey(bucket, key);
   }
@@ -52,8 +58,107 @@ async function handlePutFileOrKey(
 }
 
 /**
+ * Handle multipart start
+ */
+async function handleMultipartStart(
+  body: Record<string, unknown>,
+): Promise<MutationResult> {
+  const { bucket, key } = body;
+  const result = await mutateStartMultipartUpload(
+    bucket as string,
+    key as string,
+  );
+
+  const uploadId = result?.data?.filestoreMutations?.startMultipartUpload;
+  if (uploadId) {
+    // Return uploadId in the 'id' field so the client can use it
+    return { __typename: "QuerySuccess", message: "Started", id: uploadId };
+  }
+
+  return {
+    __typename: "StandardError",
+    message: "Failed to start multipart upload",
+  };
+}
+
+/**
+ * Handle individual part uploads
+ */
+async function handleMultipartUpload(
+  body: Record<string, unknown>,
+): Promise<MutationResult> {
+  const { bucket, key, uploadId, partNumber, content } = body;
+  const result = await mutateUploadPart(
+    bucket as string,
+    key as string,
+    uploadId as string,
+    partNumber as number,
+    content as string,
+  );
+
+  const eTag = result?.data?.filestoreMutations?.uploadPart;
+  if (eTag) {
+    // Return the ETag in the 'id' field so the client can store it for completion
+    return { __typename: "QuerySuccess", message: "Part uploaded", id: eTag };
+  }
+
+  return { __typename: "StandardError", message: "Failed to upload part" };
+}
+
+/**
+ * Handle multipart completion, executing identical cache/redirect logic
+ */
+async function handleMultipartComplete(
+  body: Record<string, unknown>,
+): Promise<MutationResult> {
+  const { bucket, key, uploadId, parts, path } = body;
+  const result = await mutateCompleteMultipartUpload(
+    bucket as string,
+    key as string,
+    uploadId as string,
+    parts as Array<{ partNumber: number; etag: string }>,
+  );
+
+  if (result?.data) {
+    const folderPath = (path as string) || "";
+    const redirectTo = folderPath
+      ? `/bucket/${bucket}/${folderPath}`
+      : `/bucket/${bucket}`;
+    const pattern = folderPath ? `bucket/:alias/*` : `bucket/:alias`;
+
+    const params: Record<string, unknown> = folderPath
+      ? { alias: bucket, path: folderPath }
+      : { alias: bucket };
+    const cacheKey = makeCacheKey(`${pattern}:keys`, params);
+
+    throw new ServerRedirectError(redirectTo, cacheKey, {
+      __typename: "QuerySuccess",
+      message: "Uploaded successfully",
+      id: "",
+    });
+  }
+
+  return {
+    __typename: "StandardError",
+    message: "Failed to complete multipart upload",
+  };
+}
+
+/**
  * Register the mutation handler for filestore put operations.
  */
-export function registerFilestorePutMutation(): void {
+export function registerFilestorePutMutations(): void {
   mutationRegistry.registerMutationHandler("filestore/put", handlePutFileOrKey);
+  mutationRegistry.registerMutationHandler(
+    "filestore/multipart-start",
+    handleMultipartStart,
+  );
+  mutationRegistry.registerMutationHandler(
+    "filestore/multipart-upload",
+    handleMultipartUpload,
+  );
+  mutationRegistry.registerMutationHandler(
+    "filestore/multipart-complete",
+    handleMultipartComplete,
+  );
 }
