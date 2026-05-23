@@ -24,11 +24,6 @@ export type Bucket = {
   localAliases?: Maybe<Array<Scalars['String']['output']>>;
 };
 
-export type CompletedPart = {
-  etag: Scalars['String']['input'];
-  partNumber: Scalars['Int']['input'];
-};
-
 export type File = {
   __typename?: 'File';
   key: Scalars['String']['output'];

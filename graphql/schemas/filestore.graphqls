@@ -31,12 +31,6 @@ type KeyEntry {
   lastModified: String
 }
 
-# Part metadata for multipart uploads.
-input CompletedPart {
-  partNumber: Int!
-  etag: String!
-}
-
 # Mutations for filestore operations including multipart upload support.
 type FilestoreMutations {
   # Create a directory key (folder).
@@ -45,7 +39,7 @@ type FilestoreMutations {
   deleteFile(bucket: String!, key: String!): Boolean
   # Delete a key and propagate: recursively delete the key, all sub-keys and files under it.
   deleteKey(bucket: String!, key: String!): Boolean
-  # Returns a presigned PUT URL for direct browser upload.
+  # Returns a presigned PUT URL for direct browser-to-storage upload.
   getPresignedUploadUrl(
     bucket: String!
     key: String!
