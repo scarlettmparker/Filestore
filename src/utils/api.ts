@@ -8,6 +8,9 @@ import {
   CompleteMultipartUploadDocument,
   CompleteMultipartUploadMutation,
   CompleteMultipartUploadMutationVariables,
+  DeleteFileDocument,
+  DeleteFileMutation,
+  DeleteFileMutationVariables,
   GetPresignedDownloadUrlDocument,
   GetPresignedDownloadUrlMutation,
   GetPresignedDownloadUrlMutationVariables,
@@ -61,6 +64,7 @@ type OperationRegistry = {
     completeMultipartUpload: DocumentNode;
     getPresignedUploadUrl: DocumentNode;
     getPresignedDownloadUrl: DocumentNode;
+    deleteFile: DocumentNode;
   };
 };
 
@@ -83,6 +87,7 @@ const operationRegistry: OperationRegistry = {
     completeMultipartUpload: CompleteMultipartUploadDocument,
     getPresignedUploadUrl: GetPresignedUploadUrlDocument,
     getPresignedDownloadUrl: GetPresignedDownloadUrlDocument,
+    deleteFile: DeleteFileDocument,
   },
 };
 
@@ -354,6 +359,13 @@ export async function mutateCompleteMultipartUpload(
 export async function mutatePutKey(bucket: string, key: string) {
   return fetchGraphQLData<PutKeyMutation, PutKeyMutationVariables>(
     "filestoreMutations.putKey",
+    { bucket, key },
+  );
+}
+
+export async function mutateDeleteFile(bucket: string, key: string) {
+  return fetchGraphQLData<DeleteFileMutation, DeleteFileMutationVariables>(
+    "filestoreMutations.deleteFile",
     { bucket, key },
   );
 }

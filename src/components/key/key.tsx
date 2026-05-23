@@ -3,6 +3,7 @@ import { KeyEntry } from "~/generated/graphql";
 import styles from "./key.module.css";
 import { cn } from "~/utils/cn";
 import { Button } from "@sun/components";
+import { ICON_SIZE } from "~/utils/const";
 
 type KeyProps = {
   /**
@@ -17,13 +18,21 @@ type KeyProps = {
    * Optional href.
    */
   href?: string | null;
-} & React.HTMLAttributes<HTMLButtonElement>;
+} & React.HTMLAttributes<HTMLButtonElement> &
+  React.PropsWithChildren;
 
 /**
  * A single key in a list.
  */
 const Key = (props: KeyProps) => {
-  const { keyEntry: key, href, currentPath = "", className, ...rest } = props;
+  const {
+    keyEntry: key,
+    href,
+    currentPath = "",
+    className,
+    children,
+    ...rest
+  } = props;
 
   // Strip out current path from key name
   const displayName =
@@ -36,7 +45,6 @@ const Key = (props: KeyProps) => {
    * detect file path for icon.
    */
   const getKeyIcon = () => {
-    const ICON_SIZE = 16;
     return key.isDirectory ? (
       <FolderIcon width={ICON_SIZE} height={ICON_SIZE} />
     ) : (
@@ -63,6 +71,7 @@ const Key = (props: KeyProps) => {
             <p>{`${key.size} B`}</p>
           </>
         )}
+        {children}
       </Button>
     </a>
   );

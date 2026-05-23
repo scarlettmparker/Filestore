@@ -5,6 +5,8 @@
 
 .key_button {
   gap: var(--lg);
+  display: flex;
+  align-items: center;
   flex-grow: 1;
 }
 

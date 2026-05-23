@@ -2,6 +2,7 @@ import { mutationRegistry } from "~/utils/mutations";
 import { MutationResult } from "~/server/actions/utils";
 import {
   mutateCompleteMultipartUpload,
+  mutateDeleteFile,
   mutateGetPresignedDownloadUrl,
   mutateGetPresignedUploadUrl,
   mutatePutFile,
@@ -217,6 +218,40 @@ async function handleUploadComplete(
 }
 
 /**
+ * Delete a file, TODO: generalize redirect/cache logic with upload complete handler
+ */
+async function handleDeleteFile(
+  body: Record<string, unknown>,
+): Promise<MutationResult> {
+  const { bucket, key, path } = body;
+  const folderPath = (path as string) || "";
+  const redirectTo = folderPath
+    ? `/bucket/${bucket}/${folderPath}`
+    : `/bucket/${bucket}`;
+  const pattern = folderPath ? `bucket/:alias/*` : `bucket/:alias`;
+
+  const params: Record<string, unknown> = folderPath
+    ? { alias: bucket, path: folderPath }
+    : { alias: bucket };
+  const cacheKey = makeCacheKey(`${pattern}:keys`, params);
+
+  const result = await mutateDeleteFile(bucket as string, key as string);
+
+  if (result?.data?.filestoreMutations?.deleteFile) {
+    throw new ServerRedirectError(redirectTo, cacheKey, {
+      __typename: "QuerySuccess",
+      message: "Deleted successfully",
+      id: "",
+    });
+  }
+
+  return {
+    __typename: "StandardError",
+    message: "Failed to delete file",
+  };
+}
+
+/**
  * Register the mutation handler for filestore put operations.
  */
 export function registerFilestorePutMutations(): void {
@@ -244,5 +279,9 @@ export function registerFilestorePutMutations(): void {
   mutationRegistry.registerMutationHandler(
     "filestore/upload-complete",
     handleUploadComplete,
+  );
+  mutationRegistry.registerMutationHandler(
+    "filestore/delete-file",
+    handleDeleteFile,
   );
 }

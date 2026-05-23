@@ -14,6 +14,8 @@ import {
 } from "@sun/components";
 import { FileIcon, FolderIcon } from "lucide-react";
 import { executeMutation } from "~/server/actions/utils";
+import { ICON_SIZE } from "~/utils/const";
+import KeyActions from "../key-actions";
 
 /**
  * Options required to process a direct-to-storage file upload.
@@ -53,6 +55,11 @@ const uploadFileToStorage = async ({
 
   const presignedUrl = urlRes.id;
 
+  /**
+   * Using XMLHttpRequest here instead of fetch to enable upload progress tracking,
+   * which is not natively supported in fetch as of now. This allows us
+   * to provide real-time feedback on the upload status.
+   */
   const putRes = await new Promise<XMLHttpRequest>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("PUT", presignedUrl, true);
@@ -121,7 +128,6 @@ type KeyCardProps = {
  */
 const KeyCard = (props: KeyCardProps) => {
   const { keys, bucketName, t, children, currentPath = "" } = props;
-  const ICON_SIZE = 16;
 
   /**
    * Prompts the user to select a file from their native file explorer and coordinates the upload pipeline.
@@ -167,6 +173,20 @@ const KeyCard = (props: KeyCardProps) => {
     }
   };
 
+  /**
+   * Deletes a file.
+   */
+  const handleFileDelete = async (keyPath: string) => {
+    const res = await executeMutation("filestore/delete-file", {
+      bucket: bucketName,
+      key: keyPath,
+    });
+
+    if (!res || res.__typename !== "QuerySuccess") {
+      console.error("Failed to delete file");
+    }
+  };
+
   return (
     <ContextMenu className={styles.keys_card}>
       <ContextMenuTrigger>
@@ -186,7 +206,13 @@ const KeyCard = (props: KeyCardProps) => {
                     ? undefined
                     : () => handleFileDownload(key.key)
                 }
-              />
+              >
+                <KeyActions
+                  keyEntry={key}
+                  key={idx}
+                  onDelete={key.isDirectory ? undefined : handleFileDelete}
+                />
+              </Key>
             ))}
           </CardBody>
           <CardFooter>{t("items", { count: keys.length })}</CardFooter>
