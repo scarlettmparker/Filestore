@@ -187,6 +187,20 @@ const KeyCard = (props: KeyCardProps) => {
     }
   };
 
+  /**
+   * Deletes a key (folder) and all nested contents.
+   */
+  const handleKeyDelete = async (keyPath: string) => {
+    const res = await executeMutation("filestore/delete-key", {
+      bucket: bucketName,
+      key: keyPath,
+    });
+
+    if (!res || res.__typename !== "QuerySuccess") {
+      console.error("Failed to delete key");
+    }
+  };
+
   return (
     <ContextMenu className={styles.keys_card}>
       <ContextMenuTrigger>
@@ -210,7 +224,9 @@ const KeyCard = (props: KeyCardProps) => {
                 <KeyActions
                   keyEntry={key}
                   key={idx}
-                  onDelete={key.isDirectory ? undefined : handleFileDelete}
+                  onDelete={
+                    key.isDirectory ? handleKeyDelete : handleFileDelete
+                  }
                 />
               </Key>
             ))}

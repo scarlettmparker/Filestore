@@ -1,0 +1,5 @@
+mutation deleteKey($bucket: String!, $key: String!) {
+  filestoreMutations {
+    deleteKey(bucket: $bucket, key: $key)
+  }
+}

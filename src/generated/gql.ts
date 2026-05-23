@@ -14,32 +14,26 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "mutation completeMultipartUpload($bucket: String!, $key: String!, $uploadId: String!, $parts: [CompletedPart!]!) {\n  filestoreMutations {\n    completeMultipartUpload(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      parts: $parts\n    )\n  }\n}": typeof types.CompleteMultipartUploadDocument,
     "mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}": typeof types.DeleteFileDocument,
+    "mutation deleteKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteKey(bucket: $bucket, key: $key)\n  }\n}": typeof types.DeleteKeyDocument,
     "mutation getPresignedDownloadUrl($bucket: String!, $key: String!) {\n  filestoreMutations {\n    getPresignedDownloadUrl(bucket: $bucket, key: $key)\n  }\n}": typeof types.GetPresignedDownloadUrlDocument,
     "mutation getPresignedUploadUrl($bucket: String!, $key: String!, $contentType: String) {\n  filestoreMutations {\n    getPresignedUploadUrl(bucket: $bucket, key: $key, contentType: $contentType)\n  }\n}": typeof types.GetPresignedUploadUrlDocument,
     "query health {\n  filestoreQueries {\n    health\n  }\n}": typeof types.HealthDocument,
     "query listBuckets {\n  filestoreQueries {\n    listBuckets {\n      id\n      created\n      globalAliases\n      localAliases\n    }\n  }\n}": typeof types.ListBucketsDocument,
     "query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}": typeof types.ListFilesDocument,
     "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}": typeof types.ListKeysDocument,
-    "mutation putFile($bucket: String!, $key: String!, $content: String!, $contentType: String) {\n  filestoreMutations {\n    putFile(\n      bucket: $bucket\n      key: $key\n      content: $content\n      contentType: $contentType\n    )\n  }\n}": typeof types.PutFileDocument,
     "mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": typeof types.PutKeyDocument,
-    "mutation startMultipartUpload($bucket: String!, $key: String!) {\n  filestoreMutations {\n    startMultipartUpload(bucket: $bucket, key: $key)\n  }\n}": typeof types.StartMultipartUploadDocument,
-    "mutation uploadPart($bucket: String!, $key: String!, $uploadId: String!, $partNumber: Int!, $content: String!) {\n  filestoreMutations {\n    uploadPart(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      partNumber: $partNumber\n      content: $content\n    )\n  }\n}": typeof types.UploadPartDocument,
 };
 const documents: Documents = {
-    "mutation completeMultipartUpload($bucket: String!, $key: String!, $uploadId: String!, $parts: [CompletedPart!]!) {\n  filestoreMutations {\n    completeMultipartUpload(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      parts: $parts\n    )\n  }\n}": types.CompleteMultipartUploadDocument,
     "mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}": types.DeleteFileDocument,
+    "mutation deleteKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteKey(bucket: $bucket, key: $key)\n  }\n}": types.DeleteKeyDocument,
     "mutation getPresignedDownloadUrl($bucket: String!, $key: String!) {\n  filestoreMutations {\n    getPresignedDownloadUrl(bucket: $bucket, key: $key)\n  }\n}": types.GetPresignedDownloadUrlDocument,
     "mutation getPresignedUploadUrl($bucket: String!, $key: String!, $contentType: String) {\n  filestoreMutations {\n    getPresignedUploadUrl(bucket: $bucket, key: $key, contentType: $contentType)\n  }\n}": types.GetPresignedUploadUrlDocument,
     "query health {\n  filestoreQueries {\n    health\n  }\n}": types.HealthDocument,
     "query listBuckets {\n  filestoreQueries {\n    listBuckets {\n      id\n      created\n      globalAliases\n      localAliases\n    }\n  }\n}": types.ListBucketsDocument,
     "query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}": types.ListFilesDocument,
     "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}": types.ListKeysDocument,
-    "mutation putFile($bucket: String!, $key: String!, $content: String!, $contentType: String) {\n  filestoreMutations {\n    putFile(\n      bucket: $bucket\n      key: $key\n      content: $content\n      contentType: $contentType\n    )\n  }\n}": types.PutFileDocument,
     "mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": types.PutKeyDocument,
-    "mutation startMultipartUpload($bucket: String!, $key: String!) {\n  filestoreMutations {\n    startMultipartUpload(bucket: $bucket, key: $key)\n  }\n}": types.StartMultipartUploadDocument,
-    "mutation uploadPart($bucket: String!, $key: String!, $uploadId: String!, $partNumber: Int!, $content: String!) {\n  filestoreMutations {\n    uploadPart(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      partNumber: $partNumber\n      content: $content\n    )\n  }\n}": types.UploadPartDocument,
 };
 
 /**
@@ -59,11 +53,11 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "mutation completeMultipartUpload($bucket: String!, $key: String!, $uploadId: String!, $parts: [CompletedPart!]!) {\n  filestoreMutations {\n    completeMultipartUpload(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      parts: $parts\n    )\n  }\n}"): (typeof documents)["mutation completeMultipartUpload($bucket: String!, $key: String!, $uploadId: String!, $parts: [CompletedPart!]!) {\n  filestoreMutations {\n    completeMultipartUpload(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      parts: $parts\n    )\n  }\n}"];
+export function graphql(source: "mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}"): (typeof documents)["mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}"): (typeof documents)["mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}"];
+export function graphql(source: "mutation deleteKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteKey(bucket: $bucket, key: $key)\n  }\n}"): (typeof documents)["mutation deleteKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteKey(bucket: $bucket, key: $key)\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -91,19 +85,7 @@ export function graphql(source: "query listKeys($bucket: String!, $prefix: Strin
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "mutation putFile($bucket: String!, $key: String!, $content: String!, $contentType: String) {\n  filestoreMutations {\n    putFile(\n      bucket: $bucket\n      key: $key\n      content: $content\n      contentType: $contentType\n    )\n  }\n}"): (typeof documents)["mutation putFile($bucket: String!, $key: String!, $content: String!, $contentType: String) {\n  filestoreMutations {\n    putFile(\n      bucket: $bucket\n      key: $key\n      content: $content\n      contentType: $contentType\n    )\n  }\n}"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function graphql(source: "mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}"): (typeof documents)["mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "mutation startMultipartUpload($bucket: String!, $key: String!) {\n  filestoreMutations {\n    startMultipartUpload(bucket: $bucket, key: $key)\n  }\n}"): (typeof documents)["mutation startMultipartUpload($bucket: String!, $key: String!) {\n  filestoreMutations {\n    startMultipartUpload(bucket: $bucket, key: $key)\n  }\n}"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "mutation uploadPart($bucket: String!, $key: String!, $uploadId: String!, $partNumber: Int!, $content: String!) {\n  filestoreMutations {\n    uploadPart(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      partNumber: $partNumber\n      content: $content\n    )\n  }\n}"): (typeof documents)["mutation uploadPart($bucket: String!, $key: String!, $uploadId: String!, $partNumber: Int!, $content: String!) {\n  filestoreMutations {\n    uploadPart(\n      bucket: $bucket\n      key: $key\n      uploadId: $uploadId\n      partNumber: $partNumber\n      content: $content\n    )\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

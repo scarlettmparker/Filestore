@@ -1,5 +1,0 @@
-mutation putFile($bucket: String!, $key: String!, $content: String!, $contentType: String) {
-  filestoreMutations {
-    putFile(bucket: $bucket, key: $key, content: $content, contentType: $contentType)
-  }
-}

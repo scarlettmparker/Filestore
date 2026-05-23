@@ -5,12 +5,12 @@
 
 import { print, DocumentNode } from "graphql";
 import {
-  CompleteMultipartUploadDocument,
-  CompleteMultipartUploadMutation,
-  CompleteMultipartUploadMutationVariables,
   DeleteFileDocument,
   DeleteFileMutation,
   DeleteFileMutationVariables,
+  DeleteKeyDocument,
+  DeleteKeyMutation,
+  DeleteKeyMutationVariables,
   GetPresignedDownloadUrlDocument,
   GetPresignedDownloadUrlMutation,
   GetPresignedDownloadUrlMutationVariables,
@@ -25,18 +25,9 @@ import {
   ListKeysDocument,
   ListKeysQuery,
   ListKeysQueryVariables,
-  PutFileDocument,
-  PutFileMutation,
-  PutFileMutationVariables,
   PutKeyDocument,
   PutKeyMutation,
   PutKeyMutationVariables,
-  StartMultipartUploadDocument,
-  StartMultipartUploadMutation,
-  StartMultipartUploadMutationVariables,
-  UploadPartDocument,
-  UploadPartMutation,
-  UploadPartMutationVariables,
 } from "~/generated/graphql";
 
 export type ApiResponse<T> = {
@@ -57,14 +48,11 @@ type OperationRegistry = {
     listKeys: DocumentNode;
   };
   filestoreMutations: {
-    putFile: DocumentNode;
     putKey: DocumentNode;
-    startMultipartUpload: DocumentNode;
-    uploadPart: DocumentNode;
-    completeMultipartUpload: DocumentNode;
     getPresignedUploadUrl: DocumentNode;
     getPresignedDownloadUrl: DocumentNode;
     deleteFile: DocumentNode;
+    deleteKey: DocumentNode;
   };
 };
 
@@ -72,7 +60,6 @@ type OperationRegistry = {
  * Registry of GraphQL operations mapped to their query documents.
  */
 const operationRegistry: OperationRegistry = {
-  // Queries:
   filestoreQueries: {
     health: HealthDocument,
     listBuckets: ListBucketsDocument,
@@ -80,14 +67,11 @@ const operationRegistry: OperationRegistry = {
     listKeys: ListKeysDocument,
   },
   filestoreMutations: {
-    putFile: PutFileDocument,
     putKey: PutKeyDocument,
-    startMultipartUpload: StartMultipartUploadDocument,
-    uploadPart: UploadPartDocument,
-    completeMultipartUpload: CompleteMultipartUploadDocument,
     getPresignedUploadUrl: GetPresignedUploadUrlDocument,
     getPresignedDownloadUrl: GetPresignedDownloadUrlDocument,
     deleteFile: DeleteFileDocument,
+    deleteKey: DeleteKeyDocument,
   },
 };
 
@@ -273,84 +257,6 @@ export async function fetchListKeys(bucket: string, prefix?: string) {
 }
 
 /**
- * Upload a file directly with content.
- *
- * @param bucket The bucket to upload into.
- * @param key The key (path/file name) for the file.
- * @param content The file content as a string.
- */
-export async function mutatePutFile(
-  bucket: string,
-  key: string,
-  content: string,
-) {
-  return fetchGraphQLData<PutFileMutation, PutFileMutationVariables>(
-    "filestoreMutations.putFile",
-    { bucket, key, content },
-  );
-}
-
-/**
- * Begin a multipart upload and return the upload ID.
- *
- * @param bucket The bucket to upload into.
- * @param key The file key for the multipart upload.
- */
-export async function mutateStartMultipartUpload(bucket: string, key: string) {
-  return fetchGraphQLData<
-    StartMultipartUploadMutation,
-    StartMultipartUploadMutationVariables
-  >("filestoreMutations.startMultipartUpload", { bucket, key });
-}
-
-/**
- * Upload a single part of a multipart upload.
- *
- * @param bucket The bucket of the file.
- * @param key The file key.
- * @param uploadId The multipart upload ID.
- * @param partNumber The part number for this chunk.
- * @param content The part contents as a string.
- */
-export async function mutateUploadPart(
-  bucket: string,
-  key: string,
-  uploadId: string,
-  partNumber: number,
-  content: string,
-) {
-  return fetchGraphQLData<UploadPartMutation, UploadPartMutationVariables>(
-    "filestoreMutations.uploadPart",
-    { bucket, key, uploadId, partNumber, content },
-  );
-}
-
-/**
- * Complete a multipart upload with the uploaded part metadata.
- *
- * @param bucket The bucket of the file.
- * @param key The file key.
- * @param uploadId The multipart upload ID.
- * @param parts Array of uploaded part metadata (partNumber + etag).
- */
-export async function mutateCompleteMultipartUpload(
-  bucket: string,
-  key: string,
-  uploadId: string,
-  parts: Array<{ partNumber: number; etag: string }>,
-) {
-  return fetchGraphQLData<
-    CompleteMultipartUploadMutation,
-    CompleteMultipartUploadMutationVariables
-  >("filestoreMutations.completeMultipartUpload", {
-    bucket,
-    key,
-    uploadId,
-    parts,
-  });
-}
-
-/**
  * Create a new key (folder) using putKey.
  *
  * @param bucket The bucket.
@@ -363,9 +269,30 @@ export async function mutatePutKey(bucket: string, key: string) {
   );
 }
 
+/**
+ * Delete a file only.
+ *
+ * @param bucket The bucket of the file.
+ * @param key The key of the file to delete.
+ */
 export async function mutateDeleteFile(bucket: string, key: string) {
   return fetchGraphQLData<DeleteFileMutation, DeleteFileMutationVariables>(
     "filestoreMutations.deleteFile",
+    { bucket, key },
+  );
+}
+
+/**
+ * Delete a key (folder) or file.
+ * Note: this is a separate mutation from deleteFile to allow for recursively
+ * deleting all keys/files under a prefix when deleting a folder key.
+ *
+ * @param bucket The bucket of the key.
+ * @param key The key to delete (can be a folder or file).
+ */
+export async function mutateDeleteKey(bucket: string, key: string) {
+  return fetchGraphQLData<DeleteKeyMutation, DeleteKeyMutationVariables>(
+    "filestoreMutations.deleteKey",
     { bucket, key },
   );
 }
