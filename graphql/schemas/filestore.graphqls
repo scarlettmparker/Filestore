@@ -31,6 +31,13 @@ type KeyEntry {
   lastModified: String
 }
 
+# Response payload for the renameKey mutation
+type RenameKeyResult {
+  success: Boolean!
+  hasConflicts: Boolean!
+  conflicts: [String!]!
+}
+
 # Mutations for filestore operations including multipart upload support.
 type FilestoreMutations {
   # Create a directory key (folder).
@@ -39,6 +46,13 @@ type FilestoreMutations {
   deleteFile(bucket: String!, key: String!): Boolean
   # Delete a key and propagate: recursively delete the key, all sub-keys and files under it.
   deleteKey(bucket: String!, key: String!): Boolean
+  # Renames a single file or a directory prefix. Validates conflicts when merge is false.
+  renameKey(
+    bucket: String!
+    sourceKey: String!
+    targetKey: String!
+    merge: Boolean!
+  ): RenameKeyResult!
   # Returns a presigned PUT URL for direct browser-to-storage upload.
   getPresignedUploadUrl(
     bucket: String!
