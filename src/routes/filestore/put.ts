@@ -180,7 +180,14 @@ async function handleDeleteKey(
   const result = await mutateDeleteKey(bucket as string, key as string);
 
   if (result?.data?.filestoreMutations?.deleteKey) {
-    throw new ServerRedirectError(redirectTo, cacheKey, {
+    // Need to invalidate for all nested paths (as otherwise it'll show files that no longer exist in keys)
+    const cleanKey = (key as string).endsWith("/") ? key : key + "/";
+    const deleteKeys = makeCacheKey("bucket/:alias/*:keys", {
+      alias: bucket,
+      path: `${cleanKey}*`,
+    });
+
+    throw new ServerRedirectError(redirectTo, [deleteKeys, cacheKey], {
       __typename: "QuerySuccess",
       message: "Deleted successfully",
       id: "",
@@ -217,7 +224,27 @@ async function handleRenameKey(
   if (result?.data?.filestoreMutations?.renameKey) {
     const renameResult = result.data.filestoreMutations.renameKey;
     if (renameResult.success) {
-      throw new ServerRedirectError(redirectTo, cacheKey, {
+      // Need to invalidate for all nested paths of the renamed key AND all nested paths of the merged key
+      const cleanSource = (sourceKey as string).endsWith("/")
+        ? sourceKey
+        : sourceKey + "/";
+      const cleanTarget = (targetKey as string).endsWith("/")
+        ? targetKey
+        : targetKey + "/";
+
+      const renameKeys = [
+        makeCacheKey("bucket/:alias/*:keys", {
+          alias: bucket,
+          path: `${cleanSource}*`,
+        }),
+
+        makeCacheKey("bucket/:alias/*:keys", {
+          alias: bucket,
+          path: `${cleanTarget}*`,
+        }),
+      ];
+
+      throw new ServerRedirectError(redirectTo, [cacheKey, ...renameKeys], {
         __typename: "QuerySuccess",
         message: "Renamed successfully",
         id: "",

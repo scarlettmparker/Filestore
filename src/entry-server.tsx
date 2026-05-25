@@ -8,7 +8,7 @@ import NotFound from "./routes/not-found";
 import { matchRoutes } from "react-router-dom";
 import { inlineCss, generateCssTag } from "./utils/css-inlining";
 import "./utils/register-loaders";
-import { suspenseCache } from "./utils/page-data";
+import { suspenseCache, invalidateCache } from "./utils/page-data";
 import { MutationResult } from "./server/actions/utils";
 import fs from "fs";
 import path from "path";
@@ -30,19 +30,6 @@ type RenderProps = {
   mutationPayload: MutationResult;
   invalidateCacheCookie?: string;
 };
-
-/**
- * Invalidate page cache.
- *
- * @param invalidateCacheCookie Cache cookie to invalidate.
- */
-function invalidateCache(invalidateCacheCookie: string): boolean {
-  suspenseCache.delete(invalidateCacheCookie);
-  // also clear base pattern key (without :keys suffix)
-  const baseKey = invalidateCacheCookie.replace(/:keys({.*})$/, "$1");
-  if (baseKey !== invalidateCacheCookie) suspenseCache.delete(baseKey);
-  return true;
-}
 
 export async function render({
   url,

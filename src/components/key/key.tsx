@@ -11,6 +11,11 @@ type KeyProps = {
    * Key to display in list.
    */
   keyEntry: KeyEntry;
+  /**
+   * Callback for renaming a key, requires both source and target key.
+   * @param sourceKey Key to rename from.
+   * @param targetKey Key to rename to.
+   */
   onRename: (sourceKey: string, targetKey: string) => void;
   /**
    * Current path for stripping out of dirs.
@@ -63,6 +68,16 @@ const Key = (props: KeyProps) => {
     e.stopPropagation();
   };
 
+  /**
+   * Handle key rename on blur or enter key.
+   */
+  const handleRename = (e: React.FocusEvent<HTMLInputElement>) => {
+    const newKey = e.target.value.trim();
+    if (newKey !== displayName) {
+      onRename(key.key, currentPath ? `${currentPath}/${newKey}` : newKey);
+    }
+  };
+
   return (
     <a href={href ?? undefined} className={styles.key_link}>
       <Button
@@ -76,14 +91,20 @@ const Key = (props: KeyProps) => {
         <Input
           defaultValue={displayName}
           onClick={preventPropagation}
-          onKeyDown={preventPropagation}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            e.stopPropagation();
+            // Trigger rename on Enter and blur input, also handle Escape to cancel rename
+            if (e.key === "Enter") {
+              e.currentTarget.blur();
+            }
+            if (e.key === "Escape") {
+              e.currentTarget.value = displayName;
+              e.currentTarget.blur();
+            }
+          }}
           onFocus={preventPropagation}
           onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
-            const targetKey = e.target.value;
-            // Don't do anything if the key hasn't changed
-            if (targetKey !== key.key) {
-              onRename(key.key, targetKey);
-            }
+            handleRename(e);
           }}
         />
         {/* This is in bytes for whatever reason so we will deal with it */}

@@ -349,6 +349,127 @@ export function getPageData<T>(
 }
 
 /**
+ * Parses a cache invalidation cookie value into an array of patterns.
+ *
+ * @param cookieValue The raw cookie value to parse.
+ * @returns An array of string patterns to invalidate.
+ */
+function parseInvalidationPatterns(cookieValue: string): string[] {
+  try {
+    const decoded = decodeURIComponent(cookieValue);
+    const parsed = JSON.parse(decoded);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch {
+    // do nothing
+  }
+  return [cookieValue];
+}
+
+/**
+ * Checks if an actual cache parameter matches the expected pattern parameter.
+ *
+ * @param expectedValue The pattern value to match against (can include '*').
+ * @param actualValue The actual value extracted from the cache key.
+ * @returns True if the values match, false otherwise.
+ */
+function matchesParameter(
+  expectedValue: unknown,
+  actualValue: unknown,
+): boolean {
+  if (typeof expectedValue === "string" && expectedValue.endsWith("*")) {
+    const prefix = expectedValue.slice(0, -1);
+    return typeof actualValue === "string" && actualValue.startsWith(prefix);
+  }
+  return actualValue === expectedValue;
+}
+
+/**
+ * Sweeps the suspense cache and removes entries that match the given base pattern
+ * and parameter conditions.
+ *
+ * @param patternBase Base string of the cache key (before the JSON params).
+ * @param patternParams Parsed JSON parameters containing expected values.
+ */
+function sweepCacheByPattern(
+  patternBase: string,
+  patternParams: Record<string, unknown>,
+): void {
+  for (const cacheKey of suspenseCache.keys()) {
+    if (!cacheKey.startsWith(patternBase)) continue;
+
+    const cacheFirstBrace = cacheKey.indexOf("{");
+    if (cacheFirstBrace === -1) continue;
+
+    try {
+      const cacheParams = JSON.parse(cacheKey.slice(cacheFirstBrace));
+      let isMatch = true;
+
+      // Ensure every parameter in the pattern matches the cache key's parameter
+      for (const [key, expectedValue] of Object.entries(patternParams)) {
+        if (!matchesParameter(expectedValue, cacheParams[key])) {
+          isMatch = false;
+          break;
+        }
+      }
+
+      if (isMatch) {
+        suspenseCache.delete(cacheKey);
+      }
+    } catch {
+      // Skip cache keys with malformed JSON
+      continue;
+    }
+  }
+}
+
+/**
+ * Invalidates specific entries in the suspense cache based on a cookie payload.
+ *
+ * @param invalidateCacheCookie Raw cookie value containing invalidation patterns.
+ */
+export function invalidateCache(invalidateCacheCookie: string): boolean {
+  const patterns = parseInvalidationPatterns(invalidateCacheCookie);
+
+  for (const pattern of patterns) {
+    // Handle exact cache key invalidation
+    if (suspenseCache.has(pattern)) {
+      suspenseCache.delete(pattern);
+      continue;
+    }
+
+    const firstBrace = pattern.indexOf("{");
+
+    // Standard base pattern fallback (No JSON parameters present)
+    if (firstBrace === -1) {
+      const baseKey = pattern.replace(/:keys({.*})$/, "$1");
+      if (baseKey !== pattern) {
+        suspenseCache.delete(baseKey);
+      }
+      continue;
+    }
+
+    // Handle parameter-based and wildcard invalidations
+    try {
+      const patternBase = pattern.slice(0, firstBrace);
+      const patternParams = JSON.parse(pattern.slice(firstBrace));
+
+      const hasWildcard = Object.values(patternParams).some(
+        (v) => typeof v === "string" && v.endsWith("*"),
+      );
+
+      // Only execute sweep if a wildcard parameter was explicitly requested
+      if (hasWildcard) {
+        sweepCacheByPattern(patternBase, patternParams);
+      }
+    } catch (e) {}
+  }
+
+  return true;
+}
+
+/**
  * Page Data registry interface.
  */
 interface PageDataRegistry {
