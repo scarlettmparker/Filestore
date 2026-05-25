@@ -22,7 +22,7 @@ type Documents = {
     "query listBuckets {\n  filestoreQueries {\n    listBuckets {\n      id\n      created\n      globalAliases\n      localAliases\n    }\n  }\n}": typeof types.ListBucketsDocument,
     "query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}": typeof types.ListFilesDocument,
     "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}": typeof types.ListKeysDocument,
-    "mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": typeof types.PutKeyDocument,
+    "mutation putKey($bucket: String!, $key: String) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": typeof types.PutKeyDocument,
     "mutation renameKey($bucket: String!, $sourceKey: String!, $targetKey: String!, $merge: Boolean!) {\n  filestoreMutations {\n    renameKey(\n      bucket: $bucket\n      sourceKey: $sourceKey\n      targetKey: $targetKey\n      merge: $merge\n    ) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": typeof types.RenameKeyDocument,
 };
 const documents: Documents = {
@@ -34,7 +34,7 @@ const documents: Documents = {
     "query listBuckets {\n  filestoreQueries {\n    listBuckets {\n      id\n      created\n      globalAliases\n      localAliases\n    }\n  }\n}": types.ListBucketsDocument,
     "query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}": types.ListFilesDocument,
     "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}": types.ListKeysDocument,
-    "mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": types.PutKeyDocument,
+    "mutation putKey($bucket: String!, $key: String) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": types.PutKeyDocument,
     "mutation renameKey($bucket: String!, $sourceKey: String!, $targetKey: String!, $merge: Boolean!) {\n  filestoreMutations {\n    renameKey(\n      bucket: $bucket\n      sourceKey: $sourceKey\n      targetKey: $targetKey\n      merge: $merge\n    ) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": types.RenameKeyDocument,
 };
 
@@ -87,7 +87,7 @@ export function graphql(source: "query listKeys($bucket: String!, $prefix: Strin
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}"): (typeof documents)["mutation putKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}"];
+export function graphql(source: "mutation putKey($bucket: String!, $key: String) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}"): (typeof documents)["mutation putKey($bucket: String!, $key: String) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

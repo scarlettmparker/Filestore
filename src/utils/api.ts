@@ -265,9 +265,9 @@ export async function fetchListKeys(bucket: string, prefix?: string) {
  * Create a new key (folder) using putKey.
  *
  * @param bucket The bucket.
- * @param key The key for the folder, default "new-key".
+ * @param key The key for the folder.
  */
-export async function mutatePutKey(bucket: string, key: string) {
+export async function mutatePutKey(bucket: string, key: string | null) {
   return fetchGraphQLData<PutKeyMutation, PutKeyMutationVariables>(
     "filestoreMutations.putKey",
     { bucket, key },

@@ -99,7 +99,10 @@ const uploadFileToStorage = async ({
  * @param targetName String name of the item being generated.
  * @returns Formatted path combination string.
  */
-const formatKeyPath = (currentPath: string, targetName: string): string => {
+const formatKeyPath = (
+  currentPath: string,
+  targetName: string | null,
+): string => {
   const base = currentPath ? currentPath.replace(/\/$/, "") : "";
   return `${base ? base + "/" : ""}${targetName}`;
 };
@@ -148,7 +151,7 @@ const KeyCard = (props: KeyCardProps) => {
    * Mandates the creation of a structural directory placeholder down the active route path.
    */
   const handleCreateKey = async () => {
-    const key = formatKeyPath(currentPath, "new-key");
+    const key = formatKeyPath(currentPath, null);
     await executeMutation("filestore/put", {
       bucket: bucketName,
       key,
