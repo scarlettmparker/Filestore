@@ -97,13 +97,20 @@ const uploadFileToStorage = async ({
  *
  * @param currentPath Current directory hierarchy path.
  * @param targetName String name of the item being generated.
- * @returns Formatted path combination string.
+ * @returns Formatted path combination string, or null if root.
  */
 const formatKeyPath = (
   currentPath: string,
   targetName: string | null,
-): string => {
+): string | null => {
   const base = currentPath ? currentPath.replace(/\/$/, "") : "";
+
+  // If no target name is provided, return just the base path with a trailing slash,
+  // or an actual null if we are at the root.
+  if (!targetName) {
+    return base ? `${base}/` : null;
+  }
+
   return `${base ? base + "/" : ""}${targetName}`;
 };
 

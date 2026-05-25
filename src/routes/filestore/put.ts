@@ -19,14 +19,21 @@ async function handlePutKey(
 ): Promise<MutationResult> {
   const { bucket, key } = body;
 
-  if (typeof bucket !== "string" || typeof key !== "string") {
+  if (typeof bucket !== "string") {
     return {
       __typename: "StandardError" as const,
-      message: "Invalid input: bucket and key required",
+      message: "Invalid input: bucket required",
     };
   }
 
-  const result = await mutatePutKey(bucket, key);
+  if (key !== undefined && key !== null && typeof key !== "string") {
+    return {
+      __typename: "StandardError" as const,
+      message: "Invalid input: key must be a string or null",
+    };
+  }
+
+  const result = await mutatePutKey(bucket, key ?? null);
 
   if (result?.data) {
     const folderPath = (body.path as string) || "";
