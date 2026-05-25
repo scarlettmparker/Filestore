@@ -201,6 +201,25 @@ const KeyCard = (props: KeyCardProps) => {
     }
   };
 
+  /**
+   * Handle key rename. This is used for both files and directories.
+   *
+   * @param newKeyPath The new key path to rename to.
+   */
+  const handleKeyRename = async (sourceKey: string, targetKey: string) => {
+    const res = await executeMutation("filestore/rename-key", {
+      bucket: bucketName,
+      sourceKey: sourceKey,
+      targetKey: targetKey,
+      // TODO: need to design a dialog/modal for confirmations, we don't have that in component library yet.
+      merge: true,
+    });
+
+    if (!res || res.__typename !== "QuerySuccess") {
+      console.error("Failed to rename key", res);
+    }
+  };
+
   return (
     <ContextMenu className={styles.keys_card}>
       <ContextMenuTrigger>
@@ -211,6 +230,7 @@ const KeyCard = (props: KeyCardProps) => {
               <Key
                 key={idx}
                 keyEntry={key}
+                onRename={handleKeyRename}
                 currentPath={currentPath}
                 href={
                   key.isDirectory ? `/bucket/${bucketName}/${key.key}` : "#"

@@ -4,12 +4,14 @@ import styles from "./key.module.css";
 import { cn } from "~/utils/cn";
 import { Button } from "@sun/components";
 import { ICON_SIZE } from "~/utils/const";
+import { Input } from "@sun/components";
 
 type KeyProps = {
   /**
    * Key to display in list.
    */
   keyEntry: KeyEntry;
+  onRename: (sourceKey: string, targetKey: string) => void;
   /**
    * Current path for stripping out of dirs.
    */
@@ -27,6 +29,7 @@ type KeyProps = {
 const Key = (props: KeyProps) => {
   const {
     keyEntry: key,
+    onRename,
     href,
     currentPath = "",
     className,
@@ -52,6 +55,14 @@ const Key = (props: KeyProps) => {
     );
   };
 
+  /**
+   * Helper to prevent event propagation for input field.
+   */
+  const preventPropagation = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <a href={href ?? undefined} className={styles.key_link}>
       <Button
@@ -62,7 +73,19 @@ const Key = (props: KeyProps) => {
         {...rest}
       >
         {getKeyIcon()}
-        {displayName}
+        <Input
+          defaultValue={displayName}
+          onClick={preventPropagation}
+          onKeyDown={preventPropagation}
+          onFocus={preventPropagation}
+          onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+            const targetKey = e.target.value;
+            // Don't do anything if the key hasn't changed
+            if (targetKey !== key.key) {
+              onRename(key.key, targetKey);
+            }
+          }}
+        />
         {/* This is in bytes for whatever reason so we will deal with it */}
         {!key.isDirectory && (
           <>

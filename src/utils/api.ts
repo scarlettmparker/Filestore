@@ -28,6 +28,9 @@ import {
   PutKeyDocument,
   PutKeyMutation,
   PutKeyMutationVariables,
+  RenameKeyDocument,
+  RenameKeyMutation,
+  RenameKeyMutationVariables,
 } from "~/generated/graphql";
 
 export type ApiResponse<T> = {
@@ -53,6 +56,7 @@ type OperationRegistry = {
     getPresignedDownloadUrl: DocumentNode;
     deleteFile: DocumentNode;
     deleteKey: DocumentNode;
+    renameKey: DocumentNode;
   };
 };
 
@@ -72,6 +76,7 @@ const operationRegistry: OperationRegistry = {
     getPresignedDownloadUrl: GetPresignedDownloadUrlDocument,
     deleteFile: DeleteFileDocument,
     deleteKey: DeleteKeyDocument,
+    renameKey: RenameKeyDocument,
   },
 };
 
@@ -294,6 +299,32 @@ export async function mutateDeleteKey(bucket: string, key: string) {
   return fetchGraphQLData<DeleteKeyMutation, DeleteKeyMutationVariables>(
     "filestoreMutations.deleteKey",
     { bucket, key },
+  );
+}
+
+/**
+ * Rename a key.
+ *
+ * @param bucket The bucket of the key.
+ * @param sourceKey The original key to rename (can be a folder or file).
+ * @param targetKey The new key name (can be a folder or file). If the source is a folder,
+ * all nested keys/files will be renamed with the new prefix.
+ * @param merge Whether to merge with existing keys if targetKey already exists.
+ */
+export async function mutateRenameKey(
+  bucket: string,
+  sourceKey: string,
+  targetKey: string,
+  merge?: boolean,
+) {
+  return fetchGraphQLData<RenameKeyMutation, RenameKeyMutationVariables>(
+    "filestoreMutations.renameKey",
+    {
+      bucket,
+      sourceKey,
+      targetKey,
+      merge: merge || false,
+    },
   );
 }
 

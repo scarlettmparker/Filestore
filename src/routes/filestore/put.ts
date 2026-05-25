@@ -6,6 +6,7 @@ import {
   mutateGetPresignedDownloadUrl,
   mutateGetPresignedUploadUrl,
   mutatePutKey,
+  mutateRenameKey,
 } from "~/utils/api";
 import { makeCacheKey } from "~/utils/page-data";
 import { ServerRedirectError } from "~/utils/server-redirect";
@@ -193,6 +194,49 @@ async function handleDeleteKey(
 }
 
 /**
+ * Rename a key (file or directory). This will rename all nested files and subdirs as well if it's a directory.
+ * We have to handle merges and conflicts here, hence why the possible FormError return type instead of just
+ * invalidating on success. We need the user to confirm if there are any conflicts.
+ */
+async function handleRenameKey(
+  body: Record<string, unknown>,
+): Promise<MutationResult> {
+  const { bucket, sourceKey, targetKey, path, merge } = body;
+  const { redirectTo, cacheKey } = getRedirectAndCacheInfo(
+    bucket as string,
+    path as string,
+  );
+
+  const result = await mutateRenameKey(
+    bucket as string,
+    sourceKey as string,
+    targetKey as string,
+    merge as boolean,
+  );
+
+  if (result?.data?.filestoreMutations?.renameKey) {
+    const renameResult = result.data.filestoreMutations.renameKey;
+    if (renameResult.success) {
+      throw new ServerRedirectError(redirectTo, cacheKey, {
+        __typename: "QuerySuccess",
+        message: "Renamed successfully",
+        id: "",
+      });
+    } else if (renameResult.hasConflicts) {
+      return {
+        __typename: "FormError",
+        message: `Rename has conflicts: ${JSON.stringify(renameResult.conflicts)}`,
+      };
+    }
+  }
+
+  return {
+    __typename: "StandardError",
+    message: "Failed to rename key",
+  };
+}
+
+/**
  * Register the mutation handler for filestore put operations.
  */
 export function registerFilestorePutMutations(): void {
@@ -216,5 +260,9 @@ export function registerFilestorePutMutations(): void {
   mutationRegistry.registerMutationHandler(
     "filestore/delete-key",
     handleDeleteKey,
+  );
+  mutationRegistry.registerMutationHandler(
+    "filestore/rename-key",
+    handleRenameKey,
   );
 }

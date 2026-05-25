@@ -99,6 +99,11 @@ export type FilestoreQueriesListKeysArgs = {
   prefix?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type FormError = {
+  __typename?: 'FormError';
+  message: Scalars['String']['output'];
+};
+
 export type KeyEntry = {
   __typename?: 'KeyEntry';
   isDirectory: Scalars['Boolean']['output'];
@@ -117,7 +122,7 @@ export type Query = {
   filestoreQueries: FilestoreQueries;
 };
 
-export type QueryResult = QuerySuccess | StandardError;
+export type QueryResult = FormError | QuerySuccess | StandardError;
 
 export type QuerySuccess = {
   __typename?: 'QuerySuccess';
