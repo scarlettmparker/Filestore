@@ -1,4 +1,4 @@
-import type { KeyEntry } from "~/generated/graphql";
+import type { KeyEntry, QueryResult } from "~/generated/graphql";
 import styles from "./key-card.module.css";
 import { Card, CardBody, CardFooter } from "@sun/components";
 import Key from "~/components/key";
@@ -13,7 +13,7 @@ import {
   ContextMenuSubContent,
 } from "@sun/components";
 import { FileIcon, FolderIcon } from "lucide-react";
-import { executeMutation } from "~/server/actions/utils";
+import { executeMutation, MutationResult } from "~/server/actions/utils";
 import { ICON_SIZE } from "~/utils/const";
 import KeyActions from "../key-actions";
 
@@ -216,18 +216,17 @@ const KeyCard = (props: KeyCardProps) => {
    *
    * @param newKeyPath The new key path to rename to.
    */
-  const handleKeyRename = async (sourceKey: string, targetKey: string) => {
-    const res = await executeMutation("filestore/rename-key", {
+  const handleKeyRename = async (
+    sourceKey: string,
+    targetKey: string,
+    merge: boolean,
+  ): Promise<MutationResult> => {
+    return await executeMutation("filestore/rename-key", {
       bucket: bucketName,
-      sourceKey: sourceKey,
-      targetKey: targetKey,
-      // TODO: need to design a dialog/modal for confirmations, we don't have that in component library yet.
-      merge: true,
+      sourceKey,
+      targetKey,
+      merge,
     });
-
-    if (!res || res.__typename !== "QuerySuccess") {
-      console.error("Failed to rename key", res);
-    }
   };
 
   return (
