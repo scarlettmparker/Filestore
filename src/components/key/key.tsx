@@ -74,8 +74,7 @@ const Key = (props: KeyProps) => {
   }, [displayName]);
 
   /**
-   * Get a key icon. TODO: can be expanded in future to
-   * detect file path for icon.
+   * Get a key icon.
    */
   const getKeyIcon = useCallback(() => {
     return key.isDirectory ? (
@@ -84,14 +83,6 @@ const Key = (props: KeyProps) => {
       <FileIcon width={ICON_SIZE} height={ICON_SIZE} />
     );
   }, [key.isDirectory]);
-
-  /**
-   * Helper to prevent event propagation for input field.
-   */
-  const preventPropagation = useCallback((e: React.SyntheticEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
 
   /**
    * Handle key rename on blur or enter key.
@@ -118,7 +109,6 @@ const Key = (props: KeyProps) => {
 
   /**
    * Handle confirming rename in case of merge conflict.
-   * This will attempt to rename again with merge flag set to true.
    */
   const handleConfirmRename = useCallback(async () => {
     if (targetKey) {
@@ -135,8 +125,6 @@ const Key = (props: KeyProps) => {
   const handleDialogMessage = useCallback(
     (message: string | null) => {
       setDialogMessage(message);
-      // If we're closing the dialog without confirming (e.g. hitting cancel)
-      // we undo the local state back to the original key name.
       if (message === null) {
         setInputValue(displayName);
         setTargetKey(null);
@@ -146,40 +134,21 @@ const Key = (props: KeyProps) => {
   );
 
   return (
-    <>
+    <div className={styles.key_wrapper}>
       <a href={href ?? undefined} className={styles.key_link}>
         <Button
           variant="secondary"
           className={cn(styles.key_button, className)}
           disabled={!href}
-          // We care more about the button being spread than the link
           {...rest}
         >
           {getKeyIcon()}
-          <Input
-            value={inputValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setInputValue(e.target.value)
-            }
-            onClick={preventPropagation}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              e.stopPropagation();
-              // Trigger rename on Enter and blur input, also handle Escape to cancel rename
-              if (e.key === "Enter") {
-                e.currentTarget.blur();
-              }
-              if (e.key === "Escape") {
-                setInputValue(displayName);
-                e.currentTarget.blur();
-              }
-            }}
-            onFocus={preventPropagation}
-            onBlur={handleRename}
-          />
-          {/* This is in bytes for whatever reason so we will deal with it */}
+          <span className={styles.key_hidden_spacer}>
+            {inputValue || displayName}
+          </span>
+
           {!key.isDirectory && (
             <>
-              {/* Only need to push this to the left */}
               <p className={styles.key_last_modified}>{key.lastModified}</p>
               <p>{`${key.size} B`}</p>
             </>
@@ -187,13 +156,32 @@ const Key = (props: KeyProps) => {
           {children}
         </Button>
       </a>
+
+      <Input
+        className={styles.key_input_absolute}
+        value={inputValue}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setInputValue(e.target.value)
+        }
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.key === "Enter") {
+            e.currentTarget.blur();
+          }
+          if (e.key === "Escape") {
+            setInputValue(displayName);
+            e.currentTarget.blur();
+          }
+        }}
+        onBlur={handleRename}
+      />
+
       <ConfirmRenameDialog
         message={dialogMessage}
         setMessage={handleDialogMessage}
         onConfirm={handleConfirmRename}
         t={t}
       />
-    </>
+    </div>
   );
 };
 

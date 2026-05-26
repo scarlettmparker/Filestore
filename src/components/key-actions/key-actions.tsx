@@ -4,7 +4,6 @@ import { DropdownMenuContent } from "@sun/components";
 import { DropdownMenu } from "@sun/components";
 import { MoreVertical, Trash2Icon } from "lucide-react";
 import { ICON_SIZE } from "~/utils/const";
-import styles from "./key-actions.module.css";
 import { KeyEntry } from "~/generated/graphql";
 
 type KeyActionsProps = {
@@ -23,7 +22,7 @@ const KeyActions = (props: KeyActionsProps) => {
   const { keyEntry, onDelete } = props;
 
   return (
-    <DropdownMenu className={styles.key_actions_menu}>
+    <DropdownMenu>
       <DropdownMenuTrigger
         asChild
         onClick={(e: React.MouseEvent) => {

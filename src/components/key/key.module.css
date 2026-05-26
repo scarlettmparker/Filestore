@@ -1,6 +1,13 @@
+.key_wrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
 
 .key_link {
   display: flex;
+  flex-grow: 1;
+  width: 100%;
 }
 
 .key_button {
@@ -8,9 +15,24 @@
   display: flex;
   align-items: center;
   flex-grow: 1;
+  width: 100%;
+}
+
+.key_hidden_spacer {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.key_input_absolute {
+  position: absolute;
+  left: calc(1rem + var(--lg) * 2);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: auto;
+  min-width: 100px;
 }
 
 .key_last_modified {
   margin-left: auto;
-  text-wrap: none;
 }

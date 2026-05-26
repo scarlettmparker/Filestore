@@ -5,8 +5,8 @@
   "context-menu": {
     "refetch": "Refetch",
     "new": "New",
-    "file": "New File",
-    "folder": "New Folder"
+    "new-file": "New File",
+    "new-folder": "New Folder"
   },
   "confirm-dialog": {
     "title": "Confirm Rename Key?",
