@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { DialogFooter, Button } from "@sun/components";
 import { DialogHeader, DialogTitle, DialogBody } from "@sun/components";
 import { Dialog } from "@sun/components";
+import { TFunction } from "i18next";
 import styles from "./confirm-rename-dialog.module.css";
 
 type ConfirmRenameDialogProps = {
@@ -17,6 +18,10 @@ type ConfirmRenameDialogProps = {
    * Callback for when user confirms the rename action. This triggers rename with force merge flag.
    */
   onConfirm: () => void;
+  /**
+   * i18n translation function.
+   */
+  t: TFunction<"bucket">;
 };
 
 /**
@@ -24,7 +29,7 @@ type ConfirmRenameDialogProps = {
  * This will trigger a rename with merge flag enabled when confirmed.
  */
 const ConfirmRenameDialog = (props: ConfirmRenameDialogProps) => {
-  const { message, setMessage, onConfirm } = props;
+  const { message, setMessage, onConfirm, t } = props;
 
   const handleCancel = useCallback(() => {
     setMessage(null);
@@ -36,23 +41,20 @@ const ConfirmRenameDialog = (props: ConfirmRenameDialogProps) => {
       onOpenChange={(open: boolean) => !open && handleCancel()}
     >
       <DialogHeader>
-        <DialogTitle>Confirm Rename Key</DialogTitle>
+        <DialogTitle>{t("confirm-dialog.title")}</DialogTitle>
       </DialogHeader>
       <DialogBody>
-        <p>
-          Are you sure you want to rename? Conflicts will be automatically
-          merged.
-        </p>
+        <p>{t("confirm-dialog.body")}</p>
         <p className={styles.confirm_rename_message}>
           <strong>{message}</strong>
         </p>
       </DialogBody>
       <DialogFooter>
         <Button variant="secondary" onClick={handleCancel}>
-          Cancel
+          {t("confirm-dialog.cancel-button")}
         </Button>
         <Button type="submit" onClick={onConfirm}>
-          Confirm
+          {t("confirm-dialog.confirm-button")}
         </Button>
       </DialogFooter>
     </Dialog>

@@ -1,4 +1,4 @@
-import type { KeyEntry, QueryResult } from "~/generated/graphql";
+import type { KeyEntry } from "~/generated/graphql";
 import styles from "./key-card.module.css";
 import { Card, CardBody, CardFooter } from "@sun/components";
 import Key from "~/components/key";
@@ -249,6 +249,7 @@ const KeyCard = (props: KeyCardProps) => {
                     ? undefined
                     : () => handleFileDownload(key.key)
                 }
+                t={t}
               >
                 <KeyActions
                   keyEntry={key}
@@ -270,11 +271,11 @@ const KeyCard = (props: KeyCardProps) => {
           <ContextMenuSubContent>
             <ContextMenuItem onClick={handleFileUpload}>
               <FileIcon width={ICON_SIZE} height={ICON_SIZE} />
-              {t("context-menu.file")}
+              {t("context-menu.new-file")}
             </ContextMenuItem>
             <ContextMenuItem onClick={handleCreateKey}>
               <FolderIcon width={ICON_SIZE} height={ICON_SIZE} />
-              {t("context-menu.folder")}
+              {t("context-menu.new-folder")}
             </ContextMenuItem>
           </ContextMenuSubContent>
         </ContextMenuSub>

@@ -8,6 +8,7 @@ import { Input } from "@sun/components";
 import { MutationResult } from "~/server/actions/utils";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import ConfirmRenameDialog from "../confirm-rename-dialog";
+import { TFunction } from "i18next";
 
 type KeyProps = {
   /**
@@ -32,6 +33,10 @@ type KeyProps = {
    * Optional href.
    */
   href?: string | null;
+  /**
+   * i18n translation function.
+   */
+  t: TFunction<"bucket">;
 } & React.HTMLAttributes<HTMLButtonElement> &
   React.PropsWithChildren;
 
@@ -46,6 +51,7 @@ const Key = (props: KeyProps) => {
     currentPath = "",
     className,
     children,
+    t,
     ...rest
   } = props;
 
@@ -101,9 +107,7 @@ const Key = (props: KeyProps) => {
         false,
       );
 
-      console.log("result: ", res);
       if (res.__typename === "FormError") {
-        console.log("Failed!");
         // Set dialog message here to open confirm dialog
         setDialogMessage(res.message);
       } else if (res.__typename === "StandardError") {
@@ -187,6 +191,7 @@ const Key = (props: KeyProps) => {
         message={dialogMessage}
         setMessage={handleDialogMessage}
         onConfirm={handleConfirmRename}
+        t={t}
       />
     </>
   );

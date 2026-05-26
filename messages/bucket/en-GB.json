@@ -1,5 +1,17 @@
 {
   "items_zero": "No items",
   "items_one": "{{count}} item",
-  "items_other": "{{count}} items"
+  "items_other": "{{count}} items",
+  "context-menu": {
+    "refetch": "Refetch",
+    "new": "New",
+    "file": "New File",
+    "folder": "New Folder"
+  },
+  "confirm-dialog": {
+    "title": "Confirm Rename Key?",
+    "body": "Are you sure you want to rename? Conflicts will be automatically merged.",
+    "cancel-button": "Cancel",
+    "confirm-button": "Confirm"
+  }
 }
