@@ -1,9 +1,0 @@
-query listFiles($bucket: String!) {
-  filestoreQueries {
-    listFiles(bucket: $bucket) {
-      key
-      size
-      lastModified
-    }
-  }
-}

@@ -17,8 +17,6 @@ type File {
 type FilestoreQueries {
   health: String
   listBuckets: [Bucket!]
-  # List files in the specified bucket.
-  listFiles(bucket: String!): [File!]
   # List keys under a prefix, returning objects and directory entries.
   listKeys(bucket: String!, prefix: String): [KeyEntry!]
 }

@@ -19,9 +19,6 @@ import {
   GetPresignedUploadUrlMutationVariables,
   HealthDocument,
   ListBucketsDocument,
-  ListFilesDocument,
-  ListFilesQuery,
-  ListFilesQueryVariables,
   ListKeysDocument,
   ListKeysQuery,
   ListKeysQueryVariables,
@@ -47,7 +44,6 @@ type OperationRegistry = {
   filestoreQueries: {
     health: DocumentNode;
     listBuckets: DocumentNode;
-    listFiles: DocumentNode;
     listKeys: DocumentNode;
   };
   filestoreMutations: {
@@ -67,7 +63,6 @@ const operationRegistry: OperationRegistry = {
   filestoreQueries: {
     health: HealthDocument,
     listBuckets: ListBucketsDocument,
-    listFiles: ListFilesDocument,
     listKeys: ListKeysDocument,
   },
   filestoreMutations: {
@@ -234,18 +229,6 @@ export async function fetchHealth() {
  */
 export async function fetchListBuckets() {
   return fetchGraphQLData("filestoreQueries.listBuckets");
-}
-
-/**
- * List files in the given bucket.
- *
- * @param bucket The bucket name to query.
- */
-export async function fetchListFiles(bucket: string) {
-  return fetchGraphQLData<ListFilesQuery, ListFilesQueryVariables>(
-    "filestoreQueries.listFiles",
-    { bucket },
-  );
 }
 
 /**
