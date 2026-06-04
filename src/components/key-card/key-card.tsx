@@ -175,9 +175,14 @@ const KeyCard = (props: KeyCardProps) => {
       bucket: bucketName,
       key: keyPath,
     });
-
+    const iframe = window.self !== window.top;
     if (res.__typename === "QuerySuccess" && res.id) {
-      window.open(res.id, "_blank");
+      if (iframe) {
+        window.parent.postMessage(`filestore:${res.id}`, "*");
+        console.log("Posted", `filestore:${res.id}`, "to parent window");
+      } else {
+        window.open(res.id, "_blank");
+      }
     } else {
       console.error("Failed to get presigned download URL");
     }
