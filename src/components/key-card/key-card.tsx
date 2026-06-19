@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import type { KeyEntry } from "~/generated/graphql";
 import styles from "./key-card.module.css";
 import { Card, CardBody, CardFooter } from "@sun/components";
@@ -16,6 +17,9 @@ import { FileIcon, FolderIcon } from "lucide-react";
 import { executeMutation, MutationResult } from "~/server/actions/utils";
 import { ICON_SIZE } from "~/utils/const";
 import KeyActions from "../key-actions";
+import { EventBus, PostMessageBridge } from "@sun/events";
+import { FILESTORE_EVENTS } from "@sun/shared";
+import type { FilestoreEventPayloads } from "@sun/shared";
 
 /**
  * Options required to process a direct-to-storage file upload.
@@ -138,6 +142,25 @@ type KeyCardProps = {
  */
 const KeyCard = (props: KeyCardProps) => {
   const { keys, bucketName, t, children, currentPath = "" } = props;
+  const bridgeRef = useRef<PostMessageBridge<FilestoreEventPayloads> | null>(
+    null,
+  );
+  const isIframe = window.self !== window.top;
+
+  // Set up bridge to parent window when running inside an iframe
+  useEffect(() => {
+    if (!isIframe || !window.parent) return;
+
+    const localBus = new EventBus<FilestoreEventPayloads>();
+    const remoteBus = new EventBus<FilestoreEventPayloads>();
+
+    bridgeRef.current = new PostMessageBridge(localBus, remoteBus, {
+      target: window.parent,
+      origin: "*",
+    });
+
+    return () => bridgeRef.current?.destroy();
+  }, []);
 
   /**
    * Prompts the user to select a file from their native file explorer and coordinates the upload pipeline.
@@ -175,11 +198,10 @@ const KeyCard = (props: KeyCardProps) => {
       bucket: bucketName,
       key: keyPath,
     });
-    const iframe = window.self !== window.top;
     if (res.__typename === "QuerySuccess" && res.id) {
-      if (iframe) {
-        window.parent.postMessage(`filestore:${res.id}`, "*");
-        console.log("Posted", `filestore:${res.id}`, "to parent window");
+      // If running inside an iframe, send the download event to the parent window via the PostMessageBridge.
+      if (isIframe && bridgeRef.current) {
+        bridgeRef.current.send(FILESTORE_EVENTS.FILE_DOWNLOAD, { url: res.id });
       } else {
         window.open(res.id, "_blank");
       }
