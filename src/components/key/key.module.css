@@ -19,7 +19,6 @@
 }
 
 .key_hidden_spacer {
-  visibility: hidden;
   pointer-events: none;
 }
 
@@ -33,6 +32,9 @@
   min-width: 100px;
 }
 
-.key_last_modified {
+.key_actions_wrapper {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--lg);
 }

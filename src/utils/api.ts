@@ -22,6 +22,9 @@ import {
   ListKeysDocument,
   ListKeysQuery,
   ListKeysQueryVariables,
+  LocateKeyDetailDocument,
+  LocateKeyDetailQuery,
+  LocateKeyDetailQueryVariables,
   PutKeyDocument,
   PutKeyMutation,
   PutKeyMutationVariables,
@@ -45,6 +48,7 @@ type OperationRegistry = {
     health: DocumentNode;
     listBuckets: DocumentNode;
     listKeys: DocumentNode;
+    locate: DocumentNode;
   };
   filestoreMutations: {
     putKey: DocumentNode;
@@ -64,6 +68,7 @@ const operationRegistry: OperationRegistry = {
     health: HealthDocument,
     listBuckets: ListBucketsDocument,
     listKeys: ListKeysDocument,
+    locate: LocateKeyDetailDocument,
   },
   filestoreMutations: {
     putKey: PutKeyDocument,
@@ -343,4 +348,17 @@ export async function mutateGetPresignedDownloadUrl(
     bucket,
     key,
   }).then((res) => res?.data?.filestoreMutations?.getPresignedDownloadUrl);
+}
+
+/**
+ * Locate a single key's detailed metadata by bucket and key path.
+ *
+ * @param bucket The bucket containing the key.
+ * @param keyPath The full key path to locate.
+ */
+export async function fetchLocateKeyDetail(bucket: string, keyPath: string) {
+  return fetchGraphQLData<LocateKeyDetailQuery, LocateKeyDetailQueryVariables>(
+    "filestoreQueries.locate",
+    { bucket, keyPath },
+  ).then((res) => res?.data?.filestoreQueries?.locate);
 }

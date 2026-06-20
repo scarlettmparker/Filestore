@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import type { KeyEntry } from "~/generated/graphql";
 import styles from "./key-card.module.css";
 import { Card, CardBody, CardFooter } from "@sun/components";
@@ -18,8 +18,8 @@ import { executeMutation, MutationResult } from "~/server/actions/utils";
 import { ICON_SIZE } from "~/utils/const";
 import KeyActions from "../key-actions";
 import { EventBus, PostMessageBridge } from "@sun/events";
-import { FILESTORE_EVENTS } from "@sun/shared";
-import type { FilestoreEventPayloads } from "@sun/shared";
+import { FILESTORE_EVENTS, FrontendMode } from "@sun/shared";
+import type { FrontendMode as FrontendModeType, FilestoreEventPayloads } from "@sun/shared";
 
 /**
  * Options required to process a direct-to-storage file upload.
@@ -46,14 +46,18 @@ const uploadFileToStorage = async ({
   const key = `${currentPath}${file.name}`;
   const contentType = file.type || "application/octet-stream";
 
+  console.log("[Upload] Starting upload", { bucketName, currentPath, key, contentType, fileSize: file.size });
+
   const urlRes = await executeMutation("filestore/get-presigned-upload-url", {
     bucket: bucketName,
     key,
     contentType,
   });
 
+  console.log("[Upload] Presigned URL response", { __typename: urlRes.__typename, hasId: !!urlRes.id });
+
   if (urlRes.__typename !== "QuerySuccess" || !urlRes.id) {
-    console.error("Failed to get presigned upload URL");
+    console.error("[Upload] Failed to get presigned upload URL", urlRes);
     return;
   }
 
@@ -72,7 +76,7 @@ const uploadFileToStorage = async ({
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         const percent = Math.round((event.loaded / event.total) * 100);
-        console.log(`Progress: ${percent}% (${event.loaded}/${event.total})`);
+        console.log(`[Upload] Progress: ${percent}%`);
       }
     };
 
@@ -81,18 +85,22 @@ const uploadFileToStorage = async ({
     xhr.send(file);
   });
 
+  console.log("[Upload] XHR PUT complete", { status: putRes.status, statusText: putRes.statusText });
+
   if (putRes.status !== 200) {
-    console.error("Direct upload failed", putRes.status);
+    console.error("[Upload] Direct upload failed", { status: putRes.status, statusText: putRes.statusText, response: putRes.responseText });
     return;
   }
 
-  console.log(`[Upload] Completed upload for ${key}`);
+  console.log("[Upload] Calling upload-complete mutation", { bucket: bucketName, key, path: currentPath });
 
-  await executeMutation("filestore/upload-complete", {
+  const completeRes = await executeMutation("filestore/upload-complete", {
     bucket: bucketName,
     key,
     path: currentPath,
   });
+
+  console.log("[Upload] upload-complete response", { __typename: completeRes.__typename });
 };
 
 /**
@@ -109,8 +117,6 @@ const formatKeyPath = (
 ): string | null => {
   const base = currentPath ? currentPath.replace(/\/$/, "") : "";
 
-  // If no target name is provided, return just the base path with a trailing slash,
-  // or an actual null if we are at the root.
   if (!targetName) {
     return base ? `${base}/` : null;
   }
@@ -124,24 +130,46 @@ type KeyCardProps = {
    */
   keys: KeyEntry[];
   /**
-   * Bucket user is currently in. Required due to slug
+   * Bucket user is currently in. Required due to slug.
    */
   bucketName: string;
   /**
-   * Current path for cache invalidation
+   * Current path for cache invalidation.
    */
   currentPath?: string;
   /**
    * i18n translation function.
    */
   t: TFunction<"bucket">;
+  /**
+   * Frontend mode for iframe-aware rendering.
+   */
+  frontendMode?: FrontendModeType;
+  /**
+   * Callback when a file key is selected for detail view.
+   */
+  onKeySelect?: (key: string) => void;
+  /**
+   * Callback to set the folder targeted for delete confirmation.
+   * Pass null to dismiss the dialog.
+   */
+  onDeleteTargetChange: (target: string | null) => void;
 } & React.PropsWithChildren;
 
 /**
  * Card displaying list of keys with upload/create actions.
  */
 const KeyCard = (props: KeyCardProps) => {
-  const { keys, bucketName, t, children, currentPath = "" } = props;
+  const {
+    keys,
+    bucketName,
+    t,
+    children,
+    currentPath = "",
+    frontendMode,
+    onKeySelect,
+    onDeleteTargetChange,
+  } = props;
   const bridgeRef = useRef<PostMessageBridge<FilestoreEventPayloads> | null>(
     null,
   );
@@ -161,6 +189,8 @@ const KeyCard = (props: KeyCardProps) => {
 
     return () => bridgeRef.current?.destroy();
   }, []);
+
+  const isEmulator = frontendMode === FrontendMode.EMULATOR;
 
   /**
    * Prompts the user to select a file from their native file explorer and coordinates the upload pipeline.
@@ -199,7 +229,6 @@ const KeyCard = (props: KeyCardProps) => {
       key: keyPath,
     });
     if (res.__typename === "QuerySuccess" && res.id) {
-      // If running inside an iframe, send the download event to the parent window via the PostMessageBridge.
       if (isIframe && bridgeRef.current) {
         bridgeRef.current.send(FILESTORE_EVENTS.FILE_DOWNLOAD, { url: res.id });
       } else {
@@ -211,37 +240,26 @@ const KeyCard = (props: KeyCardProps) => {
   };
 
   /**
-   * Deletes a file.
+   * Deletes a file directly (no confirmation needed).
    */
-  const handleFileDelete = async (keyPath: string) => {
+  const handleFileDelete = useCallback(async (keyPath: string) => {
     const res = await executeMutation("filestore/delete-file", {
       bucket: bucketName,
       key: keyPath,
+      path: currentPath,
     });
 
     if (!res || res.__typename !== "QuerySuccess") {
       console.error("Failed to delete file");
     }
-  };
-
-  /**
-   * Deletes a key (folder) and all nested contents.
-   */
-  const handleKeyDelete = async (keyPath: string) => {
-    const res = await executeMutation("filestore/delete-key", {
-      bucket: bucketName,
-      key: keyPath,
-    });
-
-    if (!res || res.__typename !== "QuerySuccess") {
-      console.error("Failed to delete key");
-    }
-  };
+  }, [bucketName]);
 
   /**
    * Handle key rename. This is used for both files and directories.
    *
-   * @param newKeyPath The new key path to rename to.
+   * @param sourceKey The original key path.
+   * @param targetKey The new key path to rename to.
+   * @param merge Whether to merge with existing keys at the target.
    */
   const handleKeyRename = async (
     sourceKey: string,
@@ -253,8 +271,28 @@ const KeyCard = (props: KeyCardProps) => {
       sourceKey,
       targetKey,
       merge,
+      path: currentPath,
     });
   };
+
+  /**
+   * Resolves the click handler for a key entry.
+   * Directories navigate, files either select for detail (standalone) or download (emulator).
+   */
+  const getKeyOnClick = useCallback((key: KeyEntry) => {
+    if (key.isDirectory) return undefined;
+    if (isEmulator) return () => handleFileDownload(key.key);
+    return () => onKeySelect?.(key.key);
+  }, [isEmulator, onKeySelect]);
+
+  /**
+   * Resolves the delete handler for a key entry.
+   * Files delete immediately, folders open a confirmation dialog.
+   */
+  const getKeyOnDelete = useCallback((key: KeyEntry) => {
+    if (key.isDirectory) return () => onDeleteTargetChange(key.key);
+    return () => handleFileDelete(key.key);
+  }, [onDeleteTargetChange, handleFileDelete]);
 
   return (
     <ContextMenu className={styles.keys_card}>
@@ -271,19 +309,18 @@ const KeyCard = (props: KeyCardProps) => {
                 href={
                   key.isDirectory ? `/bucket/${bucketName}/${key.key}` : "#"
                 }
-                onClick={
-                  key.isDirectory
-                    ? undefined
-                    : () => handleFileDownload(key.key)
-                }
+                onClick={getKeyOnClick(key)}
+                onDownload={() => handleFileDownload(key.key)}
+                frontendMode={frontendMode}
                 t={t}
               >
                 <KeyActions
                   keyEntry={key}
                   key={idx}
-                  onDelete={
-                    key.isDirectory ? handleKeyDelete : handleFileDelete
-                  }
+                  onDelete={getKeyOnDelete(key)}
+                  onDownload={() => handleFileDownload(key.key)}
+                  frontendMode={frontendMode}
+                  t={t}
                 />
               </Key>
             ))}

@@ -4,8 +4,7 @@ import { lazy, Suspense } from "react";
 const Index = lazy(() => import("~/routes/index"));
 const NotFound = lazy(() => import("~/routes/not-found"));
 const Status = lazy(() => import("~/routes/status"));
-const BucketPage = lazy(() => import("~/routes/bucket/[alias]"));
-const Folder = lazy(() => import("./routes/bucket/[alias]/[...path]"));
+const BucketLayout = lazy(() => import("~/routes/bucket/bucket-layout"));
 
 /**
  * List of routes.
@@ -23,7 +22,7 @@ export const routes: RouteObject[] = [
     path: "bucket/:alias/*",
     element: (
       <Suspense fallback={null}>
-        <Folder />
+        <BucketLayout />
       </Suspense>
     ),
   },
@@ -31,7 +30,7 @@ export const routes: RouteObject[] = [
     path: "bucket/:alias",
     element: (
       <Suspense fallback={null}>
-        <BucketPage />
+        <BucketLayout />
       </Suspense>
     ),
   },

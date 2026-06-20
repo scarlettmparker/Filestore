@@ -1,0 +1,15 @@
+query locateKeyDetail($bucket: String!, $keyPath: String!) {
+  filestoreQueries {
+    locate(bucket: $bucket, keyPath: $keyPath) {
+      id
+      bucket
+      keyPath
+      name
+      description
+      status
+      createdAt
+      lastUpdatedAt
+      archivedAt
+    }
+  }
+}

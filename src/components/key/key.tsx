@@ -6,9 +6,11 @@ import { Button } from "@sun/components";
 import { ICON_SIZE } from "~/utils/const";
 import { Input } from "@sun/components";
 import { MutationResult } from "~/server/actions/utils";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import ConfirmRenameDialog from "../confirm-rename-dialog";
 import { TFunction } from "i18next";
+import { FrontendMode } from "@sun/shared";
+import type { FrontendMode as FrontendModeType } from "@sun/shared";
 
 type KeyProps = {
   /**
@@ -37,6 +39,14 @@ type KeyProps = {
    * i18n translation function.
    */
   t: TFunction<"bucket">;
+  /**
+   * Frontend mode for iframe-aware rendering.
+   */
+  frontendMode?: FrontendModeType;
+  /**
+   * Callback to download the key file.
+   */
+  onDownload?: () => void;
 } & React.HTMLAttributes<HTMLButtonElement> &
   React.PropsWithChildren;
 
@@ -52,11 +62,17 @@ const Key = (props: KeyProps) => {
     className,
     children,
     t,
+    frontendMode,
+    onDownload,
     ...rest
   } = props;
 
   const [dialogMessage, setDialogMessage] = useState<string | null>(null);
   const [targetKey, setTargetKey] = useState<string | null>(null);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const isEmulator = frontendMode === FrontendMode.EMULATOR;
 
   // Strip out current path from key name
   const displayName = useMemo(() => {
@@ -72,6 +88,14 @@ const Key = (props: KeyProps) => {
   useEffect(() => {
     setInputValue(displayName);
   }, [displayName]);
+
+  // Focus input when rename mode activates
+  useEffect(() => {
+    if (isRenaming && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isRenaming]);
 
   /**
    * Get a key icon.
@@ -99,12 +123,12 @@ const Key = (props: KeyProps) => {
       );
 
       if (res.__typename === "FormError") {
-        // Set dialog message here to open confirm dialog
         setDialogMessage(res.message);
       } else if (res.__typename === "StandardError") {
         console.error(res.message);
       }
     }
+    setIsRenaming(false);
   }, [inputValue, displayName, key.key, currentPath, onRename]);
 
   /**
@@ -133,8 +157,17 @@ const Key = (props: KeyProps) => {
     [displayName],
   );
 
+  /**
+   * Handle double-click to enter rename mode.
+   * Disabled in emulator mode.
+   */
+  const handleDoubleClick = useCallback(() => {
+    if (isEmulator) return;
+    setIsRenaming(true);
+  }, [isEmulator]);
+
   return (
-    <div className={styles.key_wrapper}>
+    <div className={styles.key_wrapper} onDoubleClick={handleDoubleClick}>
       <a href={href ?? undefined} className={styles.key_link}>
         <Button
           variant="secondary"
@@ -147,33 +180,38 @@ const Key = (props: KeyProps) => {
             {inputValue || displayName}
           </span>
 
-          {!key.isDirectory && (
-            <>
-              <p className={styles.key_last_modified}>{key.lastModified}</p>
-              <p>{`${key.size} B`}</p>
-            </>
-          )}
-          {children}
+          <span className={styles.key_actions_wrapper}>
+            {!key.isDirectory && (
+              <>
+                <p>{key.lastModified}</p>
+                <p>{`${key.size} B`}</p>
+              </>
+            )}
+            {children}
+          </span>
         </Button>
       </a>
 
-      <Input
-        className={styles.key_input_absolute}
-        value={inputValue}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setInputValue(e.target.value)
-        }
-        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-          if (e.key === "Enter") {
-            e.currentTarget.blur();
+      {isRenaming && (
+        <Input
+          ref={inputRef}
+          className={styles.key_input_absolute}
+          value={inputValue}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setInputValue(e.target.value)
           }
-          if (e.key === "Escape") {
-            setInputValue(displayName);
-            e.currentTarget.blur();
-          }
-        }}
-        onBlur={handleRename}
-      />
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === "Enter") {
+              e.currentTarget.blur();
+            }
+            if (e.key === "Escape") {
+              setInputValue(displayName);
+              setIsRenaming(false);
+            }
+          }}
+          onBlur={handleRename}
+        />
+      )}
 
       <ConfirmRenameDialog
         message={dialogMessage}

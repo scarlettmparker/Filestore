@@ -20,8 +20,8 @@ type Documents = {
     "mutation getPresignedUploadUrl($bucket: String!, $key: String!, $contentType: String) {\n  filestoreMutations {\n    getPresignedUploadUrl(bucket: $bucket, key: $key, contentType: $contentType)\n  }\n}": typeof types.GetPresignedUploadUrlDocument,
     "query health {\n  filestoreQueries {\n    health\n  }\n}": typeof types.HealthDocument,
     "query listBuckets {\n  filestoreQueries {\n    listBuckets {\n      id\n      created\n      globalAliases\n      localAliases\n    }\n  }\n}": typeof types.ListBucketsDocument,
-    "query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}": typeof types.ListFilesDocument,
     "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}": typeof types.ListKeysDocument,
+    "query locateKeyDetail($bucket: String!, $keyPath: String!) {\n  filestoreQueries {\n    locate(bucket: $bucket, keyPath: $keyPath) {\n      id\n      bucket\n      keyPath\n      name\n      description\n      status\n      createdAt\n      lastUpdatedAt\n      archivedAt\n    }\n  }\n}": typeof types.LocateKeyDetailDocument,
     "mutation putKey($bucket: String!, $key: String) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": typeof types.PutKeyDocument,
     "mutation renameKey($bucket: String!, $sourceKey: String!, $targetKey: String!, $merge: Boolean!) {\n  filestoreMutations {\n    renameKey(\n      bucket: $bucket\n      sourceKey: $sourceKey\n      targetKey: $targetKey\n      merge: $merge\n    ) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": typeof types.RenameKeyDocument,
 };
@@ -32,8 +32,8 @@ const documents: Documents = {
     "mutation getPresignedUploadUrl($bucket: String!, $key: String!, $contentType: String) {\n  filestoreMutations {\n    getPresignedUploadUrl(bucket: $bucket, key: $key, contentType: $contentType)\n  }\n}": types.GetPresignedUploadUrlDocument,
     "query health {\n  filestoreQueries {\n    health\n  }\n}": types.HealthDocument,
     "query listBuckets {\n  filestoreQueries {\n    listBuckets {\n      id\n      created\n      globalAliases\n      localAliases\n    }\n  }\n}": types.ListBucketsDocument,
-    "query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}": types.ListFilesDocument,
     "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}": types.ListKeysDocument,
+    "query locateKeyDetail($bucket: String!, $keyPath: String!) {\n  filestoreQueries {\n    locate(bucket: $bucket, keyPath: $keyPath) {\n      id\n      bucket\n      keyPath\n      name\n      description\n      status\n      createdAt\n      lastUpdatedAt\n      archivedAt\n    }\n  }\n}": types.LocateKeyDetailDocument,
     "mutation putKey($bucket: String!, $key: String) {\n  filestoreMutations {\n    putKey(bucket: $bucket, key: $key)\n  }\n}": types.PutKeyDocument,
     "mutation renameKey($bucket: String!, $sourceKey: String!, $targetKey: String!, $merge: Boolean!) {\n  filestoreMutations {\n    renameKey(\n      bucket: $bucket\n      sourceKey: $sourceKey\n      targetKey: $targetKey\n      merge: $merge\n    ) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": types.RenameKeyDocument,
 };
@@ -79,11 +79,11 @@ export function graphql(source: "query listBuckets {\n  filestoreQueries {\n    
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}"): (typeof documents)["query listFiles($bucket: String!) {\n  filestoreQueries {\n    listFiles(bucket: $bucket) {\n      key\n      size\n      lastModified\n    }\n  }\n}"];
+export function graphql(source: "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}"): (typeof documents)["query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}"): (typeof documents)["query listKeys($bucket: String!, $prefix: String) {\n  filestoreQueries {\n    listKeys(bucket: $bucket, prefix: $prefix) {\n      key\n      isDirectory\n      size\n      lastModified\n    }\n  }\n}"];
+export function graphql(source: "query locateKeyDetail($bucket: String!, $keyPath: String!) {\n  filestoreQueries {\n    locate(bucket: $bucket, keyPath: $keyPath) {\n      id\n      bucket\n      keyPath\n      name\n      description\n      status\n      createdAt\n      lastUpdatedAt\n      archivedAt\n    }\n  }\n}"): (typeof documents)["query locateKeyDetail($bucket: String!, $keyPath: String!) {\n  filestoreQueries {\n    locate(bucket: $bucket, keyPath: $keyPath) {\n      id\n      bucket\n      keyPath\n      name\n      description\n      status\n      createdAt\n      lastUpdatedAt\n      archivedAt\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
