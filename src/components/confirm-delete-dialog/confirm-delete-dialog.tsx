@@ -1,4 +1,11 @@
-import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter, Button } from "@sun/components";
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+  Button,
+} from "@sun/components";
 import { TFunction } from "i18next";
 
 type ConfirmDeleteDialogProps = {
@@ -31,10 +38,7 @@ const ConfirmDeleteDialog = (props: ConfirmDeleteDialogProps) => {
   const { open, onClose, onConfirm, folderName, t } = props;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(open: boolean) => !open && onClose()}
-    >
+    <Dialog open={open} onOpenChange={(open: boolean) => !open && onClose()}>
       <DialogHeader>
         <DialogTitle>{t("confirm-delete-dialog.title")}</DialogTitle>
       </DialogHeader>

@@ -2,12 +2,14 @@ import { DropdownMenuTrigger } from "@sun/components";
 import { DropdownMenuItem } from "@sun/components";
 import { DropdownMenuContent } from "@sun/components";
 import { DropdownMenu } from "@sun/components";
-import { MoreVertical, Trash2Icon, Download } from "lucide-react";
+import { MoreVertical, Trash2Icon, Download, Edit } from "lucide-react";
+import { useContext } from "react";
 import { ICON_SIZE } from "~/utils/const";
 import { KeyEntry } from "~/generated/graphql";
 import { FrontendMode } from "@sun/shared";
 import type { FrontendMode as FrontendModeType } from "@sun/shared";
 import { TFunction } from "i18next";
+import RenameContext from "~/contexts/rename-context";
 
 type KeyActionsProps = {
   /**
@@ -34,6 +36,7 @@ type KeyActionsProps = {
 
 const KeyActions = (props: KeyActionsProps) => {
   const { keyEntry, onDelete, onDownload, frontendMode, t } = props;
+  const { startRename } = useContext(RenameContext);
 
   if (frontendMode === FrontendMode.EMULATOR) {
     return null;
@@ -57,6 +60,10 @@ const KeyActions = (props: KeyActionsProps) => {
             {t("context-menu.download")}
           </DropdownMenuItem>
         )}
+        <DropdownMenuItem onClick={startRename}>
+          <Edit width={ICON_SIZE} height={ICON_SIZE} />{" "}
+          {t("context-menu.edit")}
+        </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"
           onClick={() => onDelete?.(keyEntry.key)}

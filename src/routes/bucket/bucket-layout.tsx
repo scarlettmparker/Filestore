@@ -24,7 +24,7 @@ const BucketLayout = () => {
   const path = rawPath ? rawPath.replace(/\/?$/, "/") : "";
 
   // Get the selected key from the search parameters
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const selectedKey = searchParams.get("selected");
 
   // State to manage the key that is targeted for deletion
@@ -42,12 +42,13 @@ const BucketLayout = () => {
     LocateKeyDetailQuery["filestoreQueries"]["locate"]
   >("detail", pattern, { ...pageParams, selected: selectedKey });
 
-  if (!keys || !alias) return null;
-
   const { t } = useTranslation("bucket");
 
+  /**
+   * Select a key for detail view by triggering a full server-side navigation.
+   */
   const handleKeySelect = (key: string) => {
-    setSearchParams({ selected: key });
+    window.location.search = `?selected=${encodeURIComponent(key)}`;
   };
 
   /**
@@ -65,9 +66,11 @@ const BucketLayout = () => {
     setDeleteTarget(null);
   }, [deleteTarget, alias]);
 
+  if (!keys || !alias) return null;
+
   return (
     <div className={styles.layout}>
-      <Breadcrumb>
+      <Breadcrumb className={styles.breadcrumb}>
         <FilestoreBreadcrumb alias={alias} path={path || undefined} />
       </Breadcrumb>
 

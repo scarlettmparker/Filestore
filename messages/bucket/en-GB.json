@@ -8,6 +8,7 @@
     "new-file": "New File",
     "new-folder": "New Folder",
     "download": "Download",
+    "edit": "Rename",
     "delete": "Delete"
   },
   "confirm-dialog": {

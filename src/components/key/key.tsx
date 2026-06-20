@@ -7,10 +7,10 @@ import { ICON_SIZE } from "~/utils/const";
 import { Input } from "@sun/components";
 import { MutationResult } from "~/server/actions/utils";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import ConfirmRenameDialog from "../confirm-rename-dialog";
+import RenameContext from "~/contexts/rename-context";
 import { TFunction } from "i18next";
-import { FrontendMode } from "@sun/shared";
-import type { FrontendMode as FrontendModeType } from "@sun/shared";
 
 type KeyProps = {
   /**
@@ -32,21 +32,13 @@ type KeyProps = {
    */
   currentPath?: string;
   /**
-   * Optional href.
+   * Callback to download the key file.
    */
-  href?: string | null;
+  onDownload?: () => void;
   /**
    * i18n translation function.
    */
   t: TFunction<"bucket">;
-  /**
-   * Frontend mode for iframe-aware rendering.
-   */
-  frontendMode?: FrontendModeType;
-  /**
-   * Callback to download the key file.
-   */
-  onDownload?: () => void;
 } & React.HTMLAttributes<HTMLButtonElement> &
   React.PropsWithChildren;
 
@@ -57,22 +49,20 @@ const Key = (props: KeyProps) => {
   const {
     keyEntry: key,
     onRename,
-    href,
     currentPath = "",
     className,
     children,
     t,
-    frontendMode,
     onDownload,
     ...rest
   } = props;
 
+  const navigate = useNavigate();
+  const alias = useParams().alias as string;
   const [dialogMessage, setDialogMessage] = useState<string | null>(null);
   const [targetKey, setTargetKey] = useState<string | null>(null);
   const [isRenaming, setIsRenaming] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const isEmulator = frontendMode === FrontendMode.EMULATOR;
 
   // Strip out current path from key name
   const displayName = useMemo(() => {
@@ -102,9 +92,13 @@ const Key = (props: KeyProps) => {
    */
   const getKeyIcon = useCallback(() => {
     return key.isDirectory ? (
-      <FolderIcon width={ICON_SIZE} height={ICON_SIZE} />
+      <FolderIcon
+        className={styles.icon}
+        width={ICON_SIZE}
+        height={ICON_SIZE}
+      />
     ) : (
-      <FileIcon width={ICON_SIZE} height={ICON_SIZE} />
+      <FileIcon className={styles.icon} width={ICON_SIZE} height={ICON_SIZE} />
     );
   }, [key.isDirectory]);
 
@@ -158,21 +152,30 @@ const Key = (props: KeyProps) => {
   );
 
   /**
-   * Handle double-click to enter rename mode.
-   * Disabled in emulator mode.
+   * Handle double-click: navigate for directories, rename for files.
    */
   const handleDoubleClick = useCallback(() => {
-    if (isEmulator) return;
-    setIsRenaming(true);
-  }, [isEmulator]);
+    if (key.isDirectory) {
+      navigate(`/bucket/${alias}/${key.key}`);
+    } else {
+      setIsRenaming(true);
+    }
+  }, [key.isDirectory, key.key, alias, navigate]);
+
+  const contextValue = useMemo(
+    () => ({
+      startRename: () => setIsRenaming(true),
+      endRename: () => setIsRenaming(false),
+    }),
+    [],
+  );
 
   return (
-    <div className={styles.key_wrapper} onDoubleClick={handleDoubleClick}>
-      <a href={href ?? undefined} className={styles.key_link}>
+    <RenameContext.Provider value={contextValue}>
+      <div className={styles.key_wrapper} onDoubleClick={handleDoubleClick}>
         <Button
           variant="secondary"
           className={cn(styles.key_button, className)}
-          disabled={!href}
           {...rest}
         >
           {getKeyIcon()}
@@ -190,36 +193,36 @@ const Key = (props: KeyProps) => {
             {children}
           </span>
         </Button>
-      </a>
 
-      {isRenaming && (
-        <Input
-          ref={inputRef}
-          className={styles.key_input_absolute}
-          value={inputValue}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInputValue(e.target.value)
-          }
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === "Enter") {
-              e.currentTarget.blur();
+        {isRenaming && (
+          <Input
+            ref={inputRef}
+            className={styles.key_input_absolute}
+            value={inputValue}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setInputValue(e.target.value)
             }
-            if (e.key === "Escape") {
-              setInputValue(displayName);
-              setIsRenaming(false);
-            }
-          }}
-          onBlur={handleRename}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") {
+                e.currentTarget.blur();
+              }
+              if (e.key === "Escape") {
+                setInputValue(displayName);
+                setIsRenaming(false);
+              }
+            }}
+            onBlur={handleRename}
+          />
+        )}
+
+        <ConfirmRenameDialog
+          message={dialogMessage}
+          setMessage={handleDialogMessage}
+          onConfirm={handleConfirmRename}
+          t={t}
         />
-      )}
-
-      <ConfirmRenameDialog
-        message={dialogMessage}
-        setMessage={handleDialogMessage}
-        onConfirm={handleConfirmRename}
-        t={t}
-      />
-    </div>
+      </div>
+    </RenameContext.Provider>
   );
 };
 

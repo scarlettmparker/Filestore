@@ -24,3 +24,8 @@
   width: 50%;
   flex-shrink: 0;
 }
+
+.breadcrumb {
+  position: relative;
+  z-index: 10;
+}

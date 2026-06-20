@@ -1,0 +1,10 @@
+.detail_skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sm);
+}
+
+.detail_skeleton_row {
+  height: 1.5rem;
+  width: 100%;
+}
