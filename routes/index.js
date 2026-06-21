@@ -5,6 +5,7 @@
 import { renderApp } from "../utils/ssr.js";
 import { base, isProduction } from "../config.js";
 import { Buffer } from "buffer";
+import { matchOriginToMode, FrontendMode } from "@sun/shared";
 
 /**
  * Reads a named cookie value from a raw Cookie header.
@@ -77,6 +78,25 @@ export function setupRoutes(app, vite) {
     // Compute pageName the same way as client getPageName()
     const pageName = url.split("/")[1] || "home";
 
+    // Resolve the frontend mode from the HTTP Referer header.
+    let frontendMode = FrontendMode.FILESTORE;
+    const referer = request.headers.referer;
+    if (referer) {
+      try {
+        const refererOrigin = new URL(referer).origin;
+        const ownOrigin = `https://${request.headers.host}`;
+        if (refererOrigin !== ownOrigin) {
+          const detected = matchOriginToMode(referer);
+          if (detected) frontendMode = detected;
+        }
+      } catch {
+        // invalid
+      }
+    }
+    console.log(
+      `[frontend-mode] SSR referer: ${referer || "(none)"} | host: ${request.headers.host} | injected mode: ${frontendMode}`,
+    );
+
     try {
       await renderApp(
         {
@@ -85,6 +105,7 @@ export function setupRoutes(app, vite) {
           url,
           locale,
           pageName,
+          frontendMode,
           mutationPayload,
           invalidateCacheCookie,
         },

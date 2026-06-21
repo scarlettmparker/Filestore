@@ -25,6 +25,7 @@ import "./src/utils/register-loaders.ts";
 import "./src/utils/register-mutations.ts";
 
 const app = Fastify({ logger: false });
+
 registerDownloadProxyRoute(app);
 
 let vite;

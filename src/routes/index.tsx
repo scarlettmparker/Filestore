@@ -13,6 +13,7 @@ import {
 import { Folder } from "lucide-react";
 import styles from "./index.module.css";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 /**
  * Home page displaying admin panel.
@@ -36,16 +37,16 @@ const Index = () => {
       </CardHeader>
       <CardBody>
         {buckets.map((bucket, idx) => (
-          <a
+          <Link
             key={idx}
-            href={`/bucket/${bucket.globalAliases}`}
+            to={`/bucket/${bucket.globalAliases}`}
             className={styles.bucket_link}
           >
             <Button variant="secondary" className={styles.bucket_button}>
               <Folder width={16} height={16} />
               {bucket.globalAliases}
             </Button>
-          </a>
+          </Link>
         ))}
       </CardBody>
       <CardFooter>{t("items", { count: buckets.length })}</CardFooter>

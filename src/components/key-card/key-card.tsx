@@ -138,7 +138,7 @@ type KeyCardProps = {
   /**
    * Frontend mode for iframe-aware rendering.
    */
-  frontendMode?: FrontendModeType;
+  frontendMode: FrontendModeType | null;
   /**
    * Callback when a file key is selected for detail view.
    */
@@ -167,11 +167,11 @@ const KeyCard = (props: KeyCardProps) => {
   const bridgeRef = useRef<PostMessageBridge<FilestoreEventPayloads> | null>(
     null,
   );
-  const isIframe = typeof window !== "undefined" && window.self !== window.top;
+  const isEmulator = frontendMode === FrontendMode.EMULATOR;
 
-  // Set up bridge to parent window when running inside an iframe
+  // Set up bridge to parent window when running in emulator mode.
   useEffect(() => {
-    if (!isIframe || !window.parent) return;
+    if (!isEmulator || !window.parent) return;
 
     const localBus = new EventBus<FilestoreEventPayloads>();
     const remoteBus = new EventBus<FilestoreEventPayloads>();
@@ -182,9 +182,7 @@ const KeyCard = (props: KeyCardProps) => {
     });
 
     return () => bridgeRef.current?.destroy();
-  }, []);
-
-  const isEmulator = frontendMode === FrontendMode.EMULATOR;
+  }, [isEmulator]);
 
   /**
    * Prompts the user to select a file from their native file explorer and coordinates the upload pipeline.
@@ -223,7 +221,7 @@ const KeyCard = (props: KeyCardProps) => {
       key: keyPath,
     });
     if (res.__typename === "QuerySuccess" && res.id) {
-      if (isIframe && bridgeRef.current) {
+      if (isEmulator && bridgeRef.current) {
         bridgeRef.current.send(FILESTORE_EVENTS.FILE_DOWNLOAD, { url: res.id });
       } else {
         window.open(res.id, "_blank");
@@ -280,6 +278,7 @@ const KeyCard = (props: KeyCardProps) => {
     (key: KeyEntry) => {
       if (key.isDirectory) return undefined;
       if (isEmulator) return () => handleFileDownload(key.key);
+
       return () => onKeySelect?.(key.key);
     },
     [isEmulator, onKeySelect],

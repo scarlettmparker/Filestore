@@ -29,6 +29,7 @@ type RenderProps = {
   isProduction: boolean;
   mutationPayload: MutationResult;
   invalidateCacheCookie?: string;
+  frontendMode: string;
 };
 
 export async function render({
@@ -40,6 +41,7 @@ export async function render({
   isProduction,
   mutationPayload: _mutationPayload,
   invalidateCacheCookie,
+  frontendMode,
 }: RenderProps) {
   const posthogKey = process.env.POSTHOG_API_KEY ?? "";
   const posthogHost = process.env.POSTHOG_HOST ?? "";
@@ -134,6 +136,7 @@ export async function render({
               window.__posthog_host__ = '${posthogHost}';
               window.__locale__ = '${locale}';
               window.__serverCacheData__ = {};
+              window.__FRONTEND_MODE__ = ${JSON.stringify(frontendMode)};
             </script>
             <body>
               <div id="app">`;

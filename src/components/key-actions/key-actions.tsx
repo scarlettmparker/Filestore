@@ -27,7 +27,7 @@ type KeyActionsProps = {
   /**
    * Frontend mode for iframe-aware rendering.
    */
-  frontendMode?: FrontendModeType;
+  frontendMode: FrontendModeType | null;
   /**
    * i18n translation function.
    */

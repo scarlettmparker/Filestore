@@ -1,7 +1,7 @@
-import { Breadcrumb, CardHeader, CardTitle, UICheck } from "@sun/components";
+import { Breadcrumb, CardHeader, CardTitle } from "@sun/components";
 import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { FrontendMode, detectFrontendMode } from "@sun/shared";
 import FilestoreBreadcrumb from "~/components/filestore-breadcrumb";
 import KeyCard from "~/components/key-card";
@@ -29,7 +29,12 @@ const BucketLayout = () => {
 
   // State to manage the key that is targeted for deletion
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const frontendMode = detectFrontendMode();
+  const [frontendMode, setFrontendMode] = useState<FrontendMode | null>(null);
+  useEffect(() => {
+    const mode = detectFrontendMode();
+    console.log(`[frontend-mode] client resolved mode: ${mode}`);
+    setFrontendMode(mode);
+  }, []);
 
   const pattern = path ? "bucket/:alias/*" : "bucket/:alias";
   const pageParams = path ? { alias, path } : { alias };
@@ -91,7 +96,7 @@ const BucketLayout = () => {
           </KeyCard>
         </div>
 
-        <UICheck frontends={FrontendMode.FILESTORE}>
+        {frontendMode === FrontendMode.FILESTORE && (
           <div className={styles.right_panel}>
             {selectedKey && detail ? (
               <KeyDetailPanel detail={detail} t={t} />
@@ -99,7 +104,7 @@ const BucketLayout = () => {
               <KeyDetailPlaceholder t={t} />
             )}
           </div>
-        </UICheck>
+        )}
       </div>
 
       <ConfirmDeleteDialog
