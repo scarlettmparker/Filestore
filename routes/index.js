@@ -93,9 +93,6 @@ export function setupRoutes(app, vite) {
         // invalid
       }
     }
-    console.log(
-      `[frontend-mode] SSR referer: ${referer || "(none)"} | host: ${request.headers.host} | injected mode: ${frontendMode}`,
-    );
 
     try {
       await renderApp(

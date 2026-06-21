@@ -30,9 +30,9 @@ const BucketLayout = () => {
   // State to manage the key that is targeted for deletion
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [frontendMode, setFrontendMode] = useState<FrontendMode | null>(null);
+
   useEffect(() => {
     const mode = detectFrontendMode();
-    console.log(`[frontend-mode] client resolved mode: ${mode}`);
     setFrontendMode(mode);
   }, []);
 
