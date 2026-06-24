@@ -6,7 +6,8 @@ import i18n from "i18next";
 import { Suspense, useEffect } from "react";
 
 import Layout from "./components/layout";
-import { hydratePageData } from "./utils/page-data";
+import { hydratePageData } from "@sun/ssr";
+import "./utils/configure-framework";
 import { PostHogProvider } from "./utils/hooks/posthog";
 
 import "@sun/components/style.css";

@@ -14,7 +14,7 @@ import {
   ContextMenuSubContent,
 } from "@sun/components";
 import { FileIcon, FolderIcon } from "lucide-react";
-import { executeMutation, MutationResult } from "~/server/actions/utils";
+import { executeMutation, MutationResult } from "@sun/ssr";
 import { ICON_SIZE } from "~/utils/const";
 import KeyActions from "../key-actions";
 import { EventBus, PostMessageBridge } from "@sun/events";

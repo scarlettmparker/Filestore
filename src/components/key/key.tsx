@@ -5,7 +5,7 @@ import { cn } from "~/utils/cn";
 import { Button } from "@sun/components";
 import { ICON_SIZE } from "~/utils/const";
 import { Input } from "@sun/components";
-import { MutationResult } from "~/server/actions/utils";
+import { MutationResult } from "@sun/ssr";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ConfirmRenameDialog from "../confirm-rename-dialog";

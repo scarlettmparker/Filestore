@@ -1,7 +1,7 @@
 import { ListBucketsQuery } from "~/generated/graphql";
 import { fetchListBuckets } from "~/utils/api";
-import { pageDataRegistry } from "~/utils/page-data";
-import { usePageData } from "~/utils/use-page-data";
+import { pageDataRegistry } from "@sun/ssr";
+import { usePageData } from "@sun/ssr/react";
 import {
   Button,
   Card,

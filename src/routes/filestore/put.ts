@@ -1,5 +1,5 @@
-import { mutationRegistry } from "~/utils/mutations";
-import { MutationResult } from "~/server/actions/utils";
+import { mutationRegistry, invalidateCacheKeys, makeCacheKey } from "@sun/ssr";
+import type { MutationResult } from "@sun/ssr";
 import {
   mutateDeleteFile,
   mutateDeleteKey,
@@ -8,7 +8,6 @@ import {
   mutatePutKey,
   mutateRenameKey,
 } from "~/utils/api";
-import { invalidateCacheKeys, makeCacheKey } from "~/utils/page-data";
 
 /**
  * Cache key for the keys list of a bucket (optionally at a folder path).

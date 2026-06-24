@@ -11,9 +11,8 @@ import KeyDetailSkeleton from "~/components/key-detail-skeleton";
 import ConfirmDeleteDialog from "~/components/confirm-delete-dialog";
 import { ListKeysQuery } from "~/generated/graphql";
 import { fetchListKeys, fetchLocateKeyDetail } from "~/utils/api";
-import { pageDataRegistry } from "~/utils/page-data";
-import { usePageData } from "~/utils/use-page-data";
-import { executeMutation } from "~/server/actions/utils";
+import { pageDataRegistry, executeMutation } from "@sun/ssr";
+import { usePageData } from "@sun/ssr/react";
 import styles from "./bucket-layout.module.css";
 
 /**

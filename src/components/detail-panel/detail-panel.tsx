@@ -1,4 +1,4 @@
-import { usePageData } from "~/utils/use-page-data";
+import { usePageData } from "@sun/ssr/react";
 import { LocateKeyDetailQuery } from "~/generated/graphql";
 import KeyDetailPanel from "~/components/key-detail";
 import KeyDetailPlaceholder from "~/components/key-detail-placeholder";

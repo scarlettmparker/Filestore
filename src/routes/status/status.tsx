@@ -1,7 +1,7 @@
 import { HealthQuery } from "~/generated/graphql";
 import { fetchHealth } from "~/utils/api";
-import { pageDataRegistry } from "~/utils/page-data";
-import { usePageData } from "~/utils/use-page-data";
+import { pageDataRegistry } from "@sun/ssr";
+import { usePageData } from "@sun/ssr/react";
 
 /**
  * Status page, check for health of Vite app and Garage.
