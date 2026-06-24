@@ -8,8 +8,21 @@ import {
   mutatePutKey,
   mutateRenameKey,
 } from "~/utils/api";
-import { makeCacheKey } from "~/utils/page-data";
-import { ServerRedirectError } from "~/utils/server-redirect";
+import { invalidateCacheKeys, makeCacheKey } from "~/utils/page-data";
+
+/**
+ * Cache key for the keys list of a bucket (optionally at a folder path).
+ * Matches what getPageData("keys", pattern, params) reads on both server and
+ * client, so invalidating it refreshes the list via /__page-data.
+ */
+function keysCacheKey(bucket: string, path?: string): string {
+  const folderPath = path || "";
+  const pattern = folderPath ? "bucket/:alias/*" : "bucket/:alias";
+  const params: Record<string, unknown> = folderPath
+    ? { alias: bucket, path: folderPath }
+    : { alias: bucket };
+  return makeCacheKey(`${pattern}:keys`, params);
+}
 
 /**
  * Handler for putting a file or key via server mutation.
@@ -36,22 +49,14 @@ async function handlePutKey(
   const result = await mutatePutKey(bucket, key ?? null);
 
   if (result?.data) {
-    const folderPath = (body.path as string) || "";
-    const redirectTo = folderPath
-      ? `/bucket/${bucket}/${folderPath}`
-      : `/bucket/${bucket}`;
-    const pattern = folderPath ? `bucket/:alias/*` : `bucket/:alias`;
-
-    const params: Record<string, unknown> = folderPath
-      ? { alias: bucket, path: folderPath }
-      : { alias: bucket };
-    const cacheKey = makeCacheKey(`${pattern}:keys`, params);
-
-    throw new ServerRedirectError(redirectTo, cacheKey, {
-      __typename: "QuerySuccess",
+    const cacheKey = keysCacheKey(bucket, body.path as string);
+    invalidateCacheKeys([cacheKey]);
+    return {
+      __typename: "QuerySuccess" as const,
       message: "Uploaded",
       id: "",
-    });
+      invalidated: [cacheKey],
+    };
   }
 
   return {
@@ -106,42 +111,20 @@ async function handleGetPresignedDownloadUrl(
 }
 
 /**
- * Get redirect URL and cache invalidation key for a given bucket/key. Used for cache invalidation.
- * @param bucket Bucket name
- * @param path Path of the key, used to determine redirect URL and cache key pattern.
- */
-const getRedirectAndCacheInfo = (bucket: string, path?: string) => {
-  const folderPath = path || "";
-  const redirectTo = folderPath
-    ? `/bucket/${bucket}/${folderPath}`
-    : `/bucket/${bucket}`;
-  const pattern = folderPath ? `bucket/:alias/*` : `bucket/:alias`;
-
-  const params: Record<string, unknown> = folderPath
-    ? { alias: bucket, path: folderPath }
-    : { alias: bucket };
-  const cacheKey = makeCacheKey(`${pattern}:keys`, params);
-
-  return { redirectTo, cacheKey };
-};
-
-/**
- * Handle post-upload redirect + cache invalidation after a direct presigned upload.
+ * Invalidate the cache after a direct presigned upload completes.
  */
 async function handleUploadComplete(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
   const { bucket, path } = body;
-  const { redirectTo, cacheKey } = getRedirectAndCacheInfo(
-    bucket as string,
-    path as string,
-  );
-
-  throw new ServerRedirectError(redirectTo, cacheKey, {
-    __typename: "QuerySuccess",
+  const cacheKey = keysCacheKey(bucket as string, path as string);
+  invalidateCacheKeys([cacheKey]);
+  return {
+    __typename: "QuerySuccess" as const,
     message: "Uploaded successfully",
     id: "",
-  });
+    invalidated: [cacheKey],
+  };
 }
 
 /**
@@ -151,19 +134,18 @@ async function handleDeleteFile(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
   const { bucket, key, path } = body;
-  const { redirectTo, cacheKey } = getRedirectAndCacheInfo(
-    bucket as string,
-    path as string,
-  );
+  const cacheKey = keysCacheKey(bucket as string, path as string);
 
   const result = await mutateDeleteFile(bucket as string, key as string);
 
   if (result?.data?.filestoreMutations?.deleteFile) {
-    throw new ServerRedirectError(redirectTo, cacheKey, {
-      __typename: "QuerySuccess",
+    invalidateCacheKeys([cacheKey]);
+    return {
+      __typename: "QuerySuccess" as const,
       message: "Deleted successfully",
       id: "",
-    });
+      invalidated: [cacheKey],
+    };
   }
 
   return {
@@ -179,26 +161,25 @@ async function handleDeleteKey(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
   const { bucket, key, path } = body;
-  const { redirectTo, cacheKey } = getRedirectAndCacheInfo(
-    bucket as string,
-    path as string,
-  );
+  const cacheKey = keysCacheKey(bucket as string, path as string);
 
   const result = await mutateDeleteKey(bucket as string, key as string);
 
   if (result?.data?.filestoreMutations?.deleteKey) {
-    // Need to invalidate for all nested paths (as otherwise it'll show files that no longer exist in keys)
+    // Invalidate nested paths too, otherwise deleted files would still show up.
     const cleanKey = (key as string).endsWith("/") ? key : key + "/";
-    const deleteKeys = makeCacheKey("bucket/:alias/*:keys", {
+    const nestedKeys = makeCacheKey("bucket/:alias/*:keys", {
       alias: bucket,
       path: `${cleanKey}*`,
     });
-
-    throw new ServerRedirectError(redirectTo, [deleteKeys, cacheKey], {
-      __typename: "QuerySuccess",
+    const invalidated = [nestedKeys, cacheKey];
+    invalidateCacheKeys(invalidated);
+    return {
+      __typename: "QuerySuccess" as const,
       message: "Deleted successfully",
       id: "",
-    });
+      invalidated,
+    };
   }
 
   return {
@@ -208,30 +189,27 @@ async function handleDeleteKey(
 }
 
 /**
- * Rename a key (file or directory). This will rename all nested files and subdirs as well if it's a directory.
- * We have to handle merges and conflicts here, hence why the possible FormError return type instead of just
- * invalidating on success. We need the user to confirm if there are any conflicts.
+ * Rename a key (file or directory). This will rename all nested files and
+ * subdirs as well if it's a directory. We have to handle merges and conflicts
+ * here, hence the possible FormError return instead of just invalidating.
  */
 async function handleRenameKey(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
-  const { bucket, sourceKey, targetKey, path, merge } = body;
-  const { redirectTo, cacheKey } = getRedirectAndCacheInfo(
-    bucket as string,
-    path as string,
-  );
+  const { bucket, sourceKey, targetKey, path } = body;
+  const cacheKey = keysCacheKey(bucket as string, path as string);
 
   const result = await mutateRenameKey(
     bucket as string,
     sourceKey as string,
     targetKey as string,
-    merge as boolean,
+    body.merge as boolean,
   );
 
   if (result?.data?.filestoreMutations?.renameKey) {
     const renameResult = result.data.filestoreMutations.renameKey;
     if (renameResult.success) {
-      // Need to invalidate for all nested paths of the renamed key AND all nested paths of the merged key
+      // Invalidate nested paths of both the source and (merged) target.
       const cleanSource = (sourceKey as string).endsWith("/")
         ? sourceKey
         : sourceKey + "/";
@@ -239,23 +217,24 @@ async function handleRenameKey(
         ? targetKey
         : targetKey + "/";
 
-      const renameKeys = [
+      const invalidated = [
+        cacheKey,
         makeCacheKey("bucket/:alias/*:keys", {
           alias: bucket,
           path: `${cleanSource}*`,
         }),
-
         makeCacheKey("bucket/:alias/*:keys", {
           alias: bucket,
           path: `${cleanTarget}*`,
         }),
       ];
-
-      throw new ServerRedirectError(redirectTo, [cacheKey, ...renameKeys], {
-        __typename: "QuerySuccess",
+      invalidateCacheKeys(invalidated);
+      return {
+        __typename: "QuerySuccess" as const,
         message: "Renamed successfully",
         id: "",
-      });
+        invalidated,
+      };
     } else if (renameResult.hasConflicts) {
       return {
         __typename: "FormError",

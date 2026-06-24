@@ -6,6 +6,7 @@ import { renderApp } from "../utils/ssr.js";
 import { base, isProduction } from "../config.js";
 import { Buffer } from "buffer";
 import { matchOriginToMode, FrontendMode } from "@sun/shared";
+import { pageDataLoaders } from "../src/utils/page-data.ts";
 
 /**
  * Reads a named cookie value from a raw Cookie header.
@@ -33,6 +34,31 @@ function getCookieValue(cookieHeader, name) {
  * @param {object} vite - The Vite dev server instance (optional, only in development).
  */
 export function setupRoutes(app, vite) {
+  /**
+   * Page-data RPC. Runs the registered server-side loaders for a pattern and
+   * returns the merged data, so the client can refetch on demand (query-param
+   * changes, post-mutation) without a full page reload. Fetching stays here.
+   */
+  app.post("/__page-data", async (request, reply) => {
+    const { pattern, params } = request.body || {};
+    const loaders = pageDataLoaders[pattern];
+    if (!loaders || !loaders.length) {
+      return reply.send({ data: null });
+    }
+    try {
+      const results = await Promise.all(loaders.map((l) => l(params)));
+      const merged = {};
+      for (const r of results) {
+        if (r && typeof r === "object") Object.assign(merged, r);
+      }
+      return reply.send({ data: merged });
+    } catch (e) {
+      return reply
+        .status(500)
+        .send({ data: null, error: String(e?.message || e) });
+    }
+  });
+
   /**
    * Catch-all route for server-side rendering of pages.
    * This route handles all GET requests not otherwise handled by static file serving or specific API routes.

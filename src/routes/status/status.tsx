@@ -1,12 +1,13 @@
 import { HealthQuery } from "~/generated/graphql";
 import { fetchHealth } from "~/utils/api";
-import { getPageData, pageDataRegistry } from "~/utils/page-data";
+import { pageDataRegistry } from "~/utils/page-data";
+import { usePageData } from "~/utils/use-page-data";
 
 /**
  * Status page, check for health of Vite app and Garage.
  */
 const StatusPage = () => {
-  const { data: health } = getPageData<
+  const { data: health } = usePageData<
     HealthQuery["filestoreQueries"]["health"]
   >("health", "filestore");
 

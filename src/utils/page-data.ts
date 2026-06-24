@@ -208,6 +208,28 @@ export function makeCacheKey(
 }
 
 /**
+ * RPC asks the server to run the registered loaders for a pattern
+ * and return the merged data.
+ */
+async function fetchPageDataRpc(
+  pattern: string,
+  params?: Record<string, unknown>,
+): Promise<Record<string, unknown> | null> {
+  try {
+    const res = await fetch("/__page-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pattern, params }),
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { data?: Record<string, unknown> };
+    return (json && json.data) || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Reads page data from the suspense cache, initiating fetch if not cached.
  * Used internally for suspense-based data loading.
  *
@@ -246,7 +268,7 @@ function readPageData<T>(
         return true;
       }) || [];
 
-    if (!relevantLoaders.length) {
+    if (typeof window === "undefined" && !relevantLoaders.length) {
       return { data: null as T };
     }
 
@@ -254,17 +276,23 @@ function readPageData<T>(
     record = { status: "pending" };
     suspenseCache.set(cacheKey, record);
 
-    // Initiate the data fetch
-    const promise = Promise.all(relevantLoaders.map((l) => l(params)))
-      .then((results) => {
-        const merged: Record<string, unknown> = {};
-        for (const r of results) {
-          if (r && typeof r === "object") {
-            Object.assign(merged, r);
-          }
-        }
+    // Initiate the data fetch.
+    const loadPromise: Promise<Record<string, unknown> | null> =
+      typeof window === "undefined"
+        ? Promise.all(relevantLoaders.map((l) => l(params))).then((results) => {
+            const merged: Record<string, unknown> = {};
+            for (const r of results) {
+              if (r && typeof r === "object") {
+                Object.assign(merged, r);
+              }
+            }
+            return merged;
+          })
+        : fetchPageDataRpc(pattern, params);
 
-        if (merged[key] == null) {
+    const promise = loadPromise
+      .then((merged) => {
+        if (!merged || merged[key] == null) {
           record!.status = "rejected";
           record!.error = new Error(`No data returned for key: ${key}`);
           return null;
@@ -425,13 +453,14 @@ function sweepCacheByPattern(
 }
 
 /**
- * Invalidates specific entries in the suspense cache based on a cookie payload.
+ * Removes suspense-cache entries matching the given cache-key patterns.
+ * Handles exact keys, base-pattern fallbacks, and wildcard parameter sweeps.
+ * Runs against whichever cache is in scope (server process cache during SSR,
+ * the browser's read-through cache on the client).
  *
- * @param invalidateCacheCookie Raw cookie value containing invalidation patterns.
+ * @param patterns Cache-key patterns to invalidate.
  */
-export function invalidateCache(invalidateCacheCookie: string): boolean {
-  const patterns = parseInvalidationPatterns(invalidateCacheCookie);
-
+export function invalidateCacheKeys(patterns: string[]): boolean {
   for (const pattern of patterns) {
     // Handle exact cache key invalidation
     if (suspenseCache.has(pattern)) {
@@ -463,10 +492,94 @@ export function invalidateCache(invalidateCacheCookie: string): boolean {
       if (hasWildcard) {
         sweepCacheByPattern(patternBase, patternParams);
       }
-    } catch (e) {}
+    } catch {
+      // skip malformed patterns
+    }
   }
 
   return true;
+}
+
+/**
+ * Invalidates specific entries in the suspense cache based on a cookie payload.
+ * Used during SSR when a (legacy) redirect-driven invalidation cookie is present.
+ *
+ * @param invalidateCacheCookie Raw cookie value containing invalidation patterns.
+ */
+export function invalidateCache(invalidateCacheCookie: string): boolean {
+  return invalidateCacheKeys(parseInvalidationPatterns(invalidateCacheCookie));
+}
+
+type InvalidationListener = (cacheKeys?: string[]) => void;
+
+const invalidationSubscribers = new Set<InvalidationListener>();
+
+/**
+ * Subscribes to data-invalidation events. Returns an unsubscribe function.
+ */
+export function subscribeDataInvalidation(
+  fn: InvalidationListener,
+): () => void {
+  invalidationSubscribers.add(fn);
+  return () => {
+    invalidationSubscribers.delete(fn);
+  };
+}
+
+function emitDataInvalidation(cacheKeys?: string[]): void {
+  invalidationSubscribers.forEach((fn) => fn(cacheKeys));
+}
+
+/**
+ * Hard-clears client cache entries matching `patterns` then notifies. This
+ * forces consumers to re-suspend, so prefer revalidatePageData for mutations.
+ */
+export function invalidatePageData(patterns?: string[]): void {
+  if (patterns && patterns.length) {
+    invalidateCacheKeys(patterns);
+  }
+  emitDataInvalidation();
+}
+
+/**
+ * Notifies usePageData consumers to background-refetch the given cache keys in place.
+ */
+export function revalidatePageData(cacheKeys?: string[]): void {
+  emitDataInvalidation(cacheKeys);
+}
+
+/**
+ * Background-refetch a single cache entry via /__page-data and update it in place.
+ */
+export function refetchEntry(
+  key: string,
+  pattern: string,
+  params: Record<string, unknown> | undefined,
+  onUpdate: () => void,
+): void {
+  fetchPageDataRpc(pattern, params)
+    .then((merged) => {
+      if (!merged) return;
+      const cacheKey = makeCacheKey(`${pattern}:${key}`, params);
+      const record = suspenseCache.get(cacheKey);
+      if (record) {
+        record.status = "resolved";
+        record.result = merged;
+        record.timestamp = Date.now();
+        record.promise = undefined;
+        record.error = undefined;
+      } else {
+        suspenseCache.set(cacheKey, {
+          status: "resolved",
+          result: merged,
+          timestamp: Date.now(),
+        });
+      }
+      onUpdate();
+    })
+    .catch(() => {
+      // keep stale data on refetch failure
+    });
 }
 
 /**

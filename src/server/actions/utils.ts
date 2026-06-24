@@ -3,12 +3,21 @@
  */
 
 import { FormError, QuerySuccess, StandardError } from "~/generated/graphql";
+import { revalidatePageData } from "~/utils/page-data";
 
-export type MutationResult =
+export type MutationResult = (
   | QuerySuccess
   | StandardError
   | FormError
-  | { __typename: "Redirect"; redirectTo: string };
+  | { __typename: "Redirect"; redirectTo: string }
+) & {
+  /**
+   * Cache-key patterns the handler invalidated server-side. The client mirrors
+   * this on its own read-through cache and refetches via /__page-data, avoiding
+   * a full route reload.
+   */
+  invalidated?: string[];
+};
 
 /**
  * Executes a server-side mutation by posting to the registered mutation path.
@@ -24,7 +33,6 @@ export async function executeMutation(
     const response = await fetch(`/${mutationName}`, {
       method: "POST",
       credentials: "include",
-      redirect: "manual",
       headers: {
         "Content-Type": "application/json",
       },
@@ -40,9 +48,10 @@ export async function executeMutation(
 
     const result: MutationResult = await response.json();
 
-    if (result.__typename === "Redirect") {
-      window.location.assign(result.redirectTo);
-      return result;
+    // Revalidate the affected entries in place (stale data stays visible while
+    // /__page-data refetches) — no suspense flash, no route reload.
+    if (result.invalidated && result.invalidated.length) {
+      revalidatePageData(result.invalidated);
     }
 
     return result;

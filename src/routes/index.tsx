@@ -1,6 +1,7 @@
 import { ListBucketsQuery } from "~/generated/graphql";
 import { fetchListBuckets } from "~/utils/api";
-import { getPageData, pageDataRegistry } from "~/utils/page-data";
+import { pageDataRegistry } from "~/utils/page-data";
+import { usePageData } from "~/utils/use-page-data";
 import {
   Button,
   Card,
@@ -19,7 +20,7 @@ import { Link } from "react-router-dom";
  * Home page displaying admin panel.
  */
 const Index = () => {
-  const { data: buckets } = getPageData<
+  const { data: buckets } = usePageData<
     ListBucketsQuery["filestoreQueries"]["listBuckets"]
   >("buckets", "filestore");
 

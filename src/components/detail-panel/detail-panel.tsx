@@ -1,8 +1,7 @@
-import { getPageData } from "~/utils/page-data";
+import { usePageData } from "~/utils/use-page-data";
 import { LocateKeyDetailQuery } from "~/generated/graphql";
 import KeyDetailPanel from "~/components/key-detail";
 import KeyDetailPlaceholder from "~/components/key-detail-placeholder";
-import styles from "./detail-panel.module.css";
 import { TFunction } from "i18next";
 
 type DetailPanelProps = {
@@ -32,18 +31,14 @@ type DetailPanelProps = {
 const DetailPanel = (props: DetailPanelProps) => {
   const { pattern, pageParams, selectedKey, t } = props;
 
-  const { data: detail } = getPageData<
+  const { data: detail } = usePageData<
     LocateKeyDetailQuery["filestoreQueries"]["locate"]
   >("detail", pattern, { ...pageParams, selected: selectedKey });
 
-  return (
-    <div className={styles.detail_panel}>
-      {selectedKey && detail ? (
-        <KeyDetailPanel detail={detail} t={t} />
-      ) : (
-        <KeyDetailPlaceholder t={t} />
-      )}
-    </div>
+  return selectedKey && detail ? (
+    <KeyDetailPanel detail={detail} t={t} />
+  ) : (
+    <KeyDetailPlaceholder t={t} />
   );
 };
 

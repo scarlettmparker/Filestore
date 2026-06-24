@@ -1,16 +1,18 @@
 import { Breadcrumb, CardHeader, CardTitle } from "@sun/components";
 import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { FrontendMode, detectFrontendMode } from "@sun/shared";
 import FilestoreBreadcrumb from "~/components/filestore-breadcrumb";
 import KeyCard from "~/components/key-card";
-import KeyDetailPanel from "~/components/key-detail";
+import DetailPanel from "~/components/detail-panel";
 import KeyDetailPlaceholder from "~/components/key-detail-placeholder";
+import KeyDetailSkeleton from "~/components/key-detail-skeleton";
 import ConfirmDeleteDialog from "~/components/confirm-delete-dialog";
-import { ListKeysQuery, LocateKeyDetailQuery } from "~/generated/graphql";
+import { ListKeysQuery } from "~/generated/graphql";
 import { fetchListKeys, fetchLocateKeyDetail } from "~/utils/api";
-import { getPageData, pageDataRegistry } from "~/utils/page-data";
+import { pageDataRegistry } from "~/utils/page-data";
+import { usePageData } from "~/utils/use-page-data";
 import { executeMutation } from "~/server/actions/utils";
 import styles from "./bucket-layout.module.css";
 
@@ -24,7 +26,7 @@ const BucketLayout = () => {
   const path = rawPath ? rawPath.replace(/\/?$/, "/") : "";
 
   // Get the selected key from the search parameters
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const selectedKey = searchParams.get("selected");
 
   // State to manage the key that is targeted for deletion
@@ -39,21 +41,25 @@ const BucketLayout = () => {
   const pattern = path ? "bucket/:alias/*" : "bucket/:alias";
   const pageParams = path ? { alias, path } : { alias };
 
-  const { data: keys } = getPageData<
+  const { data: keys } = usePageData<
     ListKeysQuery["filestoreQueries"]["listKeys"]
   >("keys", pattern, pageParams);
-
-  const { data: detail } = getPageData<
-    LocateKeyDetailQuery["filestoreQueries"]["locate"]
-  >("detail", pattern, { ...pageParams, selected: selectedKey });
 
   const { t } = useTranslation("bucket");
 
   /**
-   * Select a key for detail view by triggering a full server-side navigation.
+   * Select a key for detail view. Updates the search param client-side; the
+   * detail cache key changes and usePageData re-suspends, fetching via
+   * /__page-data without a full reload.
    */
   const handleKeySelect = (key: string) => {
-    window.location.search = `?selected=${encodeURIComponent(key)}`;
+    setSearchParams(
+      (prev) => {
+        prev.set("selected", key);
+        return prev;
+      },
+      { replace: true },
+    );
   };
 
   /**
@@ -98,8 +104,15 @@ const BucketLayout = () => {
 
         {frontendMode === FrontendMode.FILESTORE && (
           <div className={styles.right_panel}>
-            {selectedKey && detail ? (
-              <KeyDetailPanel detail={detail} t={t} />
+            {selectedKey ? (
+              <Suspense fallback={<KeyDetailSkeleton />}>
+                <DetailPanel
+                  pattern={pattern}
+                  pageParams={pageParams}
+                  selectedKey={selectedKey}
+                  t={t}
+                />
+              </Suspense>
             ) : (
               <KeyDetailPlaceholder t={t} />
             )}
