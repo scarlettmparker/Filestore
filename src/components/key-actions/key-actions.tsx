@@ -61,8 +61,7 @@ const KeyActions = (props: KeyActionsProps) => {
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onClick={startRename}>
-          <Edit width={ICON_SIZE} height={ICON_SIZE} />{" "}
-          {t("context-menu.edit")}
+          <Edit width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.edit")}
         </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"

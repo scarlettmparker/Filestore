@@ -9,6 +9,7 @@
     "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
     "graphql:generate": "graphql-codegen --config codegen.ts",
     "lint": "npx eslint",
+    "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\"",
     "preview": "cross-env NODE_ENV=production tsx --loader ./css-loader.mjs server.js"
   },
   "devDependencies": {
@@ -31,7 +32,7 @@
     "jest-environment-jsdom": "^30.2.0",
     "jiti": "^2.6.1",
     "nodemon": "^3.1.14",
-    "prettier": "^3.5.3",
+    "prettier": "^3.9.3",
     "rollup-plugin-visualizer": "^6.0.5",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
