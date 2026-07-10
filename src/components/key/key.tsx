@@ -1,7 +1,7 @@
 import { FileIcon, FolderIcon } from "lucide-react";
 import { KeyEntry } from "~/generated/graphql";
 import styles from "./key.module.css";
-import { cn } from "~/utils/cn";
+import { cn } from "@sun/utils";
 import { Button } from "@sun/components";
 import { ICON_SIZE } from "~/utils/const";
 import { Input } from "@sun/components";
