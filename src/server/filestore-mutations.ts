@@ -1,5 +1,9 @@
-import { mutationRegistry, invalidateCacheKeys, makeCacheKey } from "@sun/ssr";
-import type { MutationResult } from "@sun/ssr";
+import {
+  invalidateCacheKeys,
+  makeCacheKey,
+  mutationRegistry,
+  type MutationResult,
+} from "@sun/ssr";
 import {
   mutateDeleteFile,
   mutateDeleteKey,
@@ -23,9 +27,6 @@ function keysCacheKey(bucket: string, path?: string): string {
   return makeCacheKey(`${pattern}:keys`, params);
 }
 
-/**
- * Handler for putting a file or key via server mutation.
- */
 async function handlePutKey(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
@@ -64,9 +65,6 @@ async function handlePutKey(
   } as const;
 }
 
-/**
- * Handle getting a presigned upload URL
- */
 async function handleGetPresignedUploadUrl(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
@@ -87,9 +85,6 @@ async function handleGetPresignedUploadUrl(
   };
 }
 
-/**
- * Handle getting a presigned download URL
- */
 async function handleGetPresignedDownloadUrl(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
@@ -109,9 +104,6 @@ async function handleGetPresignedDownloadUrl(
   };
 }
 
-/**
- * Invalidate the cache after a direct presigned upload completes.
- */
 async function handleUploadComplete(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
@@ -126,9 +118,6 @@ async function handleUploadComplete(
   };
 }
 
-/**
- * Delete a file.
- */
 async function handleDeleteFile(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
@@ -153,9 +142,6 @@ async function handleDeleteFile(
   };
 }
 
-/**
- * Delete a key (directory). This will delete ALL files and subdirs in the key!
- */
 async function handleDeleteKey(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
@@ -187,11 +173,6 @@ async function handleDeleteKey(
   };
 }
 
-/**
- * Rename a key (file or directory). This will rename all nested files and
- * subdirs as well if it's a directory. We have to handle merges and conflicts
- * here, hence the possible FormError return instead of just invalidating.
- */
 async function handleRenameKey(
   body: Record<string, unknown>,
 ): Promise<MutationResult> {
@@ -208,7 +189,6 @@ async function handleRenameKey(
   if (result?.data?.filestoreMutations?.renameKey) {
     const renameResult = result.data.filestoreMutations.renameKey;
     if (renameResult.success) {
-      // Invalidate nested paths of both the source and (merged) target.
       const cleanSource = (sourceKey as string).endsWith("/")
         ? sourceKey
         : sourceKey + "/";
@@ -248,33 +228,28 @@ async function handleRenameKey(
   };
 }
 
-/**
- * Register the mutation handler for filestore put operations.
- */
-export function registerFilestorePutMutations(): void {
-  mutationRegistry.registerMutationHandler("filestore/put", handlePutKey);
-  mutationRegistry.registerMutationHandler(
-    "filestore/get-presigned-upload-url",
-    handleGetPresignedUploadUrl,
-  );
-  mutationRegistry.registerMutationHandler(
-    "filestore/get-presigned-download-url",
-    handleGetPresignedDownloadUrl,
-  );
-  mutationRegistry.registerMutationHandler(
-    "filestore/upload-complete",
-    handleUploadComplete,
-  );
-  mutationRegistry.registerMutationHandler(
-    "filestore/delete-file",
-    handleDeleteFile,
-  );
-  mutationRegistry.registerMutationHandler(
-    "filestore/delete-key",
-    handleDeleteKey,
-  );
-  mutationRegistry.registerMutationHandler(
-    "filestore/rename-key",
-    handleRenameKey,
-  );
-}
+mutationRegistry.registerMutationHandler("filestore/put", handlePutKey);
+mutationRegistry.registerMutationHandler(
+  "filestore/get-presigned-upload-url",
+  handleGetPresignedUploadUrl,
+);
+mutationRegistry.registerMutationHandler(
+  "filestore/get-presigned-download-url",
+  handleGetPresignedDownloadUrl,
+);
+mutationRegistry.registerMutationHandler(
+  "filestore/upload-complete",
+  handleUploadComplete,
+);
+mutationRegistry.registerMutationHandler(
+  "filestore/delete-file",
+  handleDeleteFile,
+);
+mutationRegistry.registerMutationHandler(
+  "filestore/delete-key",
+  handleDeleteKey,
+);
+mutationRegistry.registerMutationHandler(
+  "filestore/rename-key",
+  handleRenameKey,
+);

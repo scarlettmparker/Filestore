@@ -16,7 +16,6 @@ import { setupRoutes } from "./routes/index.js";
 import { registerDownloadProxyRoute } from "./src/server/routes/download-proxy.ts";
 
 import "./src/utils/register-loaders.ts";
-import "./src/utils/register-mutations.ts";
 
 await createServer({
   config: { port, host, base, isProduction, backendHost, backendPort },

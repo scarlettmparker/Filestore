@@ -1,0 +1,48 @@
+{
+  "bucket": {
+    "items_zero": "No items",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "context-menu": {
+      "refetch": "Refetch",
+      "new": "New",
+      "new-file": "New File",
+      "new-folder": "New Folder",
+      "download": "Download",
+      "edit": "Rename",
+      "delete": "Delete"
+    },
+    "confirm-dialog": {
+      "title": "Confirm Rename Key?",
+      "body": "Are you sure you want to rename? Conflicts will be automatically merged.",
+      "cancel-button": "Cancel",
+      "confirm-button": "Confirm"
+    },
+    "confirm-delete-dialog": {
+      "title": "Confirm Delete",
+      "body-folder": "Are you sure you want to delete \"{{name}}\"? This will recursively delete all contents.",
+      "cancel-button": "Cancel",
+      "confirm-button": "Delete"
+    },
+    "detail-placeholder": {
+      "title": "Select a file or folder to view details"
+    },
+    "detail": {
+      "key-path": "Key Path",
+      "name": "Name",
+      "description": "Description",
+      "bucket": "Bucket",
+      "status": "Status",
+      "created": "Created",
+      "last-updated": "Last Updated",
+      "no-details": "No details found."
+    }
+  },
+  "home": {
+    "card-title": "Filestore",
+    "card-description": "Please select a bucket",
+    "items_zero": "No buckets",
+    "items_one": "{{count}} bucket",
+    "items_other": "{{count}} buckets"
+  }
+}
