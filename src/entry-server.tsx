@@ -10,7 +10,6 @@ import { createI18nInstance } from "./utils/i18n";
 // Colocated mutation handlers self-register at boot.
 autoDiscoverRegistrations(
   import.meta.glob("./server/**/*-mutations.ts", { eager: true }),
-  "mutation",
 );
 
 export async function render(options: {
