@@ -53,7 +53,7 @@ const Key = (props: KeyProps) => {
     className,
     children,
     t,
-    onDownload,
+    onDownload: _onDownload,
     ...rest
   } = props;
 
