@@ -11,6 +11,7 @@ import {
   isProduction,
   backendHost,
   backendPort,
+  clientSecret,
 } from "./config.js";
 import { setupRoutes } from "./routes/index.js";
 import { registerDownloadProxyRoute } from "./src/server/routes/download-proxy.ts";
@@ -18,7 +19,15 @@ import { registerDownloadProxyRoute } from "./src/server/routes/download-proxy.t
 import "./src/utils/register-loaders.ts";
 
 await createServer({
-  config: { port, host, base, isProduction, backendHost, backendPort },
+  config: {
+    port,
+    host,
+    base,
+    isProduction,
+    backendHost,
+    backendPort,
+    clientSecret,
+  },
   setupRoutes,
   configure: (app) => {
     registerDownloadProxyRoute(app);

@@ -151,6 +151,8 @@ export async function fetchGraphQLData<
 >(operationName: string, variables?: V): Promise<ApiResponse<T>> {
   const endpoint =
     process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql";
+  const clientSecret = process.env.CLIENT_SECRET || "";
+  const clientId = process.env.CLIENT_ID || "filestore";
 
   const query = getOperation(operationName);
   if (!query) {
@@ -167,6 +169,8 @@ export async function fetchGraphQLData<
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Client-Secret": clientSecret,
+          "X-Client-Id": clientId,
         },
         body: JSON.stringify({
           query: print(query),
