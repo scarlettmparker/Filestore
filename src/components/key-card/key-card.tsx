@@ -309,6 +309,31 @@ const KeyCard = (props: KeyCardProps) => {
     return key.isDirectory ? undefined : () => handleFileDownload(key.key);
   };
 
+  /**
+   * Cancels a torrent download and invalidates the cache.
+   */
+  const handleCancelTorrent = useCallback(
+    async (jobId: string) => {
+      await executeMutation("filestore/cancel-torrent", {
+        jobId,
+        bucket: bucketName,
+        path: currentPath,
+      });
+    },
+    [bucketName, currentPath],
+  );
+
+  /**
+   * Resolves the cancel-torrent handler for a torrent key entry.
+   */
+  const getKeyOnCancelTorrent = useCallback(
+    (key: KeyEntry) => {
+      const jobId = key.torrent?.jobId;
+      return jobId ? () => handleCancelTorrent(jobId) : undefined;
+    },
+    [handleCancelTorrent],
+  );
+
   return (
     <ContextMenu className={styles.keys_card}>
       <ContextMenuTrigger>
@@ -330,6 +355,7 @@ const KeyCard = (props: KeyCardProps) => {
                   key={idx}
                   onDelete={getKeyOnDelete(key)}
                   onDownload={handleKeyDownload(key)}
+                  onCancelTorrent={getKeyOnCancelTorrent(key)}
                   frontendMode={frontendMode}
                   t={t}
                 />

@@ -8,6 +8,9 @@ import {
   AddTorrentDocument,
   AddTorrentMutation,
   AddTorrentMutationVariables,
+  CancelTorrentDocument,
+  CancelTorrentMutation,
+  CancelTorrentMutationVariables,
   DeleteFileDocument,
   DeleteFileMutation,
   DeleteFileMutationVariables,
@@ -61,6 +64,7 @@ type OperationRegistry = {
     deleteKey: DocumentNode;
     renameKey: DocumentNode;
     addTorrent: DocumentNode;
+    cancelTorrent: DocumentNode;
   };
 };
 
@@ -82,6 +86,7 @@ const operationRegistry: OperationRegistry = {
     deleteKey: DeleteKeyDocument,
     renameKey: RenameKeyDocument,
     addTorrent: AddTorrentDocument,
+    cancelTorrent: CancelTorrentDocument,
   },
 };
 
@@ -390,4 +395,16 @@ export async function mutateAddTorrent(
     "filestoreMutations.addTorrent",
     { bucket, path, magnet, torrentFileBase64 },
   ).then((res) => res?.data?.filestoreMutations?.addTorrent);
+}
+
+/**
+ * Cancels a torrent download by job id.
+ */
+export async function mutateCancelTorrent(jobId: string) {
+  return fetchGraphQLData<
+    CancelTorrentMutation,
+    CancelTorrentMutationVariables
+  >("filestoreMutations.cancelTorrent", { jobId }).then(
+    (res) => res?.data?.filestoreMutations?.cancelTorrent,
+  );
 }

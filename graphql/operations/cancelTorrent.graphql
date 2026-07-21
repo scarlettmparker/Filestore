@@ -1,0 +1,8 @@
+mutation cancelTorrent($jobId: String!) {
+  filestoreMutations {
+    cancelTorrent(jobId: $jobId) {
+      id
+      status
+    }
+  }
+}

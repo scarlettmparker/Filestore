@@ -11,7 +11,8 @@
       "new-torrent": "File from .torrent",
       "download": "Download",
       "edit": "Rename",
-      "delete": "Delete"
+      "delete": "Delete",
+      "cancel-torrent": "Cancel Download"
     },
     "torrent-dialog": {
       "title": "Add torrent",

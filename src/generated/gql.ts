@@ -15,6 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 type Documents = {
     "mutation addTorrent($bucket: String!, $path: String, $magnet: String, $torrentFileBase64: String) {\n  filestoreMutations {\n    addTorrent(\n      bucket: $bucket\n      path: $path\n      magnet: $magnet\n      torrentFileBase64: $torrentFileBase64\n    ) {\n      id\n      bucket\n      targetKeyPath\n      status\n      progress\n      magnetDetail {\n        displayName\n      }\n    }\n  }\n}": typeof types.AddTorrentDocument,
+    "mutation cancelTorrent($jobId: String!) {\n  filestoreMutations {\n    cancelTorrent(jobId: $jobId) {\n      id\n      status\n    }\n  }\n}": typeof types.CancelTorrentDocument,
     "mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}": typeof types.DeleteFileDocument,
     "mutation deleteKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteKey(bucket: $bucket, key: $key)\n  }\n}": typeof types.DeleteKeyDocument,
     "mutation getPresignedDownloadUrl($bucket: String!, $key: String!) {\n  filestoreMutations {\n    getPresignedDownloadUrl(bucket: $bucket, key: $key)\n  }\n}": typeof types.GetPresignedDownloadUrlDocument,
@@ -28,6 +29,7 @@ type Documents = {
 };
 const documents: Documents = {
     "mutation addTorrent($bucket: String!, $path: String, $magnet: String, $torrentFileBase64: String) {\n  filestoreMutations {\n    addTorrent(\n      bucket: $bucket\n      path: $path\n      magnet: $magnet\n      torrentFileBase64: $torrentFileBase64\n    ) {\n      id\n      bucket\n      targetKeyPath\n      status\n      progress\n      magnetDetail {\n        displayName\n      }\n    }\n  }\n}": types.AddTorrentDocument,
+    "mutation cancelTorrent($jobId: String!) {\n  filestoreMutations {\n    cancelTorrent(jobId: $jobId) {\n      id\n      status\n    }\n  }\n}": types.CancelTorrentDocument,
     "mutation deleteFile($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteFile(bucket: $bucket, key: $key)\n  }\n}": types.DeleteFileDocument,
     "mutation deleteKey($bucket: String!, $key: String!) {\n  filestoreMutations {\n    deleteKey(bucket: $bucket, key: $key)\n  }\n}": types.DeleteKeyDocument,
     "mutation getPresignedDownloadUrl($bucket: String!, $key: String!) {\n  filestoreMutations {\n    getPresignedDownloadUrl(bucket: $bucket, key: $key)\n  }\n}": types.GetPresignedDownloadUrlDocument,
@@ -58,6 +60,10 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation addTorrent($bucket: String!, $path: String, $magnet: String, $torrentFileBase64: String) {\n  filestoreMutations {\n    addTorrent(\n      bucket: $bucket\n      path: $path\n      magnet: $magnet\n      torrentFileBase64: $torrentFileBase64\n    ) {\n      id\n      bucket\n      targetKeyPath\n      status\n      progress\n      magnetDetail {\n        displayName\n      }\n    }\n  }\n}"): (typeof documents)["mutation addTorrent($bucket: String!, $path: String, $magnet: String, $torrentFileBase64: String) {\n  filestoreMutations {\n    addTorrent(\n      bucket: $bucket\n      path: $path\n      magnet: $magnet\n      torrentFileBase64: $torrentFileBase64\n    ) {\n      id\n      bucket\n      targetKeyPath\n      status\n      progress\n      magnetDetail {\n        displayName\n      }\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation cancelTorrent($jobId: String!) {\n  filestoreMutations {\n    cancelTorrent(jobId: $jobId) {\n      id\n      status\n    }\n  }\n}"): (typeof documents)["mutation cancelTorrent($jobId: String!) {\n  filestoreMutations {\n    cancelTorrent(jobId: $jobId) {\n      id\n      status\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

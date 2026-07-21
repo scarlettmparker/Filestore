@@ -11,6 +11,7 @@ import {
   fetchListKeys,
   fetchLocateKeyDetail,
   mutateAddTorrent,
+  mutateCancelTorrent,
   mutateDeleteFile,
   mutateDeleteKey,
   mutateGetPresignedDownloadUrl,
@@ -284,6 +285,34 @@ defineMutation({
       };
     }
     return { __typename: "StandardError", message: "Failed to add torrent" };
+  },
+});
+
+/**
+ * Cancels a torrent job and removes its scratch data.
+ */
+defineMutation({
+  path: "filestore/cancel-torrent",
+  async handler(body: {
+    jobId: string;
+    bucket: string;
+    path?: string;
+  }): Promise<MutationResult> {
+    if (!body.jobId) {
+      return { __typename: "StandardError", message: "jobId required" };
+    }
+    const result = await mutateCancelTorrent(body.jobId);
+    if (result) {
+      const cacheKey = keysCacheKey(body.bucket, body.path);
+      invalidateCacheKeys([cacheKey]);
+      return {
+        __typename: "QuerySuccess",
+        message: "Torrent cancelled",
+        id: "",
+        invalidated: [cacheKey],
+      };
+    }
+    return { __typename: "StandardError", message: "Failed to cancel torrent" };
   },
 });
 
