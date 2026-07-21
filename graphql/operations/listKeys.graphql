@@ -5,6 +5,18 @@ query listKeys($bucket: String!, $prefix: String) {
       isDirectory
       size
       lastModified
+      name
+      description
+      torrent {
+        jobId
+        status
+        progress
+        magnetDetailId
+        downloadRateBps
+        etaSeconds
+        peersConnected
+        errorMessage
+      }
     }
   }
 }

@@ -9,9 +9,15 @@ import DetailPanel from "~/components/detail-panel";
 import KeyDetailPlaceholder from "~/components/key-detail-placeholder";
 import KeyDetailSkeleton from "~/components/key-detail-skeleton";
 import ConfirmDeleteDialog from "~/components/confirm-delete-dialog";
+import TorrentDialog from "~/components/torrent-dialog";
 import { ListKeysQuery } from "~/generated/graphql";
 import { fetchListKeys, fetchLocateKeyDetail } from "~/utils/api";
-import { pageDataRegistry, executeMutation } from "@sun/ssr";
+import {
+  executeMutation,
+  makeCacheKey,
+  pageDataRegistry,
+  revalidatePageData,
+} from "@sun/ssr";
 import { usePageData } from "@sun/ssr/react";
 import styles from "./bucket-layout.module.css";
 
@@ -30,6 +36,7 @@ const BucketLayout = () => {
 
   // State to manage the key that is targeted for deletion
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [torrentOpen, setTorrentOpen] = useState(false);
   const [frontendMode, setFrontendMode] = useState<FrontendMode | null>(null);
 
   useEffect(() => {
@@ -45,6 +52,20 @@ const BucketLayout = () => {
   >("keys", pattern, pageParams);
 
   const { t } = useTranslation("bucket");
+
+  /**
+   * While any visible key is a torrent still downloading, refetch the listing
+   * on an interval so progress updates without a full reload.
+   */
+  const hasDownloading = !!keys?.some((key) => key.torrent);
+  useEffect(() => {
+    if (!hasDownloading) return;
+    const cacheKey = makeCacheKey(`${pattern}:keys`, pageParams);
+    const interval = setInterval(() => revalidatePageData([cacheKey]), 3000);
+    return () => clearInterval(interval);
+    // pageParams is derived from alias/path; depend on those to avoid churn.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasDownloading, alias, path, pattern]);
 
   /**
    * Select a key for detail view. Updates the search param client-side; the
@@ -94,6 +115,7 @@ const BucketLayout = () => {
             frontendMode={frontendMode}
             onKeySelect={handleKeySelect}
             onDeleteTargetChange={setDeleteTarget}
+            onAddTorrent={() => setTorrentOpen(true)}
           >
             <CardHeader>
               <CardTitle>{path ? `${alias}/${path}` : alias}</CardTitle>
@@ -125,6 +147,13 @@ const BucketLayout = () => {
         onConfirm={handleConfirmDelete}
         folderName={deleteTarget || ""}
         t={t}
+      />
+
+      <TorrentDialog
+        open={torrentOpen}
+        onClose={() => setTorrentOpen(false)}
+        bucketName={alias}
+        currentPath={path}
       />
     </div>
   );

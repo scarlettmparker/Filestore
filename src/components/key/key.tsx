@@ -152,15 +152,17 @@ const Key = (props: KeyProps) => {
   );
 
   /**
-   * Handle double-click: navigate for directories, rename for files.
+   * Handle double-click: navigate for directories, rename for files. A torrent
+   * still downloading is left non-interactive.
    */
   const handleDoubleClick = useCallback(() => {
+    if (key.torrent) return;
     if (key.isDirectory) {
       navigate(`/bucket/${alias}/${key.key}`);
     } else {
       setIsRenaming(true);
     }
-  }, [key.isDirectory, key.key, alias, navigate]);
+  }, [key.isDirectory, key.torrent, key.key, alias, navigate]);
 
   const contextValue = useMemo(
     () => ({
@@ -184,13 +186,31 @@ const Key = (props: KeyProps) => {
           </span>
 
           <span className={styles.key_actions_wrapper}>
-            {!key.isDirectory && (
+            {key.torrent ? (
+              <span className={styles.progress_wrapper}>
+                <span className={styles.progress_status}>
+                  {`${Math.round((key.torrent.progress ?? 0) * 100)}%`}
+                </span>
+                <span className={styles.progress_track}>
+                  <span
+                    className={styles.progress_fill}
+                    style={{
+                      width: `${Math.round((key.torrent.progress ?? 0) * 100)}%`,
+                    }}
+                  />
+                </span>
+              </span>
+            ) : (
               <>
-                <p>{key.lastModified}</p>
-                <p>{`${key.size} B`}</p>
+                {!key.isDirectory && (
+                  <>
+                    <p>{key.lastModified}</p>
+                    <p>{`${key.size} B`}</p>
+                  </>
+                )}
+                {children}
               </>
             )}
-            {children}
           </span>
         </Button>
 

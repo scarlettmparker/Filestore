@@ -1,0 +1,24 @@
+mutation addTorrent(
+  $bucket: String!
+  $path: String
+  $magnet: String
+  $torrentFileBase64: String
+) {
+  filestoreMutations {
+    addTorrent(
+      bucket: $bucket
+      path: $path
+      magnet: $magnet
+      torrentFileBase64: $torrentFileBase64
+    ) {
+      id
+      bucket
+      targetKeyPath
+      status
+      progress
+      magnetDetail {
+        displayName
+      }
+    }
+  }
+}

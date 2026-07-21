@@ -5,6 +5,7 @@ import {
   type MutationResult,
 } from "@sun/ssr";
 import {
+  mutateAddTorrent,
   mutateDeleteFile,
   mutateDeleteKey,
   mutateGetPresignedDownloadUrl,
@@ -149,6 +150,45 @@ defineMutation({
       };
     }
     return { __typename: "StandardError", message: "Failed to delete file" };
+  },
+});
+
+/**
+ * Starts a torrent download into the bucket; invalidates the keys list so the
+ * in-progress key appears immediately.
+ */
+defineMutation({
+  path: "filestore/add-torrent",
+  async handler(body: {
+    bucket: string;
+    path?: string;
+    magnet?: string;
+    torrentFileBase64?: string;
+  }): Promise<MutationResult> {
+    const { bucket, path, magnet, torrentFileBase64 } = body;
+    if (!bucket) {
+      return {
+        __typename: "StandardError",
+        message: "Invalid input: bucket required",
+      };
+    }
+    const result = await mutateAddTorrent(
+      bucket,
+      path ?? null,
+      magnet ?? null,
+      torrentFileBase64 ?? null,
+    );
+    if (result) {
+      const cacheKey = keysCacheKey(bucket, path ?? "");
+      invalidateCacheKeys([cacheKey]);
+      return {
+        __typename: "QuerySuccess",
+        message: "Torrent added",
+        id: result.id,
+        invalidated: [cacheKey],
+      };
+    }
+    return { __typename: "StandardError", message: "Failed to add torrent" };
   },
 });
 

@@ -5,6 +5,9 @@
 
 import { print, DocumentNode } from "graphql";
 import {
+  AddTorrentDocument,
+  AddTorrentMutation,
+  AddTorrentMutationVariables,
   DeleteFileDocument,
   DeleteFileMutation,
   DeleteFileMutationVariables,
@@ -57,6 +60,7 @@ type OperationRegistry = {
     deleteFile: DocumentNode;
     deleteKey: DocumentNode;
     renameKey: DocumentNode;
+    addTorrent: DocumentNode;
   };
 };
 
@@ -77,6 +81,7 @@ const operationRegistry: OperationRegistry = {
     deleteFile: DeleteFileDocument,
     deleteKey: DeleteKeyDocument,
     renameKey: RenameKeyDocument,
+    addTorrent: AddTorrentDocument,
   },
 };
 
@@ -365,4 +370,24 @@ export async function fetchLocateKeyDetail(bucket: string, keyPath: string) {
     "filestoreQueries.locate",
     { bucket, keyPath },
   ).then((res) => res?.data?.filestoreQueries?.locate);
+}
+
+/**
+ * Add a torrent from a magnet link or base64-encoded .torrent file.
+ *
+ * @param bucket The bucket to download into.
+ * @param path The parent folder path, or null for the bucket root.
+ * @param magnet A magnet URI, when adding by link.
+ * @param torrentFileBase64 A base64-encoded .torrent file, when adding by file.
+ */
+export async function mutateAddTorrent(
+  bucket: string,
+  path: string | null,
+  magnet: string | null,
+  torrentFileBase64: string | null,
+) {
+  return fetchGraphQLData<AddTorrentMutation, AddTorrentMutationVariables>(
+    "filestoreMutations.addTorrent",
+    { bucket, path, magnet, torrentFileBase64 },
+  ).then((res) => res?.data?.filestoreMutations?.addTorrent);
 }

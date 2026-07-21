@@ -8,9 +8,20 @@
       "new": "New",
       "new-file": "New File",
       "new-folder": "New Folder",
+      "new-torrent": "File from .torrent",
       "download": "Download",
       "edit": "Rename",
       "delete": "Delete"
+    },
+    "torrent-dialog": {
+      "title": "Add torrent",
+      "magnet-placeholder": "Paste a magnet link",
+      "or": "or",
+      "choose-file": "Choose .torrent file",
+      "add": "Add",
+      "cancel": "Cancel",
+      "error-empty": "Enter a magnet link or choose a .torrent file",
+      "error-generic": "Could not start the torrent download"
     },
     "confirm-dialog": {
       "title": "Confirm Rename Key?",

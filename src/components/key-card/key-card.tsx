@@ -13,7 +13,7 @@ import {
   ContextMenuSub,
   ContextMenuSubContent,
 } from "@sun/components";
-import { FileIcon, FolderIcon } from "lucide-react";
+import { FileIcon, FolderIcon, MagnetIcon } from "lucide-react";
 import { executeMutation, MutationResult } from "@sun/ssr";
 import { ICON_SIZE } from "~/utils/const";
 import KeyActions from "../key-actions";
@@ -148,6 +148,10 @@ type KeyCardProps = {
    * Pass null to dismiss the dialog.
    */
   onDeleteTargetChange: (target: string | null) => void;
+  /**
+   * Callback to open the add-torrent dialog.
+   */
+  onAddTorrent?: () => void;
 } & React.PropsWithChildren;
 
 /**
@@ -163,6 +167,7 @@ const KeyCard = (props: KeyCardProps) => {
     frontendMode,
     onKeySelect,
     onDeleteTargetChange,
+    onAddTorrent,
   } = props;
   const bridgeRef = useRef<PostMessageBridge<FilestoreEventPayloads> | null>(
     null,
@@ -276,7 +281,7 @@ const KeyCard = (props: KeyCardProps) => {
    */
   const getKeyOnClick = useCallback(
     (key: KeyEntry) => {
-      if (key.isDirectory) return undefined;
+      if (key.isDirectory || key.torrent) return undefined;
       if (isEmulator) return () => handleFileDownload(key.key);
 
       return () => onKeySelect?.(key.key);
@@ -347,6 +352,12 @@ const KeyCard = (props: KeyCardProps) => {
               <FolderIcon width={ICON_SIZE} height={ICON_SIZE} />
               {t("context-menu.new-folder")}
             </ContextMenuItem>
+            {onAddTorrent && (
+              <ContextMenuItem onClick={onAddTorrent}>
+                <MagnetIcon width={ICON_SIZE} height={ICON_SIZE} />
+                {t("context-menu.new-torrent")}
+              </ContextMenuItem>
+            )}
           </ContextMenuSubContent>
         </ContextMenuSub>
       </ContextMenuContent>

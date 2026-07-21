@@ -40,3 +40,29 @@
 .icon {
   flex-shrink: 0;
 }
+
+.progress_wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--xs);
+  min-width: 120px;
+}
+
+.progress_status {
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+}
+
+.progress_track {
+  width: 100%;
+  height: 4px;
+  background: var(--secondary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress_fill {
+  height: 100%;
+  background: var(--primary);
+}
