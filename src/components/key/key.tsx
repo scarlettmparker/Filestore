@@ -1,6 +1,14 @@
 import { FileIcon, FolderIcon } from "lucide-react";
 import { KeyEntry } from "~/generated/graphql";
 import styles from "./key.module.css";
+
+function formatBytes(bytes: number | null | undefined): string {
+  if (!bytes) return "-";
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+}
 import { cn } from "@sun/utils";
 import { Button } from "@sun/components";
 import { ICON_SIZE } from "~/utils/const";
@@ -190,6 +198,7 @@ const Key = (props: KeyProps) => {
               <span className={styles.progress_wrapper}>
                 <span className={styles.progress_status}>
                   {`${((key.torrent.progress ?? 0) * 100).toFixed(1)}%`}
+                  <span className={styles.progress_size}>{formatBytes(key.torrent.totalBytes)}</span>
                 </span>
                 <span className={styles.progress_track}>
                   <span

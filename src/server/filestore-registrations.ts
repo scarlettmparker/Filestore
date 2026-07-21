@@ -357,11 +357,11 @@ async function fetchBucketData(
   const keys = (result.data as ListKeysQuery).filestoreQueries.listKeys;
   if (!keys) return null;
 
-  const data: Record<string, unknown> = { keys, detail: null };
+  const data: Record<string, unknown> = { keys, detail: { __typename: "Placeholder", key: selected } };
 
   if (selected) {
     const detailResult = await fetchLocateKeyDetail(alias, selected);
-    if (detailResult) {
+    if (detailResult && detailResult.__typename !== "Placeholder") {
       data.detail = detailResult;
     }
   }

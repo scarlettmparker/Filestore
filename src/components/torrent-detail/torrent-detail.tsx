@@ -22,6 +22,11 @@ const TorrentDetailPanel = (props: TorrentDetailPanelProps) => {
           {(torrent.progress * 100).toFixed(1)}%
         </p>
 
+        <label>{t("torrent.downloaded")}</label>
+        <p className={styles.detail_value}>
+          {formatBytes(torrent.downloadedBytes)} / {formatBytes(torrent.totalBytes)}
+        </p>
+
         <label>{t("torrent.download-rate")}</label>
         <p className={styles.detail_value}>
           {torrent.downloadRateBps != null
@@ -52,7 +57,8 @@ const TorrentDetailPanel = (props: TorrentDetailPanelProps) => {
   );
 };
 
-function formatBytes(bytes: number): string {
+function formatBytes(bytes: number | null | undefined): string {
+  if (bytes == null) return "-";
   if (bytes < 1024) return bytes + " B";
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
   if (bytes < 1024 * 1024 * 1024)

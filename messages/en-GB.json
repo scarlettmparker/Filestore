@@ -52,6 +52,7 @@
     "torrent": {
       "status": "Torrent Status",
       "progress": "Progress",
+      "downloaded": "Downloaded",
       "download-rate": "Download Speed",
       "peers": "Peers",
       "eta": "ETA",

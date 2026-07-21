@@ -62,3 +62,8 @@
   height: 100%;
   background: var(--primary);
 }
+
+.progress_size {
+  font-size: var(--text-sm);
+  color: var(--muted-foreground);
+}

@@ -44,8 +44,10 @@ const DetailPanel = (props: DetailPanelProps) => {
     LocateKeyDetailQuery["filestoreQueries"]["locate"]
   >("detail", pattern, { ...pageParams, selected: selectedKey });
 
-  return selectedKey && detail ? (
-    <KeyDetailPanel detail={detail} t={t} />
+  const hasDetail = detail && (detail as Record<string, unknown>).__typename !== "Placeholder";
+
+  return selectedKey && hasDetail ? (
+    <KeyDetailPanel detail={detail as LocateKeyDetailQuery["filestoreQueries"]["locate"]} t={t} />
   ) : (
     <KeyDetailPlaceholder t={t} />
   );

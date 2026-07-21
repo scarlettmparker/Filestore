@@ -207,6 +207,7 @@ export type StandardError = {
 export type TorrentDownload = {
   __typename?: 'TorrentDownload';
   downloadRateBps?: Maybe<Scalars['Int']['output']>;
+  downloadedBytes?: Maybe<Scalars['Long']['output']>;
   errorMessage?: Maybe<Scalars['String']['output']>;
   etaSeconds?: Maybe<Scalars['Int']['output']>;
   jobId: Scalars['String']['output'];
@@ -214,6 +215,7 @@ export type TorrentDownload = {
   peersConnected?: Maybe<Scalars['Int']['output']>;
   progress: Scalars['Float']['output'];
   status: Scalars['String']['output'];
+  totalBytes?: Maybe<Scalars['Long']['output']>;
 };
 
 export type TorrentFile = {
