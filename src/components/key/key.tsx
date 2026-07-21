@@ -189,7 +189,7 @@ const Key = (props: KeyProps) => {
             {key.torrent ? (
               <span className={styles.progress_wrapper}>
                 <span className={styles.progress_status}>
-                  {`${Math.round((key.torrent.progress ?? 0) * 100)}%`}
+                  {`${((key.torrent.progress ?? 0) * 100).toFixed(1)}%`}
                 </span>
                 <span className={styles.progress_track}>
                   <span

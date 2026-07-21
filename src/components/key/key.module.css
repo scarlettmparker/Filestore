@@ -55,6 +55,7 @@
   background: var(--secondary);
   border-radius: 2px;
   overflow: hidden;
+  display: flex;
 }
 
 .progress_fill {
