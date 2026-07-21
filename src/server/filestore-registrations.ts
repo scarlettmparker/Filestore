@@ -1,10 +1,15 @@
 import {
-  defineMutation,
+  defineLoader,
   invalidateCacheKeys,
+  defineMutation,
   makeCacheKey,
   type MutationResult,
 } from "@sun/ssr";
 import {
+  fetchHealth,
+  fetchListBuckets,
+  fetchListKeys,
+  fetchLocateKeyDetail,
   mutateAddTorrent,
   mutateDeleteFile,
   mutateDeleteKey,
@@ -13,6 +18,11 @@ import {
   mutatePutKey,
   mutateRenameKey,
 } from "~/utils/api";
+import type {
+  ListKeysQuery,
+  ListBucketsQuery,
+  HealthQuery,
+} from "~/generated/graphql";
 
 /**
  * Body shape for key-list-affecting mutations: the bucket and, for nested
@@ -25,8 +35,7 @@ type BucketBody = {
 };
 
 /**
- * Cache key for the keys list of a bucket, optionally at a folder path. Matches
- * what getPageData("keys", pattern, params) reads on both server and client.
+ * Cache key for the keys list of a bucket, optionally at a folder path.
  */
 function keysCacheKey(bucket: string, path?: string): string {
   const folderPath = path || "";
@@ -154,45 +163,6 @@ defineMutation({
 });
 
 /**
- * Starts a torrent download into the bucket; invalidates the keys list so the
- * in-progress key appears immediately.
- */
-defineMutation({
-  path: "filestore/add-torrent",
-  async handler(body: {
-    bucket: string;
-    path?: string;
-    magnet?: string;
-    torrentFileBase64?: string;
-  }): Promise<MutationResult> {
-    const { bucket, path, magnet, torrentFileBase64 } = body;
-    if (!bucket) {
-      return {
-        __typename: "StandardError",
-        message: "Invalid input: bucket required",
-      };
-    }
-    const result = await mutateAddTorrent(
-      bucket,
-      path ?? null,
-      magnet ?? null,
-      torrentFileBase64 ?? null,
-    );
-    if (result) {
-      const cacheKey = keysCacheKey(bucket, path ?? "");
-      invalidateCacheKeys([cacheKey]);
-      return {
-        __typename: "QuerySuccess",
-        message: "Torrent added",
-        id: result.id,
-        invalidated: [cacheKey],
-      };
-    }
-    return { __typename: "StandardError", message: "Failed to add torrent" };
-  },
-});
-
-/**
  * Deletes a key (folder or file) and its contents; invalidates nested lists.
  */
 defineMutation({
@@ -275,5 +245,123 @@ defineMutation({
       }
     }
     return { __typename: "StandardError", message: "Failed to rename key" };
+  },
+});
+
+/**
+ * Starts a torrent download into the bucket; invalidates the keys list so the
+ * in-progress key appears immediately.
+ */
+defineMutation({
+  path: "filestore/add-torrent",
+  async handler(body: {
+    bucket: string;
+    path?: string;
+    magnet?: string;
+    torrentFileBase64?: string;
+  }): Promise<MutationResult> {
+    const { bucket, path, magnet, torrentFileBase64 } = body;
+    if (!bucket) {
+      return {
+        __typename: "StandardError",
+        message: "Invalid input: bucket required",
+      };
+    }
+    const result = await mutateAddTorrent(
+      bucket,
+      path ?? null,
+      magnet ?? null,
+      torrentFileBase64 ?? null,
+    );
+    if (result) {
+      const cacheKey = keysCacheKey(bucket, path ?? "");
+      invalidateCacheKeys([cacheKey]);
+      return {
+        __typename: "QuerySuccess",
+        message: "Torrent added",
+        id: result.id,
+        invalidated: [cacheKey],
+      };
+    }
+    return { __typename: "StandardError", message: "Failed to add torrent" };
+  },
+});
+
+/**
+ * Loads health data for the status page.
+ */
+defineLoader({
+  pattern: "filestore",
+  async loader() {
+    const result = await fetchHealth();
+    if (!result?.data || !result?.success) return null;
+    const health = (result.data as HealthQuery).filestoreQueries.health;
+    return health ? { health } : null;
+  },
+});
+
+/**
+ * Loads bucket list for the home page.
+ */
+defineLoader({
+  pattern: "filestore",
+  async loader() {
+    const result = await fetchListBuckets();
+    if (!result?.data || !result?.success) return null;
+    const buckets = (result.data as ListBucketsQuery).filestoreQueries
+      .listBuckets;
+    return buckets ? { buckets } : null;
+  },
+});
+
+/**
+ * Fetches key list and optional key detail for bucket views.
+ */
+async function fetchBucketData(
+  alias: string,
+  path: string,
+  selected?: string | null,
+): Promise<Record<string, unknown> | null> {
+  const result = await fetchListKeys(alias, path || undefined);
+  if (!result?.data || !result?.success) return null;
+  const keys = (result.data as ListKeysQuery).filestoreQueries.listKeys;
+  if (!keys) return null;
+
+  const data: Record<string, unknown> = { keys, detail: null };
+
+  if (selected) {
+    const detailResult = await fetchLocateKeyDetail(alias, selected);
+    if (detailResult) {
+      data.detail = detailResult;
+    }
+  }
+
+  return data;
+}
+
+/**
+ * Loads key list for a bucket root (no folder path).
+ */
+defineLoader({
+  pattern: "bucket/:alias",
+  async loader(params) {
+    const alias = params.alias as string;
+    const selected = params.selected as string | null;
+    if (!alias) return null;
+    return fetchBucketData(alias, "", selected);
+  },
+});
+
+/**
+ * Loads key list for a bucket at a folder path.
+ */
+defineLoader({
+  pattern: "bucket/:alias/*",
+  async loader(params) {
+    const alias = params.alias as string;
+    const path = params.path as string;
+    const selected = params.selected as string | null;
+    if (!alias || !path) return null;
+    return fetchBucketData(alias, path, selected);
   },
 });

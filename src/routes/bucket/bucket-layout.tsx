@@ -11,13 +11,7 @@ import KeyDetailSkeleton from "~/components/key-detail-skeleton";
 import ConfirmDeleteDialog from "~/components/confirm-delete-dialog";
 import TorrentDialog from "~/components/torrent-dialog";
 import { ListKeysQuery } from "~/generated/graphql";
-import { fetchListKeys, fetchLocateKeyDetail } from "~/utils/api";
-import {
-  executeMutation,
-  makeCacheKey,
-  pageDataRegistry,
-  revalidatePageData,
-} from "@sun/ssr";
+import { executeMutation, makeCacheKey, revalidatePageData } from "@sun/ssr";
 import { usePageData } from "@sun/ssr/react";
 import styles from "./bucket-layout.module.css";
 
@@ -158,59 +152,5 @@ const BucketLayout = () => {
     </div>
   );
 };
-
-/**
- * Server-side data fetching function for bucket views.
- * Fetches both the key list and optionally the selected key detail.
- */
-async function fetchBucketData(
-  alias: string,
-  path: string,
-  selected?: string | null,
-): Promise<Record<string, unknown> | null> {
-  try {
-    const result = await fetchListKeys(alias, path || undefined);
-    if (!result?.data || !result?.success) return null;
-
-    const keys = (result.data as ListKeysQuery).filestoreQueries.listKeys;
-    if (!keys) return null;
-
-    const data: Record<string, unknown> = { keys, detail: null };
-
-    if (selected) {
-      const detailResult = await fetchLocateKeyDetail(alias, selected);
-      if (detailResult) {
-        data.detail = detailResult;
-      }
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch bucket data:", error);
-    return null;
-  }
-}
-
-/**
- * Register data loaders for both root bucket and nested path views.
- */
-export function registerBucketLayoutDataLoader(): void {
-  pageDataRegistry.registerPageDataLoader("bucket/:alias", async (params) => {
-    const alias = params?.alias as string;
-    const selected = params?.selected as string | null;
-
-    if (!alias) return null;
-    return fetchBucketData(alias, "", selected);
-  });
-
-  pageDataRegistry.registerPageDataLoader("bucket/:alias/*", async (params) => {
-    const alias = params?.alias as string;
-    const path = params?.path as string;
-    const selected = params?.selected as string | null;
-
-    if (!alias || !path) return null;
-    return fetchBucketData(alias, path, selected);
-  });
-}
 
 export default BucketLayout;

@@ -6,6 +6,9 @@ public/
 # Generated
 coverage/
 
+.opencode/
+opencode.json
+
 # Java stuff
 .gradle/
 build/

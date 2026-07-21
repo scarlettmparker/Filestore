@@ -16,7 +16,7 @@ import {
 import { setupRoutes } from "./routes/index.js";
 import { registerDownloadProxyRoute } from "./src/server/routes/download-proxy.ts";
 
-import "./src/utils/register-loaders.ts";
+import "./src/server/filestore-registrations.ts";
 
 await createServer({
   config: {
