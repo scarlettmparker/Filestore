@@ -281,7 +281,7 @@ const KeyCard = (props: KeyCardProps) => {
    */
   const getKeyOnClick = useCallback(
     (key: KeyEntry) => {
-      if (key.isDirectory || key.torrent) return undefined;
+      if (key.isDirectory) return undefined;
       if (isEmulator) return () => handleFileDownload(key.key);
 
       return () => onKeySelect?.(key.key);

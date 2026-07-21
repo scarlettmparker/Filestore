@@ -1,7 +1,8 @@
 import { usePageData } from "@sun/ssr/react";
-import { LocateKeyDetailQuery } from "~/generated/graphql";
+import { LocateKeyDetailQuery, TorrentDownload } from "~/generated/graphql";
 import KeyDetailPanel from "~/components/key-detail";
 import KeyDetailPlaceholder from "~/components/key-detail-placeholder";
+import TorrentDetailPanel from "~/components/torrent-detail";
 import { TFunction } from "i18next";
 
 type DetailPanelProps = {
@@ -21,6 +22,10 @@ type DetailPanelProps = {
    * i18n translation function.
    */
   t: TFunction<"bucket">;
+  /**
+   * Torrent download data for the selected key, if it is a torrent.
+   */
+  torrentInfo?: TorrentDownload | null;
 };
 
 /**
@@ -29,7 +34,11 @@ type DetailPanelProps = {
  * from getPageData is caught at the correct boundary level.
  */
 const DetailPanel = (props: DetailPanelProps) => {
-  const { pattern, pageParams, selectedKey, t } = props;
+  const { pattern, pageParams, selectedKey, t, torrentInfo } = props;
+
+  if (selectedKey && torrentInfo) {
+    return <TorrentDetailPanel torrent={torrentInfo} t={t} />;
+  }
 
   const { data: detail } = usePageData<
     LocateKeyDetailQuery["filestoreQueries"]["locate"]

@@ -4,13 +4,10 @@
 
 .or {
   margin: var(--sm) 0;
-  color: var(--muted-foreground);
-  font-size: var(--text-sm);
   text-align: center;
 }
 
 .error {
   margin-top: var(--sm);
   color: var(--destructive);
-  font-size: var(--text-sm);
 }

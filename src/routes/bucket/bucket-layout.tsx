@@ -45,6 +45,9 @@ const BucketLayout = () => {
     ListKeysQuery["filestoreQueries"]["listKeys"]
   >("keys", pattern, pageParams);
 
+  const selectedEntry = keys?.find((k) => k.key === selectedKey);
+  const torrentInfo = selectedEntry?.torrent;
+
   const { t } = useTranslation("bucket");
 
   /**
@@ -125,6 +128,7 @@ const BucketLayout = () => {
                   pattern={pattern}
                   pageParams={pageParams}
                   selectedKey={selectedKey}
+                  torrentInfo={torrentInfo}
                   t={t}
                 />
               </Suspense>

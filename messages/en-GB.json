@@ -47,6 +47,14 @@
       "created": "Created",
       "last-updated": "Last Updated",
       "no-details": "No details found."
+    },
+    "torrent": {
+      "status": "Torrent Status",
+      "progress": "Progress",
+      "download-rate": "Download Speed",
+      "peers": "Peers",
+      "eta": "ETA",
+      "error": "Error"
     }
   },
   "home": {
