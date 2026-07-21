@@ -1,6 +1,7 @@
 import {
   defineLoader,
   invalidateCacheKeys,
+  invalidatePageData,
   defineMutation,
   makeCacheKey,
   type MutationResult,
@@ -276,7 +277,7 @@ defineMutation({
     );
     if (result) {
       const cacheKey = keysCacheKey(bucket, path ?? "");
-      invalidateCacheKeys([cacheKey]);
+      invalidatePageData([cacheKey]);
       return {
         __typename: "QuerySuccess",
         message: "Torrent added",
@@ -304,7 +305,7 @@ defineMutation({
     const result = await mutateCancelTorrent(body.jobId);
     if (result) {
       const cacheKey = keysCacheKey(body.bucket, body.path);
-      invalidateCacheKeys([cacheKey]);
+      invalidatePageData([cacheKey]);
       return {
         __typename: "QuerySuccess",
         message: "Torrent cancelled",

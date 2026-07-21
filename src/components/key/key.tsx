@@ -201,16 +201,14 @@ const Key = (props: KeyProps) => {
                 </span>
               </span>
             ) : (
-              <>
-                {!key.isDirectory && (
-                  <>
-                    <p>{key.lastModified}</p>
-                    <p>{`${key.size} B`}</p>
-                  </>
-                )}
-                {children}
-              </>
+              !key.isDirectory && (
+                <>
+                  <p>{key.lastModified}</p>
+                  <p>{`${key.size} B`}</p>
+                </>
+              )
             )}
+            {children}
           </span>
         </Button>
 

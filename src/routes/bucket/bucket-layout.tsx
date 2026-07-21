@@ -69,10 +69,14 @@ const BucketLayout = () => {
    * detail cache key changes and usePageData re-suspends, fetching via
    * /__page-data without a full reload.
    */
-  const handleKeySelect = (key: string) => {
+  const handleKeySelect = (key?: string) => {
     setSearchParams(
       (prev) => {
-        prev.set("selected", key);
+        if (key) {
+          prev.set("selected", key);
+        } else {
+          prev.delete("selected");
+        }
         return prev;
       },
       { replace: true },

@@ -142,7 +142,7 @@ type KeyCardProps = {
   /**
    * Callback when a file key is selected for detail view.
    */
-  onKeySelect?: (key: string) => void;
+  onKeySelect?: (key?: string) => void;
   /**
    * Callback to set the folder targeted for delete confirmation.
    * Pass null to dismiss the dialog.
@@ -319,8 +319,9 @@ const KeyCard = (props: KeyCardProps) => {
         bucket: bucketName,
         path: currentPath,
       });
+      onKeySelect?.(undefined);
     },
-    [bucketName, currentPath],
+    [bucketName, currentPath, onKeySelect],
   );
 
   /**
