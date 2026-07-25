@@ -2,7 +2,7 @@ import { Suspense, useTransition } from "react";
 import { useOutlet, useSearchParams } from "react-router-dom";
 import AdminUserList from "~/components/admin/user-list";
 import AdminDetailPlaceholder from "~/components/admin/admin-detail-placeholder";
-import { AdminDetailSkeleton } from "~/components/admin/skeletons";
+import { AdminDetailSkeleton, AdminPageSkeleton } from "~/components/admin/skeletons";
 import styles from "./admin.module.css";
 
 const Admin = () => {
@@ -32,21 +32,23 @@ const Admin = () => {
   };
 
   return (
-    <div className={styles.items_layout}>
-      <div className={styles.items_list_panel}>
-        <AdminUserList
-          search={search}
-          page={page}
-          onSearch={handleSearch}
-          onPageChange={handlePageChange}
-        />
+    <Suspense fallback={<AdminPageSkeleton />}>
+      <div className={styles.items_layout}>
+        <div className={styles.items_list_panel}>
+          <AdminUserList
+            search={search}
+            page={page}
+            onSearch={handleSearch}
+            onPageChange={handlePageChange}
+          />
+        </div>
+        <div className={styles.items_detail_panel}>
+          <Suspense fallback={<AdminDetailSkeleton />}>
+            {outlet ?? <AdminDetailPlaceholder />}
+          </Suspense>
+        </div>
       </div>
-      <div className={styles.items_detail_panel}>
-        <Suspense fallback={<AdminDetailSkeleton />}>
-          {outlet ?? <AdminDetailPlaceholder />}
-        </Suspense>
-      </div>
-    </div>
+    </Suspense>
   );
 };
 

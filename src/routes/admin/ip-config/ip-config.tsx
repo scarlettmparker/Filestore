@@ -2,7 +2,7 @@ import { useState, useCallback, Suspense } from "react";
 import { useOutlet, useNavigate } from "react-router-dom";
 import IpList from "~/components/admin/ip-list";
 import IpDetailPlaceholder from "~/components/admin/ip-detail-placeholder";
-import { IpDetailSkeleton } from "~/components/admin/skeletons";
+import { IpDetailSkeleton, AdminPageSkeleton } from "~/components/admin/skeletons";
 import AddIpDialog from "~/components/admin/add-ip-dialog";
 import EditIpDialog from "~/components/admin/edit-ip-dialog";
 import ConfirmDeleteIpDialog from "~/components/admin/confirm-delete-ip-dialog";
@@ -64,7 +64,7 @@ const IpConfig = () => {
   }, [deletingEntry, navigate]);
 
   return (
-    <>
+    <Suspense fallback={<AdminPageSkeleton />}>
       <div className={styles.items_layout}>
         <div className={styles.items_list_panel}>
           <IpList
@@ -96,7 +96,7 @@ const IpConfig = () => {
         onConfirm={handleDeleteConfirm}
         pattern={deletingEntry?.pattern ?? ""}
       />
-    </>
+    </Suspense>
   );
 };
 

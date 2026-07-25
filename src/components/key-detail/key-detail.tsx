@@ -1,4 +1,5 @@
 import { Card, CardBody } from "@sun/components";
+import { formatDate } from "@sun/utils";
 import { TFunction } from "i18next";
 import type { KeyDetail } from "~/generated/graphql";
 import styles from "./key-detail.module.css";
@@ -39,10 +40,10 @@ const KeyDetailPanel = (props: KeyDetailProps) => {
         <p className={styles.detail_value}>{detail.status}</p>
 
         <label>{t("detail.created")}</label>
-        <p className={styles.detail_value}>{detail.createdAt || "-"}</p>
+        <p className={styles.detail_value}>{formatDate(detail.createdAt) || "-"}</p>
 
         <label>{t("detail.last-updated")}</label>
-        <p className={styles.detail_value}>{detail.lastUpdatedAt || "-"}</p>
+        <p className={styles.detail_value}>{formatDate(detail.lastUpdatedAt) || "-"}</p>
       </CardBody>
     </Card>
   );

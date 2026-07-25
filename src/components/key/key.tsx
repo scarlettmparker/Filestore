@@ -9,7 +9,7 @@ function formatBytes(bytes: number | null | undefined): string {
   if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
 }
-import { cn } from "@sun/utils";
+import { cn, formatDate } from "@sun/utils";
 import { Button } from "@sun/components";
 import { ICON_SIZE } from "~/utils/const";
 import { Input } from "@sun/components";
@@ -212,7 +212,7 @@ const Key = (props: KeyProps) => {
             ) : (
               !key.isDirectory && (
                 <>
-                  <p>{key.lastModified}</p>
+                  <p>{formatDate(key.lastModified)}</p>
                   <p>{`${key.size} B`}</p>
                 </>
               )

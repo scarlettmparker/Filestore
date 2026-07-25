@@ -101,12 +101,11 @@ const BucketLayout = () => {
 
   return (
     <div className={styles.layout}>
-      <Breadcrumb className={styles.breadcrumb}>
-        <FilestoreBreadcrumb alias={alias} path={path || undefined} />
-      </Breadcrumb>
-
       <div className={styles.content}>
         <div className={styles.left_panel}>
+          <Breadcrumb>
+            <FilestoreBreadcrumb alias={alias} path={path || undefined} />
+          </Breadcrumb>
           <KeyCard
             keys={keys}
             bucketName={alias}

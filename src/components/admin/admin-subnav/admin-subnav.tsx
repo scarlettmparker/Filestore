@@ -9,24 +9,31 @@ const NAV_ITEMS = [
 ] as const;
 
 /**
+ * Finds the most specific nav item matching the current pathname.
+ */
+const getActiveHref = (pathname: string) => {
+  return [...NAV_ITEMS]
+    .sort((a, b) => b.href.length - a.href.length)
+    .find((item) => pathname.startsWith(item.href))?.href;
+};
+
+/**
  * Sub-navigation for the admin section.
  */
 const AdminSubnav = () => {
   const { t } = useTranslation("admin");
   const { pathname } = useLocation();
 
+  const activeHref = getActiveHref(pathname);
+
   return (
     <nav className={styles.nav}>
       {NAV_ITEMS.map((item) => {
-        const active = item.href === "/admin"
-          ? pathname.startsWith("/admin") && !pathname.startsWith("/admin/ip-config")
-          : pathname.startsWith(item.href);
+        const isActive = item.href === activeHref;
+
         return (
           <Link key={item.href} to={item.href} className={styles.link}>
-            <Button
-              variant={active ? "default" : "secondary"}
-              className={styles.button}
-            >
+            <Button variant={isActive ? "default" : "secondary"}>
               {t(item.labelKey)}
             </Button>
           </Link>

@@ -14,7 +14,3 @@
 .link {
   text-decoration: none;
 }
-
-.button {
-  padding: var(--sm) var(--lg);
-}
