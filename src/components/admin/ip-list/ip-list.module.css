@@ -1,6 +1,9 @@
-.toolbar {
-  display: flex;
-  gap: var(--md);
-  align-items: center;
-  margin-bottom: var(--lg);
+.title {
+  position: relative;
+}
+
+.add_button {
+  position: absolute;
+  right: 0;
+  top: 0;
 }

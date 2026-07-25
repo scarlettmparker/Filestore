@@ -7,6 +7,7 @@ import {
   CardTitle,
   Button,
 } from "@sun/components";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import IpListItems from "~/components/admin/ip-list-items";
 import IpListFooter from "~/components/admin/ip-list-footer";
 import styles from "./ip-list.module.css";
@@ -29,12 +30,20 @@ const IpList = (props: IpListProps) => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>{t("ip-title")}</CardTitle>
+          <CardTitle className={styles.title}>
+            {t("ip-title")}
+            <Button
+              variant="secondary"
+              className={styles.add_button}
+              onClick={onAdd}
+              title={t("add-ip-title")}
+            >
+              <PlusIcon width={16} height={16} />
+              {t("add-ip-title")}
+            </Button>
+          </CardTitle>
         </CardHeader>
         <CardBody>
-          <div className={styles.toolbar}>
-            <Button onClick={onAdd}>{t("add-ip-title")}</Button>
-          </div>
           <Suspense fallback={null}>
             <IpListItems />
           </Suspense>
