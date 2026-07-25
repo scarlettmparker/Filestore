@@ -30,7 +30,9 @@ await createServer({
     clientSecret,
   },
   setupRoutes,
-  configure: (app) => {
+  configure: async (app) => {
+    const { default: formbody } = await import("@fastify/formbody");
+    await app.register(formbody);
     registerDownloadProxyRoute(app);
   },
 });
