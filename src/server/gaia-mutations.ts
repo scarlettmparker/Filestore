@@ -60,9 +60,11 @@ defineMutation({
     const result = await executeDocument<CreateIpWhitelistEntryMutation>(
       CreateIpWhitelistEntryDocument,
       {
-        pattern: body.pattern,
-        description: body.description,
-        immutable: body.immutable,
+        input: {
+          pattern: body.pattern,
+          description: body.description,
+          immutable: body.immutable,
+        },
       },
       tokenFrom(context),
     );
@@ -92,14 +94,10 @@ defineMutation({
     },
     context: MutationContext,
   ): Promise<MutationResult> {
+    const { id, ...input } = body;
     const result = await executeDocument<UpdateIpWhitelistEntryMutation>(
       UpdateIpWhitelistEntryDocument,
-      {
-        id: body.id,
-        pattern: body.pattern,
-        description: body.description,
-        enabled: body.enabled,
-      },
+      { id, input },
       tokenFrom(context),
     );
     const data = result.data?.gaiaMutations?.updateIpWhitelistEntry as
