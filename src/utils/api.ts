@@ -3,6 +3,8 @@
  * Handles fetching data from the GraphQL server with error handling.
  */
 
+export { executeDocument } from "@sun/api";
+
 import { print, DocumentNode } from "graphql";
 import {
   AddTorrentDocument,

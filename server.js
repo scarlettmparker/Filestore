@@ -17,6 +17,7 @@ import { setupRoutes } from "./routes/index.js";
 import { registerDownloadProxyRoute } from "./src/server/routes/download-proxy.ts";
 
 import "./src/server/filestore-registrations.ts";
+import "./src/server/gaia-mutations.ts";
 
 await createServer({
   config: {

@@ -1,0 +1,17 @@
+query account($id: ID!) {
+  gaiaQueries {
+    account(id: $id) {
+      id
+      username
+      personId
+      status
+      provider
+      remoteUsers {
+        type
+        id
+      }
+      createdAt
+      updatedAt
+    }
+  }
+}

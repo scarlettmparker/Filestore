@@ -6,6 +6,15 @@ import NotFound from "./routes/not-found";
 import { matchRoutes } from "react-router-dom";
 import { createRenderer, autoDiscoverRegistrations } from "@sun/ssr/server";
 import { createI18nInstance } from "./utils/i18n";
+import { configureApi } from "@sun/api";
+import { AUTH_COOKIE } from "./utils/auth";
+import { clientId, clientSecret } from "../config.js";
+import "./utils/configure-framework";
+import "./utils/global-data";
+import "./routes/admin/admin-data";
+import "./server/gaia-mutations";
+
+configureApi({ authCookie: AUTH_COOKIE, clientId, clientSecret });
 
 // Colocated mutation handlers self-register at boot.
 autoDiscoverRegistrations(

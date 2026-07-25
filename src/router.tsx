@@ -5,6 +5,9 @@ const Index = lazy(() => import("~/routes/index"));
 const NotFound = lazy(() => import("~/routes/not-found"));
 const Status = lazy(() => import("~/routes/status"));
 const BucketLayout = lazy(() => import("~/routes/bucket/bucket-layout"));
+const Login = lazy(() => import("~/routes/login"));
+const Admin = lazy(() => import("~/routes/admin"));
+const AccountDetailPage = lazy(() => import("~/routes/admin/account-detail-page"));
 
 /**
  * List of routes.
@@ -33,6 +36,28 @@ export const routes: RouteObject[] = [
         <BucketLayout />
       </Suspense>
     ),
+  },
+  {
+    path: "/login",
+    element: (
+      <Suspense fallback={null}>
+        <Login />
+      </Suspense>
+    ),
+  },
+  {
+    path: "admin",
+    element: (
+      <Suspense fallback={null}>
+        <Admin />
+      </Suspense>
+    ),
+    children: [
+      {
+        path: ":id",
+        element: <AccountDetailPage />,
+      },
+    ],
   },
   {
     path: "*",
