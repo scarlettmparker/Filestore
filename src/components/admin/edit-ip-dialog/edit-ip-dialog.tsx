@@ -44,13 +44,13 @@ const EditIpDialog = (props: EditIpDialogProps) => {
 
   if (!entry) return null;
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     const data = new FormData(e.currentTarget);
     const pattern = data.get("pattern") as string;
     const description = data.get("description") as string | null;
-    await onSave(entry.id, pattern, description || null);
+    onSave(entry.id, pattern, description || null);
     setLoading(false);
     onClose();
   };
@@ -60,12 +60,13 @@ const EditIpDialog = (props: EditIpDialogProps) => {
       <DialogHeader>
         <DialogTitle>{t("edit-ip-title")}</DialogTitle>
       </DialogHeader>
-      <Form onSubmit={handleSubmit}>
-        <DialogBody>
+      <DialogBody>
+        <Form id="edit-ip-form" onSubmit={handleSubmit}>
           <FormField name="pattern">
             <FormLabel>{t("ip-pattern")}</FormLabel>
             <FormItem>
               <Input
+                name="pattern"
                 type="text"
                 placeholder={t("ip-pattern-placeholder")}
                 defaultValue={entry.pattern}
@@ -78,22 +79,23 @@ const EditIpDialog = (props: EditIpDialogProps) => {
             <FormLabel>{t("ip-description")}</FormLabel>
             <FormItem>
               <Input
+                name="description"
                 type="text"
                 placeholder={t("ip-description-placeholder")}
                 defaultValue={entry.description ?? ""}
               />
             </FormItem>
           </FormField>
-        </DialogBody>
-        <DialogFooter>
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t("cancel-label")}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t("ip-editing-label") : t("edit-ip-submit")}
-          </Button>
-        </DialogFooter>
-      </Form>
+        </Form>
+      </DialogBody>
+      <DialogFooter>
+        <Button type="button" variant="secondary" onClick={onClose}>
+          {t("cancel-label")}
+        </Button>
+        <Button type="submit" form="edit-ip-form" disabled={loading}>
+          {loading ? t("ip-editing-label") : t("edit-ip-submit")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 };

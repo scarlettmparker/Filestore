@@ -1,16 +1,6 @@
-mutation renameKey(
-  $bucket: String!
-  $sourceKey: String!
-  $targetKey: String!
-  $merge: Boolean!
-) {
+mutation renameKey($input: RenameKeyInput!) {
   filestoreMutations {
-    renameKey(
-      bucket: $bucket
-      sourceKey: $sourceKey
-      targetKey: $targetKey
-      merge: $merge
-    ) {
+    renameKey(input: $input) {
       success
       hasConflicts
       conflicts

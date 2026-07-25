@@ -51,30 +51,32 @@ const IpListItems = (props: IpListItemsProps) => {
           >
             <Button variant="secondary" className={styles.list_button}>
               <p className={styles.list_name}>{entry.pattern}</p>
-              <span className={styles.list_actions}>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <EllipsisVerticalIcon
-                      width={16}
-                      height={16}
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                      }}
-                    />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => onEdit(entry)}>
-                      <PencilSquareIcon width={16} height={16} />
-                      {t("edit-ip")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onDelete(entry)}>
-                      <TrashIcon width={16} height={16} />
-                      {t("ip-delete")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </span>
+              {!entry.immutable && (
+                <span className={styles.list_actions}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <EllipsisVerticalIcon
+                        width={16}
+                        height={16}
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                        }}
+                      />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => onEdit(entry)}>
+                        <PencilSquareIcon width={16} height={16} />
+                        {t("edit-ip")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onDelete(entry)}>
+                        <TrashIcon width={16} height={16} />
+                        {t("ip-delete")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </span>
+              )}
             </Button>
           </Link>
         ))

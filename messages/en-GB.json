@@ -52,7 +52,7 @@
     "ip-pattern": "IP Address",
     "ip-pattern-placeholder": "e.g. 192.168.0.0/24 or 10.0.0.*",
     "ip-description": "Description",
-    "ip-description-placeholder": "Optional description",
+    "ip-description-placeholder": "e.g. home or friend's house",
     "edit-ip": "Edit",
     "edit-ip-title": "Edit IP Address",
     "edit-ip-submit": "Save",
@@ -66,7 +66,9 @@
     "ip-items-count_one": "{{count}} IP address",
     "ip-items-count_other": "{{count}} IP addresses",
     "ip-no-items-found": "No IP addresses configured",
-    "ip-none": "None"
+    "ip-none": "None",
+    "immutable": "Immutable",
+    "immutable-hint": "Cannot be edited or deleted after creation"
   },
   "bucket": {
     "items_zero": "No items",

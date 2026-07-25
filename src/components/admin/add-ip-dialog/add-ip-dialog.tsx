@@ -12,7 +12,10 @@ import {
   FormLabel,
   FormItem,
   Input,
+  Checkbox,
 } from "@sun/components";
+
+import styles from "./add-ip-dialog.module.css";
 
 type AddIpDialogProps = {
   /**
@@ -26,7 +29,11 @@ type AddIpDialogProps = {
   /**
    * Called with the entered values when the user saves.
    */
-  onSave: (pattern: string, description: string | null) => void;
+  onSave: (
+    pattern: string,
+    description: string | null,
+    immutable: boolean,
+  ) => void;
 };
 
 /**
@@ -37,13 +44,14 @@ const AddIpDialog = (props: AddIpDialogProps) => {
   const { t } = useTranslation("admin");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     const data = new FormData(e.currentTarget);
     const pattern = data.get("pattern") as string;
     const description = data.get("description") as string | null;
-    await onSave(pattern, description || null);
+    const immutable = data.get("immutable") === "on";
+    onSave(pattern, description || null, immutable);
     setLoading(false);
     onClose();
   };
@@ -53,12 +61,13 @@ const AddIpDialog = (props: AddIpDialogProps) => {
       <DialogHeader>
         <DialogTitle>{t("add-ip-title")}</DialogTitle>
       </DialogHeader>
-      <Form onSubmit={handleSubmit}>
-        <DialogBody>
+      <DialogBody>
+        <Form id="add-ip-form" onSubmit={handleSubmit}>
           <FormField name="pattern">
             <FormLabel>{t("ip-pattern")}</FormLabel>
             <FormItem>
               <Input
+                name="pattern"
                 type="text"
                 placeholder={t("ip-pattern-placeholder")}
                 autoFocus
@@ -70,21 +79,28 @@ const AddIpDialog = (props: AddIpDialogProps) => {
             <FormLabel>{t("ip-description")}</FormLabel>
             <FormItem>
               <Input
+                name="description"
                 type="text"
                 placeholder={t("ip-description-placeholder")}
               />
             </FormItem>
           </FormField>
-        </DialogBody>
-        <DialogFooter>
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t("cancel-label")}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t("ip-creating-label") : t("add-ip-submit")}
-          </Button>
-        </DialogFooter>
-      </Form>
+          <FormField name="immutable" className={styles.immutable}>
+            <FormItem>
+              <Checkbox name="immutable" />
+            </FormItem>
+            <FormLabel>{t("immutable")}</FormLabel>
+          </FormField>
+        </Form>
+      </DialogBody>
+      <DialogFooter>
+        <Button type="button" variant="secondary" onClick={onClose}>
+          {t("cancel-label")}
+        </Button>
+        <Button type="submit" form="add-ip-form" disabled={loading}>
+          {loading ? t("ip-creating-label") : t("add-ip-submit")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 };

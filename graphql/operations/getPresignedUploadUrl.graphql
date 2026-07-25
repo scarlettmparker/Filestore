@@ -1,5 +1,5 @@
-mutation getPresignedUploadUrl($bucket: String!, $key: String!, $contentType: String) {
+mutation getPresignedUploadUrl($input: PresignInput!) {
   filestoreMutations {
-    getPresignedUploadUrl(bucket: $bucket, key: $key, contentType: $contentType)
+    getPresignedUploadUrl(input: $input)
   }
 }

@@ -1,16 +1,6 @@
-mutation addTorrent(
-  $bucket: String!
-  $path: String
-  $magnet: String
-  $torrentFileBase64: String
-) {
+mutation addTorrent($input: AddTorrentInput!) {
   filestoreMutations {
-    addTorrent(
-      bucket: $bucket
-      path: $path
-      magnet: $magnet
-      torrentFileBase64: $torrentFileBase64
-    ) {
+    addTorrent(input: $input) {
       id
       bucket
       targetKeyPath

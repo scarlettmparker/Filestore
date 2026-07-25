@@ -1,6 +1,6 @@
-mutation updateIpWhitelistEntry($id: ID!, $pattern: String!, $description: String, $enabled: Boolean) {
+mutation updateIpWhitelistEntry($id: ID!, $input: IpWhitelistEntryInput!) {
   gaiaMutations {
-    updateIpWhitelistEntry(id: $id, pattern: $pattern, description: $description, enabled: $enabled) {
+    updateIpWhitelistEntry(id: $id, input: $input) {
       ... on QuerySuccess {
         __typename
         message

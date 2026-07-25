@@ -5,6 +5,7 @@ query ipWhitelistEntries {
       pattern
       description
       enabled
+      immutable
       createdAt
       updatedAt
     }

@@ -104,13 +104,14 @@ const TorrentDialog = (props: TorrentDialogProps) => {
       <DialogHeader>
         <DialogTitle>{t("torrent-dialog.title")}</DialogTitle>
       </DialogHeader>
-      <Form
-        onSubmit={(event: React.FormEvent) => {
-          event.preventDefault();
-          handleSubmit();
-        }}
-      >
-        <DialogBody>
+      <DialogBody>
+        <Form
+          id="torrent-form"
+          onSubmit={(event: React.FormEvent) => {
+            event.preventDefault();
+            handleSubmit();
+          }}
+        >
           <Input
             placeholder={t("torrent-dialog.magnet-placeholder")}
             value={magnet}
@@ -139,16 +140,16 @@ const TorrentDialog = (props: TorrentDialogProps) => {
             {torrentFileName ?? t("torrent-dialog.choose-file")}
           </Button>
           {error && <p className={styles.error}>{error}</p>}
-        </DialogBody>
-        <DialogFooter>
-          <Button variant="secondary" type="button" onClick={handleClose}>
-            {t("torrent-dialog.cancel")}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {t("torrent-dialog.add")}
-          </Button>
-        </DialogFooter>
-      </Form>
+        </Form>
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" type="button" onClick={handleClose}>
+          {t("torrent-dialog.cancel")}
+        </Button>
+        <Button type="submit" form="torrent-form" disabled={pending}>
+          {t("torrent-dialog.add")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 };

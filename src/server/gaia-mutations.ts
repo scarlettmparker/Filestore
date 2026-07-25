@@ -52,7 +52,7 @@ defineMutation({
     const result = await executeDocument<
       CreateIpWhitelistEntryMutation,
       CreateIpWhitelistEntryMutationVariables
-    >(CreateIpWhitelistEntryDocument, { pattern: body.pattern, description: body.description }, tokenFrom(context));
+    >(CreateIpWhitelistEntryDocument, { pattern: body.pattern, description: body.description, immutable: body.immutable }, tokenFrom(context));
     const data = result.data?.gaiaMutations?.createIpWhitelistEntry;
     return {
       ...(data ?? {

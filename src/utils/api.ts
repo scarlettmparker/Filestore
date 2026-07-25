@@ -274,7 +274,7 @@ export async function fetchListKeys(bucket: string, prefix?: string) {
 export async function mutatePutKey(bucket: string, key: string | null) {
   return fetchGraphQLData<PutKeyMutation, PutKeyMutationVariables>(
     "filestoreMutations.putKey",
-    { bucket, key },
+    { input: { bucket, key } },
   );
 }
 
@@ -287,7 +287,7 @@ export async function mutatePutKey(bucket: string, key: string | null) {
 export async function mutateDeleteFile(bucket: string, key: string) {
   return fetchGraphQLData<DeleteFileMutation, DeleteFileMutationVariables>(
     "filestoreMutations.deleteFile",
-    { bucket, key },
+    { input: { bucket, key } },
   );
 }
 
@@ -302,7 +302,7 @@ export async function mutateDeleteFile(bucket: string, key: string) {
 export async function mutateDeleteKey(bucket: string, key: string) {
   return fetchGraphQLData<DeleteKeyMutation, DeleteKeyMutationVariables>(
     "filestoreMutations.deleteKey",
-    { bucket, key },
+    { input: { bucket, key } },
   );
 }
 
@@ -323,12 +323,7 @@ export async function mutateRenameKey(
 ) {
   return fetchGraphQLData<RenameKeyMutation, RenameKeyMutationVariables>(
     "filestoreMutations.renameKey",
-    {
-      bucket,
-      sourceKey,
-      targetKey,
-      merge: merge || false,
-    },
+    { input: { bucket, sourceKey, targetKey, merge: merge || false } },
   );
 }
 
@@ -344,9 +339,7 @@ export async function mutateGetPresignedUploadUrl(
     GetPresignedUploadUrlMutation,
     GetPresignedUploadUrlMutationVariables
   >("filestoreMutations.getPresignedUploadUrl", {
-    bucket,
-    key,
-    contentType: contentType || null,
+    input: { bucket, key, contentType: contentType || null },
   }).then((res) => res?.data?.filestoreMutations?.getPresignedUploadUrl);
 }
 
@@ -361,8 +354,7 @@ export async function mutateGetPresignedDownloadUrl(
     GetPresignedDownloadUrlMutation,
     GetPresignedDownloadUrlMutationVariables
   >("filestoreMutations.getPresignedDownloadUrl", {
-    bucket,
-    key,
+    input: { bucket, key },
   }).then((res) => res?.data?.filestoreMutations?.getPresignedDownloadUrl);
 }
 
@@ -395,7 +387,7 @@ export async function mutateAddTorrent(
 ) {
   return fetchGraphQLData<AddTorrentMutation, AddTorrentMutationVariables>(
     "filestoreMutations.addTorrent",
-    { bucket, path, magnet, torrentFileBase64 },
+    { input: { bucket, path, magnet, torrentFileBase64 } },
   ).then((res) => res?.data?.filestoreMutations?.addTorrent);
 }
 

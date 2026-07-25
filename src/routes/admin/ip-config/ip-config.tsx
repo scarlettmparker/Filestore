@@ -22,10 +22,11 @@ const IpConfig = () => {
 
   const handleAdd = () => setAddOpen(true);
   const handleAddClose = () => setAddOpen(false);
-  const handleAddSave = useCallback(async (pattern: string, description: string | null) => {
+  const handleAddSave = useCallback(async (pattern: string, description: string | null, immutable: boolean) => {
     await executeMutation("gaia/createIpWhitelistEntry", {
       pattern,
       description,
+      immutable,
     });
   }, []);
 

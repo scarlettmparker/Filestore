@@ -1,5 +1,5 @@
-mutation putKey($bucket: String!, $key: String) {
+mutation putKey($input: PutKeyInput!) {
   filestoreMutations {
-    putKey(bucket: $bucket, key: $key)
+    putKey(input: $input)
   }
 }
