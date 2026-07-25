@@ -12,6 +12,7 @@ import {
   backendHost,
   backendPort,
   clientSecret,
+  clientId,
 } from "./config.js";
 import { setupRoutes } from "./routes/index.js";
 import { registerDownloadProxyRoute } from "./src/server/routes/download-proxy.ts";
@@ -28,6 +29,11 @@ await createServer({
     backendHost,
     backendPort,
     clientSecret,
+    clientId,
+    ipWhitelist: {
+      backendUrl: `http://${backendHost}:${backendPort}`,
+      exemptPaths: ["/login", "/__login", "/__logout"],
+    },
   },
   setupRoutes,
   configure: async (app) => {
