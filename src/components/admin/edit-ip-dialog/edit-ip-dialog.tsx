@@ -13,8 +13,9 @@ import {
   FormItem,
   Input,
 } from "@sun/components";
+import type { IpWhitelistEntry } from "~/generated/graphql";
 
-type AddIpDialogProps = {
+type EditIpDialogProps = {
   /**
    * Whether the dialog is open.
    */
@@ -24,18 +25,24 @@ type AddIpDialogProps = {
    */
   onClose: () => void;
   /**
-   * Called with the entered values when the user saves.
+   * Entry being edited.
    */
-  onSave: (pattern: string, description: string | null) => void;
+  entry: IpWhitelistEntry | null;
+  /**
+   * Called with updated values when the user saves.
+   */
+  onSave: (id: string, pattern: string, description: string | null) => void;
 };
 
 /**
- * Dialog for adding an IP whitelist entry.
+ * Dialog for editing an IP whitelist entry.
  */
-const AddIpDialog = (props: AddIpDialogProps) => {
-  const { open, onClose, onSave } = props;
+const EditIpDialog = (props: EditIpDialogProps) => {
+  const { open, onClose, entry, onSave } = props;
   const { t } = useTranslation("admin");
   const [loading, setLoading] = useState(false);
+
+  if (!entry) return null;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,7 +50,7 @@ const AddIpDialog = (props: AddIpDialogProps) => {
     const data = new FormData(e.currentTarget);
     const pattern = data.get("pattern") as string;
     const description = data.get("description") as string | null;
-    await onSave(pattern, description || null);
+    await onSave(entry.id, pattern, description || null);
     setLoading(false);
     onClose();
   };
@@ -51,7 +58,7 @@ const AddIpDialog = (props: AddIpDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={(o: boolean) => !o && onClose()}>
       <DialogHeader>
-        <DialogTitle>{t("add-ip-title")}</DialogTitle>
+        <DialogTitle>{t("edit-ip-title")}</DialogTitle>
       </DialogHeader>
       <Form onSubmit={handleSubmit}>
         <DialogBody>
@@ -61,6 +68,7 @@ const AddIpDialog = (props: AddIpDialogProps) => {
               <Input
                 type="text"
                 placeholder={t("ip-pattern-placeholder")}
+                defaultValue={entry.pattern}
                 autoFocus
                 required
               />
@@ -72,6 +80,7 @@ const AddIpDialog = (props: AddIpDialogProps) => {
               <Input
                 type="text"
                 placeholder={t("ip-description-placeholder")}
+                defaultValue={entry.description ?? ""}
               />
             </FormItem>
           </FormField>
@@ -81,7 +90,7 @@ const AddIpDialog = (props: AddIpDialogProps) => {
             {t("cancel-label")}
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? t("ip-creating-label") : t("add-ip-submit")}
+            {loading ? t("ip-editing-label") : t("edit-ip-submit")}
           </Button>
         </DialogFooter>
       </Form>
@@ -89,4 +98,4 @@ const AddIpDialog = (props: AddIpDialogProps) => {
   );
 };
 
-export default AddIpDialog;
+export default EditIpDialog;

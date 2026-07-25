@@ -55,6 +55,7 @@ type GaiaMutations {
   suspendAccount(id: ID!): QueryResult
   unsuspendAccount(id: ID!): QueryResult
   createIpWhitelistEntry(pattern: String!, description: String): QueryResult
+  updateIpWhitelistEntry(id: ID!, pattern: String!, description: String, enabled: Boolean): QueryResult
   deleteIpWhitelistEntry(id: ID!): QueryResult
 }
 

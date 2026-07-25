@@ -68,7 +68,7 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
               className={styles.item_link}
             >
               <Button variant="secondary" className={styles.list_button}>
-                <span className={styles.list_name}>{account.username}</span>
+                <p className={styles.list_name}>{account.username}</p>
                 <span className={styles.list_actions}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

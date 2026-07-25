@@ -5,6 +5,7 @@ import {
   SuspendAccountDocument,
   UnsuspendAccountDocument,
   CreateIpWhitelistEntryDocument,
+  UpdateIpWhitelistEntryDocument,
   DeleteIpWhitelistEntryDocument,
   type SuspendAccountMutation,
   type SuspendAccountMutationVariables,
@@ -12,6 +13,8 @@ import {
   type UnsuspendAccountMutationVariables,
   type CreateIpWhitelistEntryMutation,
   type CreateIpWhitelistEntryMutationVariables,
+  type UpdateIpWhitelistEntryMutation,
+  type UpdateIpWhitelistEntryMutationVariables,
   type DeleteIpWhitelistEntryMutation,
   type DeleteIpWhitelistEntryMutationVariables,
 } from "~/generated/graphql";
@@ -55,6 +58,29 @@ defineMutation({
       ...(data ?? {
         __typename: "StandardError" as const,
         message: result.error || "Failed to create IP whitelist entry.",
+      }),
+      invalidated: [
+        makeCacheKey("ipEntries:ipEntries", {}),
+      ],
+    };
+  },
+});
+
+/**
+ * Updates an IP whitelist entry.
+ */
+defineMutation({
+  path: "gaia/updateIpWhitelistEntry",
+  async handler(body: UpdateIpWhitelistEntryMutationVariables, context) {
+    const result = await executeDocument<
+      UpdateIpWhitelistEntryMutation,
+      UpdateIpWhitelistEntryMutationVariables
+    >(UpdateIpWhitelistEntryDocument, { id: body.id, pattern: body.pattern, description: body.description, enabled: body.enabled }, tokenFrom(context));
+    const data = result.data?.gaiaMutations?.updateIpWhitelistEntry;
+    return {
+      ...(data ?? {
+        __typename: "StandardError" as const,
+        message: result.error || "Failed to update IP whitelist entry.",
       }),
       invalidated: [
         makeCacheKey("ipEntries:ipEntries", {}),
