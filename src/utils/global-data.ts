@@ -1,6 +1,6 @@
 import { defineLoader } from "@sun/ssr";
 import { AUTH_COOKIE, getCookieValue } from "~/utils/auth";
-import { executeDocument } from "~/utils/api";
+import { executeDocument } from "@sun/api";
 import { MyRolesDocument, type MyRolesQuery } from "~/generated/graphql";
 
 /**

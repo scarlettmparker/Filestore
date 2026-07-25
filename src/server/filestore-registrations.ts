@@ -5,25 +5,36 @@ import {
   defineMutation,
   makeCacheKey,
   type MutationResult,
+  type MutationContext,
 } from "@sun/ssr";
+import { executeDocument } from "@sun/api";
+import { tokenFrom } from "./context";
+import { AUTH_COOKIE, getCookieValue } from "~/utils/auth";
 import {
-  fetchHealth,
-  fetchListBuckets,
-  fetchListKeys,
-  fetchLocateKeyDetail,
-  mutateAddTorrent,
-  mutateCancelTorrent,
-  mutateDeleteFile,
-  mutateDeleteKey,
-  mutateGetPresignedDownloadUrl,
-  mutateGetPresignedUploadUrl,
-  mutatePutKey,
-  mutateRenameKey,
-} from "~/utils/api";
-import type {
-  ListKeysQuery,
-  ListBucketsQuery,
-  HealthQuery,
+  AddTorrentDocument,
+  CancelTorrentDocument,
+  DeleteFileDocument,
+  DeleteKeyDocument,
+  GetPresignedDownloadUrlDocument,
+  GetPresignedUploadUrlDocument,
+  HealthDocument,
+  ListBucketsDocument,
+  ListKeysDocument,
+  LocateKeyDetailDocument,
+  PutKeyDocument,
+  RenameKeyDocument,
+  type PutKeyMutation,
+  type DeleteFileMutation,
+  type DeleteKeyMutation,
+  type RenameKeyMutation,
+  type AddTorrentMutation,
+  type CancelTorrentMutation,
+  type GetPresignedUploadUrlMutation,
+  type GetPresignedDownloadUrlMutation,
+  type HealthQuery,
+  type ListBucketsQuery,
+  type ListKeysQuery,
+  type LocateKeyDetailQuery,
 } from "~/generated/graphql";
 
 /**
@@ -53,7 +64,10 @@ function keysCacheKey(bucket: string, path?: string): string {
  */
 defineMutation({
   path: "filestore/put",
-  async handler(body: BucketBody): Promise<MutationResult> {
+  async handler(
+    body: BucketBody,
+    context: MutationContext,
+  ): Promise<MutationResult> {
     const { bucket, key, path } = body;
     if (!bucket) {
       return {
@@ -67,8 +81,12 @@ defineMutation({
         message: "Invalid input: key must be a string or null",
       };
     }
-    const result = await mutatePutKey(bucket, key ?? null);
-    if (result?.data) {
+    const result = await executeDocument<PutKeyMutation>(
+      PutKeyDocument,
+      { input: { bucket, key: key ?? null } },
+      tokenFrom(context),
+    );
+    if (result.data?.filestoreMutations?.putKey) {
       const cacheKey = keysCacheKey(bucket, path);
       invalidateCacheKeys([cacheKey]);
       return {
@@ -87,16 +105,24 @@ defineMutation({
  */
 defineMutation({
   path: "filestore/get-presigned-upload-url",
-  async handler(body: {
-    bucket: string;
-    key: string;
-    contentType?: string;
-  }): Promise<MutationResult> {
-    const url = await mutateGetPresignedUploadUrl(
-      body.bucket,
-      body.key,
-      typeof body.contentType === "string" ? body.contentType : undefined,
+  async handler(
+    body: { bucket: string; key: string; contentType?: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
+    const result = await executeDocument<GetPresignedUploadUrlMutation>(
+      GetPresignedUploadUrlDocument,
+      {
+        input: {
+          bucket: body.bucket,
+          key: body.key,
+          contentType:
+            typeof body.contentType === "string" ? body.contentType : null,
+        },
+      },
+      tokenFrom(context),
     );
+    const url = result.data?.filestoreMutations?.getPresignedUploadUrl as
+      string | undefined;
     return url
       ? { __typename: "QuerySuccess", message: "URL generated", id: url }
       : {
@@ -111,11 +137,17 @@ defineMutation({
  */
 defineMutation({
   path: "filestore/get-presigned-download-url",
-  async handler(body: {
-    bucket: string;
-    key: string;
-  }): Promise<MutationResult> {
-    const url = await mutateGetPresignedDownloadUrl(body.bucket, body.key);
+  async handler(
+    body: { bucket: string; key: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
+    const result = await executeDocument<GetPresignedDownloadUrlMutation>(
+      GetPresignedDownloadUrlDocument,
+      { input: { bucket: body.bucket, key: body.key } },
+      tokenFrom(context),
+    );
+    const url = result.data?.filestoreMutations?.getPresignedDownloadUrl as
+      string | undefined;
     return url
       ? { __typename: "QuerySuccess", message: "URL generated", id: url }
       : {
@@ -147,11 +179,18 @@ defineMutation({
  */
 defineMutation({
   path: "filestore/delete-file",
-  async handler(body: BucketBody & { key: string }): Promise<MutationResult> {
+  async handler(
+    body: BucketBody & { key: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
     const { bucket, key, path } = body;
     const cacheKey = keysCacheKey(bucket, path);
-    const result = await mutateDeleteFile(bucket, key);
-    if (result?.data?.filestoreMutations?.deleteFile) {
+    const result = await executeDocument<DeleteFileMutation>(
+      DeleteFileDocument,
+      { input: { bucket, key } },
+      tokenFrom(context),
+    );
+    if (result.data?.filestoreMutations?.deleteFile) {
       invalidateCacheKeys([cacheKey]);
       return {
         __typename: "QuerySuccess",
@@ -169,11 +208,18 @@ defineMutation({
  */
 defineMutation({
   path: "filestore/delete-key",
-  async handler(body: BucketBody & { key: string }): Promise<MutationResult> {
+  async handler(
+    body: BucketBody & { key: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
     const { bucket, key, path } = body;
     const cacheKey = keysCacheKey(bucket, path);
-    const result = await mutateDeleteKey(bucket, key);
-    if (result?.data?.filestoreMutations?.deleteKey) {
+    const result = await executeDocument<DeleteKeyMutation>(
+      DeleteKeyDocument,
+      { input: { bucket, key } },
+      tokenFrom(context),
+    );
+    if (result.data?.filestoreMutations?.deleteKey) {
       const cleanKey = key.endsWith("/") ? key : key + "/";
       const nestedKeys = makeCacheKey("bucket/:alias/*:keys", {
         alias: bucket,
@@ -203,48 +249,39 @@ defineMutation({
       targetKey: string;
       merge?: boolean;
     },
+    context: MutationContext,
   ): Promise<MutationResult> {
     const { bucket, sourceKey, targetKey, path, merge } = body;
     const cacheKey = keysCacheKey(bucket, path);
-    const result = await mutateRenameKey(
-      bucket,
-      sourceKey,
-      targetKey,
-      merge ?? false,
+    const result = await executeDocument<RenameKeyMutation>(
+      RenameKeyDocument,
+      { input: { bucket, sourceKey, targetKey, merge: merge ?? false } },
+      tokenFrom(context),
     );
-    if (result?.data?.filestoreMutations?.renameKey) {
-      const renameResult = result.data.filestoreMutations.renameKey;
-      if (renameResult.success) {
-        const cleanSource = sourceKey.endsWith("/")
-          ? sourceKey
-          : sourceKey + "/";
-        const cleanTarget = targetKey.endsWith("/")
-          ? targetKey
-          : targetKey + "/";
-        const invalidated = [
-          cacheKey,
-          makeCacheKey("bucket/:alias/*:keys", {
-            alias: bucket,
-            path: `${cleanSource}*`,
-          }),
-          makeCacheKey("bucket/:alias/*:keys", {
-            alias: bucket,
-            path: `${cleanTarget}*`,
-          }),
-        ];
-        invalidateCacheKeys(invalidated);
-        return {
-          __typename: "QuerySuccess",
-          message: "Renamed successfully",
-          id: "",
-          invalidated,
-        };
-      } else if (renameResult.hasConflicts) {
-        return {
-          __typename: "FormError",
-          message: `Rename has conflicts: ${JSON.stringify(renameResult.conflicts)}`,
-        };
-      }
+    const renameResult = result.data?.filestoreMutations?.renameKey;
+    if (renameResult?.success) {
+      const cleanSource = sourceKey.endsWith("/") ? sourceKey : sourceKey + "/";
+      const cleanTarget = targetKey.endsWith("/") ? targetKey : targetKey + "/";
+      const invalidated = [
+        cacheKey,
+        makeCacheKey("bucket/:alias/*:keys", {
+          alias: bucket,
+          path: `${cleanSource}*`,
+        }),
+        makeCacheKey("bucket/:alias/*:keys", {
+          alias: bucket,
+          path: `${cleanTarget}*`,
+        }),
+      ];
+      invalidateCacheKeys(invalidated);
+      return {
+        __typename: "QuerySuccess",
+        message: "Renamed successfully",
+        id: "",
+        invalidated,
+      };
+    } else if (renameResult?.hasConflicts) {
+      return { __typename: "FormError", message: "Rename has conflicts" };
     }
     return { __typename: "StandardError", message: "Failed to rename key" };
   },
@@ -256,12 +293,15 @@ defineMutation({
  */
 defineMutation({
   path: "filestore/add-torrent",
-  async handler(body: {
-    bucket: string;
-    path?: string;
-    magnet?: string;
-    torrentFileBase64?: string;
-  }): Promise<MutationResult> {
+  async handler(
+    body: {
+      bucket: string;
+      path?: string;
+      magnet?: string;
+      torrentFileBase64?: string;
+    },
+    context: MutationContext,
+  ): Promise<MutationResult> {
     const { bucket, path, magnet, torrentFileBase64 } = body;
     if (!bucket) {
       return {
@@ -269,19 +309,27 @@ defineMutation({
         message: "Invalid input: bucket required",
       };
     }
-    const result = await mutateAddTorrent(
-      bucket,
-      path ?? null,
-      magnet ?? null,
-      torrentFileBase64 ?? null,
+    const result = await executeDocument<AddTorrentMutation>(
+      AddTorrentDocument,
+      {
+        input: {
+          bucket,
+          path: path ?? null,
+          magnet: magnet ?? null,
+          torrentFileBase64: torrentFileBase64 ?? null,
+        },
+      },
+      tokenFrom(context),
     );
-    if (result) {
+    const data = result.data?.filestoreMutations?.addTorrent as
+      { id: string } | undefined;
+    if (data) {
       const cacheKey = keysCacheKey(bucket, path ?? "");
       invalidatePageData([cacheKey]);
       return {
         __typename: "QuerySuccess",
         message: "Torrent added",
-        id: result.id,
+        id: data.id,
         invalidated: [cacheKey],
       };
     }
@@ -294,16 +342,19 @@ defineMutation({
  */
 defineMutation({
   path: "filestore/cancel-torrent",
-  async handler(body: {
-    jobId: string;
-    bucket: string;
-    path?: string;
-  }): Promise<MutationResult> {
+  async handler(
+    body: { jobId: string; bucket: string; path?: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
     if (!body.jobId) {
       return { __typename: "StandardError", message: "jobId required" };
     }
-    const result = await mutateCancelTorrent(body.jobId);
-    if (result) {
+    const result = await executeDocument<CancelTorrentMutation>(
+      CancelTorrentDocument,
+      { jobId: body.jobId },
+      tokenFrom(context),
+    );
+    if (result.data?.filestoreMutations?.cancelTorrent) {
       const cacheKey = keysCacheKey(body.bucket, body.path);
       invalidatePageData([cacheKey]);
       return {
@@ -323,9 +374,8 @@ defineMutation({
 defineLoader({
   pattern: "filestore",
   async loader() {
-    const result = await fetchHealth();
-    if (!result?.data || !result?.success) return null;
-    const health = (result.data as HealthQuery).filestoreQueries.health;
+    const result = await executeDocument<HealthQuery>(HealthDocument, {});
+    const health = result.data?.filestoreQueries?.health;
     return health ? { health } : null;
   },
 });
@@ -335,11 +385,14 @@ defineLoader({
  */
 defineLoader({
   pattern: "filestore",
-  async loader() {
-    const result = await fetchListBuckets();
-    if (!result?.data || !result?.success) return null;
-    const buckets = (result.data as ListBucketsQuery).filestoreQueries
-      .listBuckets;
+  async loader(_params, context) {
+    const token = getCookieValue(context?.cookie, AUTH_COOKIE);
+    const result = await executeDocument<ListBucketsQuery>(
+      ListBucketsDocument,
+      {},
+      token,
+    );
+    const buckets = result.data?.filestoreQueries?.listBuckets;
     return buckets ? { buckets } : null;
   },
 });
@@ -351,18 +404,30 @@ async function fetchBucketData(
   alias: string,
   path: string,
   selected?: string | null,
+  token?: string,
 ): Promise<Record<string, unknown> | null> {
-  const result = await fetchListKeys(alias, path || undefined);
-  if (!result?.data || !result?.success) return null;
-  const keys = (result.data as ListKeysQuery).filestoreQueries.listKeys;
+  const result = await executeDocument<ListKeysQuery>(
+    ListKeysDocument,
+    { bucket: alias, prefix: path || undefined },
+    token,
+  );
+  const keys = result.data?.filestoreQueries?.listKeys;
   if (!keys) return null;
 
-  const data: Record<string, unknown> = { keys, detail: { __typename: "Placeholder", key: selected } };
+  const data: Record<string, unknown> = {
+    keys,
+    detail: { __typename: "Placeholder", key: selected },
+  };
 
   if (selected) {
-    const detailResult = await fetchLocateKeyDetail(alias, selected);
-    if (detailResult && detailResult.__typename !== "Placeholder") {
-      data.detail = detailResult;
+    const detailResult = await executeDocument<LocateKeyDetailQuery>(
+      LocateKeyDetailDocument,
+      { bucket: alias, keyPath: selected },
+      token,
+    );
+    const detail = detailResult.data?.filestoreQueries?.locate;
+    if (detail) {
+      data.detail = detail;
     }
   }
 
@@ -374,11 +439,12 @@ async function fetchBucketData(
  */
 defineLoader({
   pattern: "bucket/:alias",
-  async loader(params) {
+  async loader(params, context) {
     const alias = params.alias as string;
     const selected = params.selected as string | null;
+    const token = getCookieValue(context?.cookie, AUTH_COOKIE);
     if (!alias) return null;
-    return fetchBucketData(alias, "", selected);
+    return fetchBucketData(alias, "", selected, token);
   },
 });
 
@@ -387,11 +453,12 @@ defineLoader({
  */
 defineLoader({
   pattern: "bucket/:alias/*",
-  async loader(params) {
+  async loader(params, context) {
     const alias = params.alias as string;
     const path = params.path as string;
     const selected = params.selected as string | null;
+    const token = getCookieValue(context?.cookie, AUTH_COOKIE);
     if (!alias || !path) return null;
-    return fetchBucketData(alias, path, selected);
+    return fetchBucketData(alias, path, selected, token);
   },
 });

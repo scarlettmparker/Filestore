@@ -1,5 +1,10 @@
-import { defineMutation, makeCacheKey } from "@sun/ssr";
-import { executeDocument } from "~/utils/api";
+import {
+  defineMutation,
+  makeCacheKey,
+  type MutationContext,
+  type MutationResult,
+} from "@sun/ssr";
+import { executeDocument } from "@sun/api";
 import { tokenFrom } from "./context";
 import {
   SuspendAccountDocument,
@@ -8,15 +13,10 @@ import {
   UpdateIpWhitelistEntryDocument,
   DeleteIpWhitelistEntryDocument,
   type SuspendAccountMutation,
-  type SuspendAccountMutationVariables,
-  type UnsuspendAccountMutation,
-  type UnsuspendAccountMutationVariables,
   type CreateIpWhitelistEntryMutation,
-  type CreateIpWhitelistEntryMutationVariables,
   type UpdateIpWhitelistEntryMutation,
-  type UpdateIpWhitelistEntryMutationVariables,
   type DeleteIpWhitelistEntryMutation,
-  type DeleteIpWhitelistEntryMutationVariables,
+  type UnsuspendAccountMutation,
 } from "~/generated/graphql";
 
 /**
@@ -24,22 +24,27 @@ import {
  */
 defineMutation({
   path: "gaia/suspendAccount",
-  async handler(body: SuspendAccountMutationVariables, context) {
-    const result = await executeDocument<
-      SuspendAccountMutation,
-      SuspendAccountMutationVariables
-    >(SuspendAccountDocument, { id: body.id }, tokenFrom(context));
-    const data = result.data?.gaiaMutations?.suspendAccount;
+  async handler(
+    body: { id: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
+    const result = await executeDocument<SuspendAccountMutation>(
+      SuspendAccountDocument,
+      { id: body.id },
+      tokenFrom(context),
+    );
+    const data = result.data?.gaiaMutations?.suspendAccount as
+      MutationResult | undefined;
     return {
       ...(data ?? {
-        __typename: "StandardError" as const,
+        __typename: "StandardError",
         message: result.error || "Failed to suspend account.",
       }),
       invalidated: [
         makeCacheKey("accounts:accounts", { page: "*" }),
         makeCacheKey("admin/:id:account", { id: body.id }),
       ],
-    };
+    } as MutationResult;
   },
 });
 
@@ -48,21 +53,28 @@ defineMutation({
  */
 defineMutation({
   path: "gaia/createIpWhitelistEntry",
-  async handler(body: CreateIpWhitelistEntryMutationVariables, context) {
-    const result = await executeDocument<
-      CreateIpWhitelistEntryMutation,
-      CreateIpWhitelistEntryMutationVariables
-    >(CreateIpWhitelistEntryDocument, { pattern: body.pattern, description: body.description, immutable: body.immutable }, tokenFrom(context));
-    const data = result.data?.gaiaMutations?.createIpWhitelistEntry;
+  async handler(
+    body: { pattern: string; description?: string | null; immutable?: boolean },
+    context: MutationContext,
+  ): Promise<MutationResult> {
+    const result = await executeDocument<CreateIpWhitelistEntryMutation>(
+      CreateIpWhitelistEntryDocument,
+      {
+        pattern: body.pattern,
+        description: body.description,
+        immutable: body.immutable,
+      },
+      tokenFrom(context),
+    );
+    const data = result.data?.gaiaMutations?.createIpWhitelistEntry as
+      MutationResult | undefined;
     return {
       ...(data ?? {
-        __typename: "StandardError" as const,
+        __typename: "StandardError",
         message: result.error || "Failed to create IP whitelist entry.",
       }),
-      invalidated: [
-        makeCacheKey("ipEntries:ipEntries", {}),
-      ],
-    };
+      invalidated: [makeCacheKey("ipEntries:ipEntries", {})],
+    } as MutationResult;
   },
 });
 
@@ -71,21 +83,34 @@ defineMutation({
  */
 defineMutation({
   path: "gaia/updateIpWhitelistEntry",
-  async handler(body: UpdateIpWhitelistEntryMutationVariables, context) {
-    const result = await executeDocument<
-      UpdateIpWhitelistEntryMutation,
-      UpdateIpWhitelistEntryMutationVariables
-    >(UpdateIpWhitelistEntryDocument, { id: body.id, pattern: body.pattern, description: body.description, enabled: body.enabled }, tokenFrom(context));
-    const data = result.data?.gaiaMutations?.updateIpWhitelistEntry;
+  async handler(
+    body: {
+      id: string;
+      pattern: string;
+      description?: string | null;
+      enabled?: boolean;
+    },
+    context: MutationContext,
+  ): Promise<MutationResult> {
+    const result = await executeDocument<UpdateIpWhitelistEntryMutation>(
+      UpdateIpWhitelistEntryDocument,
+      {
+        id: body.id,
+        pattern: body.pattern,
+        description: body.description,
+        enabled: body.enabled,
+      },
+      tokenFrom(context),
+    );
+    const data = result.data?.gaiaMutations?.updateIpWhitelistEntry as
+      MutationResult | undefined;
     return {
       ...(data ?? {
-        __typename: "StandardError" as const,
+        __typename: "StandardError",
         message: result.error || "Failed to update IP whitelist entry.",
       }),
-      invalidated: [
-        makeCacheKey("ipEntries:ipEntries", {}),
-      ],
-    };
+      invalidated: [makeCacheKey("ipEntries:ipEntries", {})],
+    } as MutationResult;
   },
 });
 
@@ -94,21 +119,24 @@ defineMutation({
  */
 defineMutation({
   path: "gaia/deleteIpWhitelistEntry",
-  async handler(body: DeleteIpWhitelistEntryMutationVariables, context) {
-    const result = await executeDocument<
-      DeleteIpWhitelistEntryMutation,
-      DeleteIpWhitelistEntryMutationVariables
-    >(DeleteIpWhitelistEntryDocument, { id: body.id }, tokenFrom(context));
-    const data = result.data?.gaiaMutations?.deleteIpWhitelistEntry;
+  async handler(
+    body: { id: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
+    const result = await executeDocument<DeleteIpWhitelistEntryMutation>(
+      DeleteIpWhitelistEntryDocument,
+      { id: body.id },
+      tokenFrom(context),
+    );
+    const data = result.data?.gaiaMutations?.deleteIpWhitelistEntry as
+      MutationResult | undefined;
     return {
       ...(data ?? {
-        __typename: "StandardError" as const,
+        __typename: "StandardError",
         message: result.error || "Failed to delete IP whitelist entry.",
       }),
-      invalidated: [
-        makeCacheKey("ipEntries:ipEntries", {}),
-      ],
-    };
+      invalidated: [makeCacheKey("ipEntries:ipEntries", {})],
+    } as MutationResult;
   },
 });
 
@@ -117,21 +145,26 @@ defineMutation({
  */
 defineMutation({
   path: "gaia/unsuspendAccount",
-  async handler(body: UnsuspendAccountMutationVariables, context) {
-    const result = await executeDocument<
-      UnsuspendAccountMutation,
-      UnsuspendAccountMutationVariables
-    >(UnsuspendAccountDocument, { id: body.id }, tokenFrom(context));
-    const data = result.data?.gaiaMutations?.unsuspendAccount;
+  async handler(
+    body: { id: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
+    const result = await executeDocument<UnsuspendAccountMutation>(
+      UnsuspendAccountDocument,
+      { id: body.id },
+      tokenFrom(context),
+    );
+    const data = result.data?.gaiaMutations?.unsuspendAccount as
+      MutationResult | undefined;
     return {
       ...(data ?? {
-        __typename: "StandardError" as const,
+        __typename: "StandardError",
         message: result.error || "Failed to unsuspend account.",
       }),
       invalidated: [
         makeCacheKey("accounts:accounts", { page: "*" }),
         makeCacheKey("admin/:id:account", { id: body.id }),
       ],
-    };
+    } as MutationResult;
   },
 });
