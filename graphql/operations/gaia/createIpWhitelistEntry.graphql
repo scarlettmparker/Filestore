@@ -1,0 +1,15 @@
+mutation createIpWhitelistEntry($pattern: String!, $description: String) {
+  gaiaMutations {
+    createIpWhitelistEntry(pattern: $pattern, description: $description) {
+      ... on QuerySuccess {
+        __typename
+        message
+        id
+      }
+      ... on StandardError {
+        __typename
+        message
+      }
+    }
+  }
+}

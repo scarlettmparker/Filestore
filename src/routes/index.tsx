@@ -34,7 +34,7 @@ const Index = () => {
         <CardTitle>{t("card-title")}</CardTitle>
         <CardDescription>{t("card-description")}</CardDescription>
       </CardHeader>
-      <CardBody>
+      <CardBody className={styles.bucket_card_body}>
         {buckets.map((bucket, idx) => (
           <Link
             key={idx}

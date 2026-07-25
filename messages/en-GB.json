@@ -16,7 +16,7 @@
     "register-link": "Register"
   },
   "nav": {
-    "home": "Home",
+    "buckets": "Buckets",
     "admin": "Admin",
     "logout": "Sign out"
   },
@@ -43,7 +43,26 @@
     "unsuspend-title": "Unsuspend {{username}}?",
     "unsuspend-body": "Are you sure you wish to unsuspend this user?",
     "cancel-label": "Cancel",
-    "confirm-label": "Confirm"
+    "confirm-label": "Confirm",
+    "accounts": "Accounts",
+    "ip-config": "IP Configuration",
+    "ip-title": "IP Configuration",
+    "add-ip-title": "Add IP Address",
+    "add-ip-submit": "Add",
+    "ip-pattern": "IP Address",
+    "ip-pattern-placeholder": "e.g. 192.168.0.0/24 or 10.0.0.*",
+    "ip-description": "Description",
+    "ip-description-placeholder": "Optional description",
+    "ip-creating-label": "Adding...",
+    "ip-select": "Select an IP address",
+    "ip-not-found": "IP address not found",
+    "ip-delete": "Delete",
+    "ip-delete-title": "Delete {{pattern}}?",
+    "ip-delete-body": "Are you sure you wish to delete this IP address?",
+    "ip-items-count_one": "{{count}} IP address",
+    "ip-items-count_other": "{{count}} IP addresses",
+    "ip-no-items-found": "No IP addresses configured",
+    "ip-none": "None"
   },
   "bucket": {
     "items_zero": "No items",

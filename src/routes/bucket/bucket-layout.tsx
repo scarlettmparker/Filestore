@@ -61,7 +61,6 @@ const BucketLayout = () => {
     const interval = setInterval(() => revalidatePageData([cacheKey]), 3000);
     return () => clearInterval(interval);
     // pageParams is derived from alias/path; depend on those to avoid churn.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasDownloading, alias, path, pattern]);
 
   /**

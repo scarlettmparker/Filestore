@@ -1,0 +1,12 @@
+query ipWhitelistEntries {
+  gaiaQueries {
+    ipWhitelistEntries {
+      id
+      pattern
+      description
+      enabled
+      createdAt
+      updatedAt
+    }
+  }
+}

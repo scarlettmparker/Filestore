@@ -12,6 +12,7 @@ import { clientId, clientSecret } from "../config.js";
 import "./utils/configure-framework";
 import "./utils/global-data";
 import "./routes/admin/admin-data";
+import "./routes/admin/ip-config/ip-config-data";
 import "./server/gaia-mutations";
 
 configureApi({ authCookie: AUTH_COOKIE, clientId, clientSecret });

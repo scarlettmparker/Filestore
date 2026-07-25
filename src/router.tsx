@@ -6,8 +6,11 @@ const NotFound = lazy(() => import("~/routes/not-found"));
 const Status = lazy(() => import("~/routes/status"));
 const BucketLayout = lazy(() => import("~/routes/bucket/bucket-layout"));
 const Login = lazy(() => import("~/routes/login"));
+const AdminLayout = lazy(() => import("~/routes/admin/admin-layout"));
 const Admin = lazy(() => import("~/routes/admin"));
 const AccountDetailPage = lazy(() => import("~/routes/admin/account-detail-page"));
+const IpConfig = lazy(() => import("~/routes/admin/ip-config"));
+const IpDetailPage = lazy(() => import("~/routes/admin/ip-config/ip-detail-page"));
 
 /**
  * List of routes.
@@ -49,13 +52,37 @@ export const routes: RouteObject[] = [
     path: "admin",
     element: (
       <Suspense fallback={null}>
-        <Admin />
+        <AdminLayout />
       </Suspense>
     ),
     children: [
       {
-        path: ":id",
-        element: <AccountDetailPage />,
+        path: "",
+        element: (
+          <Suspense fallback={null}>
+            <Admin />
+          </Suspense>
+        ),
+        children: [
+          {
+            path: ":id",
+            element: <AccountDetailPage />,
+          },
+        ],
+      },
+      {
+        path: "ip-config",
+        element: (
+          <Suspense fallback={null}>
+            <IpConfig />
+          </Suspense>
+        ),
+        children: [
+          {
+            path: ":id",
+            element: <IpDetailPage />,
+          },
+        ],
       },
     ],
   },
