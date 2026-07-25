@@ -79,6 +79,21 @@ export function setupRoutes(app, vite) {
     }
 
     const token = getCookieValue(request.headers.cookie, AUTH_COOKIE);
+    if (token) {
+      try {
+        const payload = JSON.parse(
+          Buffer.from(token.split(".")[1], "base64url").toString(),
+        );
+        if (payload.exp * 1000 < Date.now()) {
+          reply.header("Set-Cookie", clearAuthCookie());
+          return reply.redirect("/login?error=1");
+        }
+      } catch {
+        reply.header("Set-Cookie", clearAuthCookie());
+        return reply.redirect("/login");
+      }
+    }
+
     const normalizedPath =
       pathname.length > 1 && pathname.endsWith("/")
         ? pathname.replace(/\/+$/, "")

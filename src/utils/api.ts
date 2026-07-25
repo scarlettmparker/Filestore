@@ -4,8 +4,11 @@
  */
 
 export { executeDocument } from "@sun/api";
+export { getCookieValue } from "@sun/api";
 
 import { print, DocumentNode } from "graphql";
+import { getRequestCookie } from "@sun/ssr";
+import { AUTH_COOKIE, getCookieValue } from "~/utils/auth";
 import {
   AddTorrentDocument,
   AddTorrentMutation,
@@ -175,19 +178,26 @@ export async function fetchGraphQLData<
     };
   }
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "X-Client-Secret": clientSecret,
+    "X-Client-Id": clientId,
+  };
+  
+  const requestCookie = getRequestCookie();
+  if (requestCookie) {
+    const token = getCookieValue(requestCookie, AUTH_COOKIE);
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+
   try {
     return await retryWithBackoff(async () => {
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Client-Secret": clientSecret,
-          "X-Client-Id": clientId,
-        },
-        body: JSON.stringify({
-          query: print(query),
-          variables,
-        }),
+        headers,
+        body: JSON.stringify({ query: print(query), variables }),
       });
 
       if (!response.ok) {
