@@ -1,4 +1,4 @@
-import { RouteObject, useRoutes } from "react-router-dom";
+import { RouteObject, useRoutes, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
 const Index = lazy(() => import("~/routes/index"));
@@ -67,6 +67,10 @@ export const routes: RouteObject[] = [
       </Suspense>
     ),
     children: [
+      {
+        path: "access",
+        element: <Navigate to="/admin/access/ip" replace />,
+      },
       {
         path: "",
         element: (
