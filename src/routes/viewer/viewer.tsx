@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { VideoViewer } from "~/components/viewer";
+import VideoViewer from "~/components/video-viewer";
 import { executeMutation } from "@sun/ssr";
 
 /**

@@ -17,7 +17,7 @@ import {
   Minimize,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import styles from "./viewer.module.css";
+import styles from "./video-viewer.module.css";
 
 type VideoViewerProps = {
   /**
@@ -200,6 +200,7 @@ const VideoViewer = (props: VideoViewerProps) => {
         ref={videoRef}
         src={src}
         className={styles.video_element}
+        autoPlay
         onClick={handlePlayPause}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleMetadata}

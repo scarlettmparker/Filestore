@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Dialog, DialogBody, DialogHeader, DialogTitle, Button } from "@sun/components";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import styles from "./viewer.module.css";
+import styles from "./image-viewer.module.css";
 
 type ImageViewerProps = {
   /**

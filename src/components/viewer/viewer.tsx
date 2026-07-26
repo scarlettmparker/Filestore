@@ -1,4 +1,4 @@
-import ImageViewer from "./image-viewer";
+import ImageViewer from "~/components/image-viewer";
 
 type ViewerProps = {
   /**
@@ -22,7 +22,7 @@ type ViewerProps = {
    */
   images: string[];
   /**
-   * Index of this image in the images array.
+   * Index of the current image in the images array.
    */
   imageIndex: number;
 };

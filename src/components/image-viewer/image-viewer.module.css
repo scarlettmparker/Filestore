@@ -1,0 +1,20 @@
+.image_body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lg);
+}
+
+.image_wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 80vw;
+  max-height: 80vh;
+}
+
+.image {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+}
