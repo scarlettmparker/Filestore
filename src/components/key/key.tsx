@@ -213,7 +213,7 @@ const Key = (props: KeyProps) => {
               !key.isDirectory && (
                 <>
                   <p>{formatDate(key.lastModified)}</p>
-                  <p>{`${key.size} B`}</p>
+                  <p>{formatBytes(key.size)}</p>
                 </>
               )
             )}
