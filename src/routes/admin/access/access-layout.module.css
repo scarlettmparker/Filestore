@@ -1,0 +1,10 @@
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: var(--md);
+  padding: var(--xl) var(--xl) 0;
+}
+
+.link {
+  text-decoration: none;
+}

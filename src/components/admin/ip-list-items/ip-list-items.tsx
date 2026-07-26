@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+  Badge,
   Button,
   DropdownMenu,
   DropdownMenuContent,
@@ -46,11 +47,14 @@ const IpListItems = (props: IpListItemsProps) => {
         entries.map((entry: IpWhitelistEntry) => (
           <Link
             key={entry.id}
-            to={`/admin/ip-config/${entry.id}`}
+            to={`/admin/access/ip/${entry.id}`}
             className={styles.item_link}
           >
             <Button variant="secondary" className={styles.list_button}>
-              <p className={styles.list_name}>{entry.pattern}</p>
+              <span className={styles.list_name}>{entry.pattern}</span>
+              {!entry.enabled && (
+                <Badge variant="secondary">{t("status-suspended")}</Badge>
+              )}
               {!entry.immutable && (
                 <span className={styles.list_actions}>
                   <DropdownMenu>

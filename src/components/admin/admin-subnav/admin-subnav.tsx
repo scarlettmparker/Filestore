@@ -5,7 +5,7 @@ import styles from "./admin-subnav.module.css";
 
 const NAV_ITEMS = [
   { labelKey: "accounts", href: "/admin" },
-  { labelKey: "ip-config", href: "/admin/ip-config" },
+  { labelKey: "access", href: "/admin/access" },
 ] as const;
 
 /**

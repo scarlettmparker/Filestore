@@ -39,6 +39,16 @@ const IpDetail = (props: IpDetailProps) => {
         <p className={styles.detail_value}>
           {entry.description ?? t("ip-none")}
         </p>
+        <label>{t("status")}</label>
+        <p className={styles.detail_value}>
+          {entry.enabled ? t("status-active") : t("status-suspended")}
+        </p>
+        {entry.immutable && (
+          <>
+            <label>{t("immutable")}</label>
+            <p className={styles.detail_value}>{t("immutable-hint")}</p>
+          </>
+        )}
       </CardBody>
     </Card>
   );

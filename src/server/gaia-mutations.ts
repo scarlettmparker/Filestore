@@ -54,7 +54,7 @@ defineMutation({
 defineMutation({
   path: "gaia/createIpWhitelistEntry",
   async handler(
-    body: { pattern: string; description?: string | null; immutable?: boolean },
+    body: { pattern: string; description?: string | null; immutable?: boolean; enabled?: boolean },
     context: MutationContext,
   ): Promise<MutationResult> {
     const result = await executeDocument<CreateIpWhitelistEntryMutation>(
@@ -64,6 +64,7 @@ defineMutation({
           pattern: body.pattern,
           description: body.description,
           immutable: body.immutable,
+          enabled: body.enabled,
         },
       },
       tokenFrom(context),

@@ -45,7 +45,6 @@
     "cancel-label": "Cancel",
     "confirm-label": "Confirm",
     "accounts": "Accounts",
-    "ip-config": "IPs",
     "ip-title": "IP Configuration",
     "add-ip-title": "Add IP Address",
     "add-ip-submit": "Add",
@@ -68,7 +67,18 @@
     "ip-no-items-found": "No IP addresses configured",
     "ip-none": "None",
     "immutable": "Immutable",
-    "immutable-hint": "Cannot be edited or deleted after creation"
+    "tailscale": {
+      "title": "Tailscale Devices",
+      "generate-qr": "Generate QR",
+      "expire": "Expire",
+      "expiry": "Expiry",
+      "copy-key": "Copy Key",
+      "qr-title": "Pre-auth Key",
+      "qr-alt": "QR code for Tailscale device enrollment",
+      "no-nodes": "No devices connected",
+      "online": "Online",
+      "offline": "Offline"
+    }
   },
   "bucket": {
     "items_zero": "No items",

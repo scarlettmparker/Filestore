@@ -33,6 +33,7 @@ type AddIpDialogProps = {
     pattern: string,
     description: string | null,
     immutable: boolean,
+    enabled: boolean,
   ) => void;
 };
 
@@ -51,7 +52,8 @@ const AddIpDialog = (props: AddIpDialogProps) => {
     const pattern = data.get("pattern") as string;
     const description = data.get("description") as string | null;
     const immutable = data.get("immutable") === "on";
-    onSave(pattern, description || null, immutable);
+    const enabled = data.get("enabled") !== "off";
+    onSave(pattern, description || null, immutable, enabled);
     setLoading(false);
     onClose();
   };
@@ -90,6 +92,12 @@ const AddIpDialog = (props: AddIpDialogProps) => {
               <Checkbox name="immutable" />
             </FormItem>
             <FormLabel>{t("immutable")}</FormLabel>
+          </FormField>
+          <FormField name="enabled">
+            <FormItem>
+              <Checkbox name="enabled" defaultChecked />
+            </FormItem>
+            <FormLabel>Enabled</FormLabel>
           </FormField>
         </Form>
       </DialogBody>

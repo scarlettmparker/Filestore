@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogBody,
   DialogFooter,
@@ -31,7 +32,7 @@ type EditIpDialogProps = {
   /**
    * Called with updated values when the user saves.
    */
-  onSave: (id: string, pattern: string, description: string | null) => void;
+  onSave: (id: string, pattern: string, description: string | null, enabled: boolean) => void;
 };
 
 /**
@@ -50,7 +51,8 @@ const EditIpDialog = (props: EditIpDialogProps) => {
     const data = new FormData(e.currentTarget);
     const pattern = data.get("pattern") as string;
     const description = data.get("description") as string | null;
-    onSave(entry.id, pattern, description || null);
+    const enabled = data.get("enabled") !== "off";
+    onSave(entry.id, pattern, description || null, enabled);
     setLoading(false);
     onClose();
   };
@@ -85,6 +87,12 @@ const EditIpDialog = (props: EditIpDialogProps) => {
                 defaultValue={entry.description ?? ""}
               />
             </FormItem>
+          </FormField>
+          <FormField name="enabled">
+            <FormItem>
+              <Checkbox name="enabled" defaultChecked={entry.enabled} />
+            </FormItem>
+            <FormLabel>Enabled</FormLabel>
           </FormField>
         </Form>
       </DialogBody>

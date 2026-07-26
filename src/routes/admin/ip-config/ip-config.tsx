@@ -22,11 +22,12 @@ const IpConfig = () => {
 
   const handleAdd = () => setAddOpen(true);
   const handleAddClose = () => setAddOpen(false);
-  const handleAddSave = useCallback(async (pattern: string, description: string | null, immutable: boolean) => {
+  const handleAddSave = useCallback(async (pattern: string, description: string | null, immutable: boolean, enabled: boolean) => {
     await executeMutation("gaia/createIpWhitelistEntry", {
       pattern,
       description,
       immutable,
+      enabled,
     });
   }, []);
 
@@ -37,12 +38,12 @@ const IpConfig = () => {
     setEditingEntry(null);
   }, []);
 
-  const handleSave = useCallback(async (id: string, pattern: string, description: string | null) => {
+  const handleSave = useCallback(async (id: string, pattern: string, description: string | null, enabled: boolean) => {
     await executeMutation("gaia/updateIpWhitelistEntry", {
       id,
       pattern,
       description,
-      enabled: true,
+      enabled,
     });
     setEditingEntry(null);
   }, []);
@@ -60,7 +61,7 @@ const IpConfig = () => {
       id: deletingEntry.id,
     });
     setDeletingEntry(null);
-    navigate("/admin/ip-config");
+    navigate("/admin/access/ip");
   }, [deletingEntry, navigate]);
 
   return (
