@@ -46,7 +46,9 @@ defineLoader({
         { id },
         token,
       );
-      return { tailscaleDevice: result.data?.gaiaQueries?.tailscaleDevice ?? null };
+      return {
+        tailscaleDevice: result.data?.gaiaQueries?.tailscaleDevice ?? null,
+      };
     } catch {
       return { tailscaleDevice: null };
     }

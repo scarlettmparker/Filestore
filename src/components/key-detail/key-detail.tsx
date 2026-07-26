@@ -40,10 +40,14 @@ const KeyDetailPanel = (props: KeyDetailProps) => {
         <p className={styles.detail_value}>{detail.status}</p>
 
         <label>{t("detail.created")}</label>
-        <p className={styles.detail_value}>{formatDate(detail.createdAt) || "-"}</p>
+        <p className={styles.detail_value}>
+          {formatDate(detail.createdAt) || "-"}
+        </p>
 
         <label>{t("detail.last-updated")}</label>
-        <p className={styles.detail_value}>{formatDate(detail.lastUpdatedAt) || "-"}</p>
+        <p className={styles.detail_value}>
+          {formatDate(detail.lastUpdatedAt) || "-"}
+        </p>
       </CardBody>
     </Card>
   );

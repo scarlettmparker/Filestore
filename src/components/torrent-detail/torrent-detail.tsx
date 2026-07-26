@@ -17,7 +17,9 @@ const TorrentDetailPanel = (props: TorrentDetailPanelProps) => {
       <CardBody className={styles.detail_body}>
         <label>{t("torrent.status")}</label>
         <p className={styles.detail_value}>
-          {torrent.status === TorrentJobStatus.Transcoding ? t("torrent.transcoding") : torrent.status}
+          {torrent.status === TorrentJobStatus.Transcoding
+            ? t("torrent.transcoding")
+            : torrent.status}
         </p>
 
         <label>{t("torrent.progress")}</label>
@@ -29,7 +31,8 @@ const TorrentDetailPanel = (props: TorrentDetailPanelProps) => {
           <>
             <label>{t("torrent.downloaded")}</label>
             <p className={styles.detail_value}>
-              {formatBytes(torrent.downloadedBytes)} / {formatBytes(torrent.totalBytes)}
+              {formatBytes(torrent.downloadedBytes)} /{" "}
+              {formatBytes(torrent.totalBytes)}
             </p>
 
             <label>{t("torrent.download-rate")}</label>
@@ -75,7 +78,8 @@ function formatBytes(bytes: number | null | undefined): string {
 
 function formatEta(seconds: number): string {
   if (seconds < 60) return seconds + "s";
-  if (seconds < 3600) return Math.floor(seconds / 60) + "m " + (seconds % 60) + "s";
+  if (seconds < 3600)
+    return Math.floor(seconds / 60) + "m " + (seconds % 60) + "s";
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   return h + "h " + m + "m";

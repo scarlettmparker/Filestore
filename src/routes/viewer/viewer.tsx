@@ -18,16 +18,22 @@ const ViewerRoute = () => {
     let cancelled = false;
     (async () => {
       // Try the transcoded MP4 version first (for MKV originals)
-      const mp4Key = key.endsWith(".mkv") || key.endsWith(".avi") ? key + ".mp4" : key;
-      const res = await executeMutation("filestore/get-presigned-download-url", {
-        bucket,
-        key: mp4Key,
-      });
+      const mp4Key =
+        key.endsWith(".mkv") || key.endsWith(".avi") ? key + ".mp4" : key;
+      const res = await executeMutation(
+        "filestore/get-presigned-download-url",
+        {
+          bucket,
+          key: mp4Key,
+        },
+      );
       if (!cancelled && res.__typename === "QuerySuccess" && res.id) {
         setSrc(res.id);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [bucket, key]);
 
   if (!bucket || !key) {

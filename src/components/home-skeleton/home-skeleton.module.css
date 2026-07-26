@@ -1,0 +1,33 @@
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24rem;
+}
+.skeleton_title {
+  width: 6rem;
+  height: 1.5rem;
+}
+
+.skeleton_desc {
+  width: 12rem;
+  height: 1rem;
+  margin-top: var(--sm);
+}
+
+.skeleton_list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md);
+}
+
+.skeleton_row {
+  width: 100%;
+  height: 3rem;
+}
+
+.skeleton_footer {
+  width: 4rem;
+  height: 1rem;
+}

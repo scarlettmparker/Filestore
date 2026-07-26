@@ -1,4 +1,11 @@
-import { Card, CardBody, CardFooter, CardHeader, CardTitle, Button } from "@sun/components";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Button,
+} from "@sun/components";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import TailscaleNodeList from "~/components/admin/tailscale-node-list";

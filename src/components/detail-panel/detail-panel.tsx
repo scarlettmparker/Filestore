@@ -1,5 +1,9 @@
 import { usePageData } from "@sun/ssr/react";
-import { KeyDetail, LocateKeyDetailQuery, TorrentDownload } from "~/generated/graphql";
+import {
+  KeyDetail,
+  LocateKeyDetailQuery,
+  TorrentDownload,
+} from "~/generated/graphql";
 import KeyDetailPanel from "~/components/key-detail";
 import KeyDetailPlaceholder from "~/components/key-detail-placeholder";
 import TorrentDetailPanel from "~/components/torrent-detail";
@@ -44,7 +48,8 @@ const DetailPanel = (props: DetailPanelProps) => {
     LocateKeyDetailQuery["filestoreQueries"]["locate"]
   >("detail", pattern, { ...pageParams, selected: selectedKey });
 
-  const hasDetail = detail && (detail as Record<string, unknown>).__typename !== "Placeholder";
+  const hasDetail =
+    detail && (detail as Record<string, unknown>).__typename !== "Placeholder";
 
   return selectedKey && hasDetail ? (
     <KeyDetailPanel detail={detail as KeyDetail} t={t} />

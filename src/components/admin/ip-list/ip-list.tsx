@@ -1,12 +1,6 @@
 import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  CardTitle,
-  Button,
-} from "@sun/components";
+import { Card, CardBody, CardHeader, CardTitle, Button } from "@sun/components";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import IpListItems from "~/components/admin/ip-list-items";
 import IpListFooter from "~/components/admin/ip-list-footer";

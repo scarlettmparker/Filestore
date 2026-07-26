@@ -89,7 +89,8 @@ const KeyActions = (props: KeyActionsProps) => {
         )}
         {!keyEntry.torrent && (
           <DropdownMenuItem onClick={startRename}>
-            <Edit width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.edit")}
+            <Edit width={ICON_SIZE} height={ICON_SIZE} />{" "}
+            {t("context-menu.edit")}
           </DropdownMenuItem>
         )}
         {keyEntry.torrent && onCancelTorrent && (

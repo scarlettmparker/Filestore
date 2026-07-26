@@ -170,7 +170,9 @@ defineMutation({
 
     const key = body.key ?? "";
     if (key.endsWith(".mkv") || key.endsWith(".avi")) {
-      const backendUrl = process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") || "http://localhost:8083";
+      const backendUrl =
+        process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
+        "http://localhost:8083";
       fetch(`${backendUrl}/api/transcode`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -386,7 +388,10 @@ defineMutation({
  */
 defineMutation({
   path: "filestore/search-torrents",
-  async handler(body: { query: string }, context: MutationContext): Promise<MutationResult> {
+  async handler(
+    body: { query: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
     const result = await executeDocument<{
       filestoreQueries: { searchTorrents: Record<string, unknown>[] | null };
     }>(SearchTorrentsDocument, { query: body.query }, tokenFrom(context));

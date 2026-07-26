@@ -1,7 +1,14 @@
 import { useState, useCallback, useEffect } from "react";
-import { Dialog, DialogBody, DialogHeader, DialogTitle, Button } from "@sun/components";
+import {
+  Dialog,
+  DialogBody,
+  DialogHeader,
+  DialogTitle,
+  Button,
+} from "@sun/components";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { cn } from "@sun/utils";
 import styles from "./image-viewer.module.css";
 
 type ImageViewerProps = {
@@ -60,6 +67,7 @@ const ImageViewer = (props: ImageViewerProps) => {
           <Button
             variant="secondary"
             onClick={handlePrev}
+            className={cn(styles.nav_button, styles.nav_button_left)}
             title={t("viewer.previous")}
             aria-label={t("viewer.previous")}
           >
@@ -73,6 +81,7 @@ const ImageViewer = (props: ImageViewerProps) => {
           <Button
             variant="secondary"
             onClick={handleNext}
+            className={cn(styles.nav_button, styles.nav_button_right)}
             title={t("viewer.next")}
             aria-label={t("viewer.next")}
           >

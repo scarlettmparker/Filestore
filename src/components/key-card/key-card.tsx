@@ -124,7 +124,7 @@ type KeyCardProps = {
   /**
    * List of keys to display.
    */
-  keys: KeyEntry[];
+  keys: KeyEntry[] | undefined;
   /**
    * Bucket user is currently in. Required due to slug.
    */
@@ -260,7 +260,9 @@ const KeyCard = (props: KeyCardProps) => {
       return;
     }
     if (/\.(mp4|webm|mkv|mov|avi|ogg|m4v)$/.test(lower)) {
-      navigate(`/viewer?bucket=${encodeURIComponent(bucketName)}&key=${encodeURIComponent(keyPath)}`);
+      navigate(
+        `/viewer?bucket=${encodeURIComponent(bucketName)}&key=${encodeURIComponent(keyPath)}`,
+      );
       return;
     }
     if (/\.pdf$/.test(lower)) {
@@ -378,68 +380,72 @@ const KeyCard = (props: KeyCardProps) => {
   );
 
   return (
-    <><ContextMenu className={styles.keys_card}>
-      <ContextMenuTrigger>
-        <Card>
-          {children}
-          <CardBody className={styles.keys_card_body}>
-            {keys.map((key, idx) => (
-              <Key
-                key={idx}
-                keyEntry={key}
-                onRename={handleKeyRename}
-                currentPath={currentPath}
-                onClick={getKeyOnClick(key)}
-                onDownload={handleKeyDownload(key)}
-                t={t}
-              >
-                <KeyActions
-                  keyEntry={key}
+    <>
+      <ContextMenu className={styles.keys_card}>
+        <ContextMenuTrigger>
+          <Card>
+            {children}
+            <CardBody className={styles.keys_card_body}>
+              {keys?.map((key, idx) => (
+                <Key
                   key={idx}
-                  onOpen={handleKeyOpen(key)}
-                  onDelete={getKeyOnDelete(key)}
+                  keyEntry={key}
+                  onRename={handleKeyRename}
+                  currentPath={currentPath}
+                  onClick={getKeyOnClick(key)}
                   onDownload={handleKeyDownload(key)}
-                  onCancelTorrent={getKeyOnCancelTorrent(key)}
-                  frontendMode={frontendMode}
                   t={t}
-                />
-              </Key>
-            ))}
-          </CardBody>
-          <CardFooter>{t("items", { count: keys.length })}</CardFooter>
-        </Card>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem>{t("context-menu.refetch")}</ContextMenuItem>
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>{t("context-menu.new")}</ContextMenuSubTrigger>
-          <ContextMenuSubContent>
-            <ContextMenuItem onClick={handleFileUpload}>
-              <FileIcon width={ICON_SIZE} height={ICON_SIZE} />
-              {t("context-menu.new-file")}
-            </ContextMenuItem>
-            <ContextMenuItem onClick={handleCreateKey}>
-              <FolderIcon width={ICON_SIZE} height={ICON_SIZE} />
-              {t("context-menu.new-folder")}
-            </ContextMenuItem>
-            {onAddTorrent && (
-              <ContextMenuItem onClick={onAddTorrent}>
-                <MagnetIcon width={ICON_SIZE} height={ICON_SIZE} />
-                {t("context-menu.new-torrent")}
+                >
+                  <KeyActions
+                    keyEntry={key}
+                    key={idx}
+                    onOpen={handleKeyOpen(key)}
+                    onDelete={getKeyOnDelete(key)}
+                    onDownload={handleKeyDownload(key)}
+                    onCancelTorrent={getKeyOnCancelTorrent(key)}
+                    frontendMode={frontendMode}
+                    t={t}
+                  />
+                </Key>
+              ))}
+            </CardBody>
+            <CardFooter>{t("items", { count: keys?.length })}</CardFooter>
+          </Card>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem>{t("context-menu.refetch")}</ContextMenuItem>
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              {t("context-menu.new")}
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              <ContextMenuItem onClick={handleFileUpload}>
+                <FileIcon width={ICON_SIZE} height={ICON_SIZE} />
+                {t("context-menu.new-file")}
               </ContextMenuItem>
-            )}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      </ContextMenuContent>
-    </ContextMenu>
-    <Viewer
-      open={viewerOpen}
-      onClose={() => setViewerOpen(false)}
-      bucket={bucketName}
-      key={viewerKey}
-      images={viewerSrc ? [viewerSrc] : []}
-      imageIndex={0}
-    /></>
+              <ContextMenuItem onClick={handleCreateKey}>
+                <FolderIcon width={ICON_SIZE} height={ICON_SIZE} />
+                {t("context-menu.new-folder")}
+              </ContextMenuItem>
+              {onAddTorrent && (
+                <ContextMenuItem onClick={onAddTorrent}>
+                  <MagnetIcon width={ICON_SIZE} height={ICON_SIZE} />
+                  {t("context-menu.new-torrent")}
+                </ContextMenuItem>
+              )}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </ContextMenuContent>
+      </ContextMenu>
+      <Viewer
+        open={viewerOpen}
+        onClose={() => setViewerOpen(false)}
+        bucket={bucketName}
+        fileKey={viewerKey}
+        images={viewerSrc ? [viewerSrc] : []}
+        imageIndex={0}
+      />
+    </>
   );
 };
 

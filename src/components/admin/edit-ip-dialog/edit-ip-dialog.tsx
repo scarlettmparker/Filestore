@@ -33,7 +33,12 @@ type EditIpDialogProps = {
   /**
    * Called with updated values when the user saves.
    */
-  onSave: (id: string, pattern: string, description: string | null, enabled: boolean) => void;
+  onSave: (
+    id: string,
+    pattern: string,
+    description: string | null,
+    enabled: boolean,
+  ) => void;
 };
 
 /**

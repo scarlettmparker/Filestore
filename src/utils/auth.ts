@@ -1,7 +1,5 @@
 import { executeDocument } from "@sun/api";
-import {
-  LoginDocument,
-} from "~/generated/graphql";
+import { LoginDocument } from "~/generated/graphql";
 
 export const AUTH_COOKIE = "filestore_auth";
 

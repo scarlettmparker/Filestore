@@ -16,7 +16,7 @@ type ViewerProps = {
   /**
    * S3 key path of the file.
    */
-  key: string;
+  fileKey: string;
   /**
    * All image URLs in the same folder for prev/next navigation.
    */
@@ -38,7 +38,7 @@ function isImage(key: string): boolean {
  * Factory component that renders the correct viewer for a file type.
  */
 const Viewer = (props: ViewerProps) => {
-  const { open, onClose, key: keyPath, images, imageIndex } = props;
+  const { open, onClose, fileKey: keyPath, images, imageIndex } = props;
 
   if (isImage(keyPath)) {
     return (

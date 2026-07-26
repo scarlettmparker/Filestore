@@ -89,20 +89,23 @@ const VideoViewer = (props: VideoViewerProps) => {
    *
    * @param e Input change event.
    */
-  const handleVolume = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    const v = videoRef.current;
-    if (!v) return;
-    v.volume = value;
-    setVolumeState(value);
-    if (value === 0) {
-      v.muted = true;
-      setMuted(true);
-    } else if (muted) {
-      v.muted = false;
-      setMuted(false);
-    }
-  }, [muted]);
+  const handleVolume = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = parseFloat(e.target.value);
+      const v = videoRef.current;
+      if (!v) return;
+      v.volume = value;
+      setVolumeState(value);
+      if (value === 0) {
+        v.muted = true;
+        setMuted(true);
+      } else if (muted) {
+        v.muted = false;
+        setMuted(false);
+      }
+    },
+    [muted],
+  );
 
   /**
    * Seeks the video to the position set by the seek bar.
@@ -133,26 +136,29 @@ const VideoViewer = (props: VideoViewerProps) => {
    *
    * @param e Keyboard event.
    */
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (e.key === " " || e.key === "k") {
-      e.preventDefault();
-      handlePlayPause();
-    }
-    if (e.key === "f") {
-      handleFullscreen();
-    }
-    if (e.key === "m") {
-      handleMute();
-    }
-    if (e.key === "ArrowLeft") {
-      v.currentTime = Math.max(0, v.currentTime - SKIP_OFFSET);
-    }
-    if (e.key === "ArrowRight") {
-      v.currentTime = Math.min(v.duration || 0, v.currentTime + SKIP_OFFSET);
-    }
-  }, [handlePlayPause, handleFullscreen, handleMute]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const v = videoRef.current;
+      if (!v) return;
+      if (e.key === " " || e.key === "k") {
+        e.preventDefault();
+        handlePlayPause();
+      }
+      if (e.key === "f") {
+        handleFullscreen();
+      }
+      if (e.key === "m") {
+        handleMute();
+      }
+      if (e.key === "ArrowLeft") {
+        v.currentTime = Math.max(0, v.currentTime - SKIP_OFFSET);
+      }
+      if (e.key === "ArrowRight") {
+        v.currentTime = Math.min(v.duration || 0, v.currentTime + SKIP_OFFSET);
+      }
+    },
+    [handlePlayPause, handleFullscreen, handleMute],
+  );
 
   /**
    * Updates playing state when the video starts or resumes.
@@ -216,7 +222,11 @@ const VideoViewer = (props: VideoViewerProps) => {
             title={playing ? t("viewer.pause") : t("viewer.play")}
             aria-label={playing ? t("viewer.pause") : t("viewer.play")}
           >
-            {playing ? <Pause width={16} height={16} /> : <Play width={16} height={16} />}
+            {playing ? (
+              <Pause width={16} height={16} />
+            ) : (
+              <Play width={16} height={16} />
+            )}
           </Button>
           <Label className={styles.time}>
             {formatTime(currentTime)} / {formatTime(duration)}
@@ -237,7 +247,11 @@ const VideoViewer = (props: VideoViewerProps) => {
             title={t("viewer.mute")}
             aria-label={t("viewer.mute")}
           >
-            {muted || volume === 0 ? <VolumeX width={16} height={16} /> : <Volume2 width={16} height={16} />}
+            {muted || volume === 0 ? (
+              <VolumeX width={16} height={16} />
+            ) : (
+              <Volume2 width={16} height={16} />
+            )}
           </Button>
           <Input
             type="range"
@@ -279,7 +293,11 @@ const VideoViewer = (props: VideoViewerProps) => {
             title={t("viewer.fullscreen")}
             aria-label={t("viewer.fullscreen")}
           >
-            {fullscreen ? <Minimize width={16} height={16} /> : <Maximize width={16} height={16} />}
+            {fullscreen ? (
+              <Minimize width={16} height={16} />
+            ) : (
+              <Maximize width={16} height={16} />
+            )}
           </Button>
         </div>
       </div>

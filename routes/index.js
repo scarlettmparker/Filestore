@@ -32,7 +32,10 @@ export function setupRoutes(app, vite) {
     const token = await loginViaGaia(username, password);
     if (!token) return reply.redirect("/login?error=1");
     reply.header("Set-Cookie", buildAuthCookie(token));
-    const redirectTo = typeof request.query?.redirect === "string" ? request.query.redirect : "/";
+    const redirectTo =
+      typeof request.query?.redirect === "string"
+        ? request.query.redirect
+        : "/";
     return reply.redirect(redirectTo);
   });
 
@@ -87,11 +90,15 @@ export function setupRoutes(app, vite) {
         );
         if (payload.exp * 1000 < Date.now()) {
           reply.header("Set-Cookie", clearAuthCookie());
-          return reply.redirect(`/login?error=1&redirect=${encodeURIComponent(request.raw.url)}`);
+          return reply.redirect(
+            `/login?error=1&redirect=${encodeURIComponent(request.raw.url)}`,
+          );
         }
       } catch {
         reply.header("Set-Cookie", clearAuthCookie());
-        return reply.redirect(`/login?redirect=${encodeURIComponent(request.raw.url)}`);
+        return reply.redirect(
+          `/login?redirect=${encodeURIComponent(request.raw.url)}`,
+        );
       }
     }
 
@@ -101,7 +108,10 @@ export function setupRoutes(app, vite) {
         : pathname;
     const isPublic = PUBLIC_PAGES.has(normalizedPath);
 
-    if (!token && !isPublic) return reply.redirect(`/login?redirect=${encodeURIComponent(request.raw.url)}`);
+    if (!token && !isPublic)
+      return reply.redirect(
+        `/login?redirect=${encodeURIComponent(request.raw.url)}`,
+      );
     if (token && isPublic) return reply.redirect("/");
 
     let url = pathname.replace(base, "");

@@ -6,7 +6,8 @@ function formatBytes(bytes: number | null | undefined): string {
   if (!bytes) return "-";
   if (bytes < 1024) return bytes + " B";
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-  if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  if (bytes < 1024 * 1024 * 1024)
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
 }
 import { cn, formatDate } from "@sun/utils";
@@ -201,7 +202,9 @@ const Key = (props: KeyProps) => {
                     ? "Transcoding..."
                     : `${((key.torrent.progress ?? 0) * 100).toFixed(1)}%`}
                   {key.torrent.status !== TorrentJobStatus.Transcoding && (
-                    <span className={styles.progress_size}>{formatBytes(key.torrent.totalBytes)}</span>
+                    <span className={styles.progress_size}>
+                      {formatBytes(key.torrent.totalBytes)}
+                    </span>
                   )}
                 </span>
                 <span className={styles.progress_track}>

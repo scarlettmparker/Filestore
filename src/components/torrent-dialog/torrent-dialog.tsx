@@ -1,4 +1,10 @@
-import { useState, useTransition, useRef, useCallback, type ChangeEvent } from "react";
+import {
+  useState,
+  useTransition,
+  useRef,
+  useCallback,
+  type ChangeEvent,
+} from "react";
 import {
   Button,
   Dialog,
@@ -34,7 +40,8 @@ type TorrentDialogProps = {
   currentPath: string;
 };
 
-type SearchResult = SearchTorrentsQuery["filestoreQueries"]["searchTorrents"][number];
+type SearchResult =
+  SearchTorrentsQuery["filestoreQueries"]["searchTorrents"][number];
 
 /**
  * Dialog for starting a torrent download.
@@ -76,29 +83,35 @@ const TorrentDialog = (props: TorrentDialogProps) => {
   /**
    * Reads a .torrent file and stores its base64 content.
    */
-  const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setTorrentBase64(result.split(",")[1] ?? null);
-      setTorrentFileName(file.name);
-      setMagnet("");
-    };
-    reader.readAsDataURL(file);
-  }, []);
+  const handleFileChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        setTorrentBase64(result.split(",")[1] ?? null);
+        setTorrentFileName(file.name);
+        setMagnet("");
+      };
+      reader.readAsDataURL(file);
+    },
+    [],
+  );
 
   /**
    * Handles magnet input change.
    */
-  const handleMagnetChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setMagnet(event.target.value);
-    if (event.target.value) {
-      setTorrentBase64(null);
-      setTorrentFileName(null);
-    }
-  }, []);
+  const handleMagnetChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setMagnet(event.target.value);
+      if (event.target.value) {
+        setTorrentBase64(null);
+        setTorrentFileName(null);
+      }
+    },
+    [],
+  );
 
   /**
    * Submits the magnet link or .torrent file to start a download.
@@ -267,7 +280,9 @@ const TorrentDialog = (props: TorrentDialogProps) => {
                     >
                       <span className={styles.result_name}>{r.name}</span>
                       <span className={styles.result_meta}>
-                        <p>{r.seeders} {t("torrent-dialog.seeders")}</p>
+                        <p>
+                          {r.seeders} {t("torrent-dialog.seeders")}
+                        </p>
                         <p>{r.size}</p>
                       </span>
                     </Button>

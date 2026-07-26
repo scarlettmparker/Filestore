@@ -22,14 +22,25 @@ const Nav = () => {
   return (
     <nav className={styles.nav}>
       <Link to="/" className={styles.link}>
-        <Button variant={pathname === "/" || pathname.startsWith("/bucket") ? "default" : "secondary"} className={styles.button}>
+        <Button
+          variant={
+            pathname === "/" || pathname.startsWith("/bucket")
+              ? "default"
+              : "secondary"
+          }
+          className={styles.button}
+        >
           {t("buckets")}
         </Button>
       </Link>
       <Suspense fallback={null}>
         <RoleCheck roles={["Admin"]}>
           <Link to="/admin" className={styles.link}>
-            <Button variant="secondary" className={styles.button} title={t("admin")}>
+            <Button
+              variant="secondary"
+              className={styles.button}
+              title={t("admin")}
+            >
               <Cog6ToothIcon width={20} height={20} />
             </Button>
           </Link>

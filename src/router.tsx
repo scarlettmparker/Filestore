@@ -1,5 +1,8 @@
 import { RouteObject, useRoutes, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import BucketSkeleton from "~/components/bucket-skeleton";
+import HomeSkeleton from "~/components/home-skeleton";
+import { AdminPageSkeleton } from "~/components/admin/skeletons";
 
 const Index = lazy(() => import("~/routes/index"));
 const ViewerRoute = lazy(() => import("~/routes/viewer/viewer"));
@@ -9,11 +12,19 @@ const BucketLayout = lazy(() => import("~/routes/bucket/bucket-layout"));
 const Login = lazy(() => import("~/routes/login"));
 const AdminLayout = lazy(() => import("~/routes/admin/admin-layout"));
 const Admin = lazy(() => import("~/routes/admin"));
-const AccountDetailPage = lazy(() => import("~/routes/admin/account-detail-page"));
+const AccountDetailPage = lazy(
+  () => import("~/routes/admin/account-detail-page"),
+);
 const IpConfig = lazy(() => import("~/routes/admin/ip-config"));
-const IpDetailPage = lazy(() => import("~/routes/admin/ip-config/ip-detail-page"));
-const TailscalePage = lazy(() => import("~/routes/admin/access/tailscale/tailscale-page"));
-const TailscaleNodeDetail = lazy(() => import("~/routes/admin/access/tailscale/tailscale-node-detail"));
+const IpDetailPage = lazy(
+  () => import("~/routes/admin/ip-config/ip-detail-page"),
+);
+const TailscalePage = lazy(
+  () => import("~/routes/admin/access/tailscale/tailscale-page"),
+);
+const TailscaleNodeDetail = lazy(
+  () => import("~/routes/admin/access/tailscale/tailscale-node-detail"),
+);
 
 /**
  * List of routes.
@@ -21,7 +32,11 @@ const TailscaleNodeDetail = lazy(() => import("~/routes/admin/access/tailscale/t
 export const routes: RouteObject[] = [
   {
     path: "/",
-    element: <Index />,
+    element: (
+      <Suspense fallback={<HomeSkeleton />}>
+        <Index />
+      </Suspense>
+    ),
   },
   {
     path: "status",
@@ -38,7 +53,7 @@ export const routes: RouteObject[] = [
   {
     path: "bucket/:alias/*",
     element: (
-      <Suspense fallback={null}>
+      <Suspense fallback={<BucketSkeleton />}>
         <BucketLayout />
       </Suspense>
     ),
@@ -46,7 +61,7 @@ export const routes: RouteObject[] = [
   {
     path: "bucket/:alias",
     element: (
-      <Suspense fallback={null}>
+      <Suspense fallback={<BucketSkeleton />}>
         <BucketLayout />
       </Suspense>
     ),
@@ -62,7 +77,7 @@ export const routes: RouteObject[] = [
   {
     path: "admin",
     element: (
-      <Suspense fallback={null}>
+      <Suspense fallback={<AdminPageSkeleton />}>
         <AdminLayout />
       </Suspense>
     ),
@@ -74,7 +89,7 @@ export const routes: RouteObject[] = [
       {
         path: "",
         element: (
-          <Suspense fallback={null}>
+          <Suspense fallback={<AdminPageSkeleton />}>
             <Admin />
           </Suspense>
         ),
@@ -88,7 +103,7 @@ export const routes: RouteObject[] = [
       {
         path: "access/ip",
         element: (
-          <Suspense fallback={null}>
+          <Suspense fallback={<AdminPageSkeleton />}>
             <IpConfig />
           </Suspense>
         ),

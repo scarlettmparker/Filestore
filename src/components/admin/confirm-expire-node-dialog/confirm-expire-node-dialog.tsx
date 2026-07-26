@@ -37,7 +37,9 @@ const ConfirmExpireNodeDialog = (props: ConfirmExpireNodeDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={(o: boolean) => !o && onClose()}>
       <DialogHeader>
-        <DialogTitle>{t("tailscale.expire-title", { name: nodeName })}</DialogTitle>
+        <DialogTitle>
+          {t("tailscale.expire-title", { name: nodeName })}
+        </DialogTitle>
       </DialogHeader>
       <DialogBody>
         <p>{t("tailscale.expire-body")}</p>

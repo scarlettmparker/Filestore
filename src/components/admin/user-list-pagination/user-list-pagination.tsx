@@ -21,7 +21,11 @@ type AdminUserListPaginationProps = {
 /**
  * Pagination for the admin user list. Shares the same cache key as the list.
  */
-const AdminUserListPagination = ({ page, search, onPageChange }: AdminUserListPaginationProps) => {
+const AdminUserListPagination = ({
+  page,
+  search,
+  onPageChange,
+}: AdminUserListPaginationProps) => {
   const { data } = usePageData<PagedAccounts>("accounts", "accounts", {
     page: String(page),
     search: search || undefined,
