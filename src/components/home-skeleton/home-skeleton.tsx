@@ -18,8 +18,6 @@ const HomeSkeleton = () => (
     </CardHeader>
     <CardBody className={styles.skeleton_list}>
       <Skeleton className={styles.skeleton_row} />
-      <Skeleton className={styles.skeleton_row} />
-      <Skeleton className={styles.skeleton_row} />
     </CardBody>
     <CardFooter>
       <Skeleton className={styles.skeleton_footer} />

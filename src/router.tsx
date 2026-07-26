@@ -2,7 +2,8 @@ import { RouteObject, useRoutes, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import BucketSkeleton from "~/components/bucket-skeleton";
 import HomeSkeleton from "~/components/home-skeleton";
-import { AdminPageSkeleton } from "~/components/admin/skeletons";
+import { AdminPageSkeleton, IpDetailSkeleton } from "~/components/admin/skeletons";
+import TailscalePageSkeleton from "~/components/admin/tailscale-page-skeleton";
 
 const Index = lazy(() => import("~/routes/index"));
 const ViewerRoute = lazy(() => import("~/routes/viewer/viewer"));
@@ -117,7 +118,7 @@ export const routes: RouteObject[] = [
       {
         path: "access/tailscale",
         element: (
-          <Suspense fallback={null}>
+          <Suspense fallback={<TailscalePageSkeleton />}>
             <TailscalePage />
           </Suspense>
         ),
@@ -125,7 +126,7 @@ export const routes: RouteObject[] = [
           {
             path: ":id",
             element: (
-              <Suspense fallback={null}>
+              <Suspense fallback={<IpDetailSkeleton />}>
                 <TailscaleNodeDetail />
               </Suspense>
             ),
