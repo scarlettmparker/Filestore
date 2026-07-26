@@ -6,6 +6,7 @@ query tailscaleDevice($id: ID!) {
       name
       ipv4
       status
+      online
       expiredAt
       lastSeen
       createdAt

@@ -38,8 +38,8 @@ type Documents = {
     "mutation putKey($input: PutKeyInput!) {\n  filestoreMutations {\n    putKey(input: $input)\n  }\n}": typeof types.PutKeyDocument,
     "mutation renameKey($input: RenameKeyInput!) {\n  filestoreMutations {\n    renameKey(input: $input) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": typeof types.RenameKeyDocument,
     "query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}": typeof types.SearchTorrentsDocument,
-    "query tailscaleDevice($id: ID!) {\n  gaiaQueries {\n    tailscaleDevice(id: $id) {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": typeof types.TailscaleDeviceDocument,
-    "query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": typeof types.TailscaleDevicesDocument,
+    "query tailscaleDevice($id: ID!) {\n  gaiaQueries {\n    tailscaleDevice(id: $id) {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      online\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": typeof types.TailscaleDeviceDocument,
+    "query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      online\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": typeof types.TailscaleDevicesDocument,
 };
 const documents: Documents = {
     "mutation addTorrent($input: AddTorrentInput!) {\n  filestoreMutations {\n    addTorrent(input: $input) {\n      id\n      bucket\n      targetKeyPath\n      status\n      progress\n      magnetDetail {\n        displayName\n      }\n    }\n  }\n}": types.AddTorrentDocument,
@@ -66,8 +66,8 @@ const documents: Documents = {
     "mutation putKey($input: PutKeyInput!) {\n  filestoreMutations {\n    putKey(input: $input)\n  }\n}": types.PutKeyDocument,
     "mutation renameKey($input: RenameKeyInput!) {\n  filestoreMutations {\n    renameKey(input: $input) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": types.RenameKeyDocument,
     "query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}": types.SearchTorrentsDocument,
-    "query tailscaleDevice($id: ID!) {\n  gaiaQueries {\n    tailscaleDevice(id: $id) {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": types.TailscaleDeviceDocument,
-    "query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": types.TailscaleDevicesDocument,
+    "query tailscaleDevice($id: ID!) {\n  gaiaQueries {\n    tailscaleDevice(id: $id) {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      online\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": types.TailscaleDeviceDocument,
+    "query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      online\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": types.TailscaleDevicesDocument,
 };
 
 /**
@@ -183,11 +183,11 @@ export function graphql(source: "query searchTorrents($query: String!) {\n  file
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query tailscaleDevice($id: ID!) {\n  gaiaQueries {\n    tailscaleDevice(id: $id) {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"): (typeof documents)["query tailscaleDevice($id: ID!) {\n  gaiaQueries {\n    tailscaleDevice(id: $id) {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"];
+export function graphql(source: "query tailscaleDevice($id: ID!) {\n  gaiaQueries {\n    tailscaleDevice(id: $id) {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      online\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"): (typeof documents)["query tailscaleDevice($id: ID!) {\n  gaiaQueries {\n    tailscaleDevice(id: $id) {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      online\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"): (typeof documents)["query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"];
+export function graphql(source: "query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      online\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"): (typeof documents)["query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      online\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

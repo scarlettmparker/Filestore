@@ -27,6 +27,12 @@ const TailscaleDetail = (props: TailscaleDetailProps) => {
         <p className={styles.detail_value}>
           <Badge>{device.status}</Badge>
         </p>
+        <label>{t("tailscale.online")}</label>
+        <p className={styles.detail_value}>
+          <Badge>
+            {device.online ? t("tailscale.online") : t("tailscale.offline")}
+          </Badge>
+        </p>
         <label>{t("tailscale.ip")}</label>
         <p className={styles.detail_value}>{device.ipv4 ?? "-"}</p>
         <label>{t("tailscale.last-seen")}</label>

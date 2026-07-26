@@ -6,6 +6,7 @@ query tailscaleDevices {
       name
       ipv4
       status
+      online
       expiredAt
       lastSeen
       createdAt

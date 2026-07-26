@@ -6,7 +6,11 @@ import {
 } from "@sun/ssr";
 import { executeDocument } from "@sun/api";
 import { tokenFrom } from "./context";
-import { ExpireTailscaleDeviceDocument, type ExpireTailscaleDeviceMutation } from "~/generated/graphql";
+import { clientId, clientSecret } from "../../config.js";
+import {
+  ExpireTailscaleDeviceDocument,
+  type ExpireTailscaleDeviceMutation,
+} from "~/generated/graphql";
 import {
   SuspendAccountDocument,
   UnsuspendAccountDocument,
@@ -55,7 +59,12 @@ defineMutation({
 defineMutation({
   path: "gaia/createIpWhitelistEntry",
   async handler(
-    body: { pattern: string; description?: string | null; immutable?: boolean; enabled?: boolean },
+    body: {
+      pattern: string;
+      description?: string | null;
+      immutable?: boolean;
+      enabled?: boolean;
+    },
     context: MutationContext,
   ): Promise<MutationResult> {
     const result = await executeDocument<CreateIpWhitelistEntryMutation>(
@@ -175,18 +184,22 @@ defineMutation({
  */
 defineMutation({
   path: "headscale/generate-key",
-  async handler(
-    body: { expiry: string },
-  ): Promise<MutationResult> {
+  async handler(body: { expiry: string }): Promise<MutationResult> {
     try {
       const backendUrl =
         process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
         "http://localhost:8083";
       const res = await fetch(
         `${backendUrl}/api/headscale/preauth-key?expiry=${encodeURIComponent(body.expiry)}`,
+        {
+          headers: { "X-Client-Id": clientId, "X-Client-Secret": clientSecret },
+        },
       );
       if (!res.ok) {
-        return { __typename: "StandardError", message: `Backend returned ${res.status}` };
+        return {
+          __typename: "StandardError",
+          message: `Backend returned ${res.status}`,
+        };
       }
       const keyText = res.headers.get("X-Preauth-Key") || "";
       const buffer = await res.arrayBuffer();
@@ -212,12 +225,19 @@ defineMutation({
       const backendUrl =
         process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
         "http://localhost:8083";
+      const headers = {
+        "X-Client-Id": clientId,
+        "X-Client-Secret": clientSecret,
+      };
       const res = await fetch(
         `${backendUrl}/api/headscale/nodes/${body.id}/expire`,
-        { method: "POST" },
+        { method: "POST", headers },
       );
       if (!res.ok) {
-        return { __typename: "StandardError", message: `Backend returned ${res.status}` };
+        return {
+          __typename: "StandardError",
+          message: `Backend returned ${res.status}`,
+        };
       }
       return {
         __typename: "QuerySuccess",
@@ -240,8 +260,13 @@ defineMutation({
     body: { id: string },
     context: MutationContext,
   ): Promise<MutationResult> {
-    const result = await executeDocument<ExpireTailscaleDeviceMutation>(ExpireTailscaleDeviceDocument, { id: body.id }, tokenFrom(context));
-    const data = result.data?.gaiaMutations?.expireTailscaleDevice as MutationResult | undefined;
+    const result = await executeDocument<ExpireTailscaleDeviceMutation>(
+      ExpireTailscaleDeviceDocument,
+      { id: body.id },
+      tokenFrom(context),
+    );
+    const data = result.data?.gaiaMutations?.expireTailscaleDevice as
+      MutationResult | undefined;
     return {
       ...(data ?? {
         __typename: "StandardError",

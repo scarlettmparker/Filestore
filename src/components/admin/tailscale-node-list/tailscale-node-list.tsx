@@ -46,6 +46,9 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
           <Button variant="secondary" className={styles.list_button}>
             <span className={styles.list_name}>{device.name}</span>
             <Badge>{device.status}</Badge>
+            <Badge>
+              {device.online ? t("tailscale.online") : t("tailscale.offline")}
+            </Badge>
             <span className={styles.list_actions}>
               <DropdownMenu>
                 <DropdownMenuTrigger
