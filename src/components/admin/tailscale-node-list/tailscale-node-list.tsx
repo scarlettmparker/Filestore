@@ -35,7 +35,8 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
     return <p className={styles.no_items}>{t("tailscale.no-nodes")}</p>;
   }
 
-  const isExpired = (status: DeviceStatus) => status === "EXPIRED" as unknown as DeviceStatus;
+  const isExpired = (status: DeviceStatus) =>
+    status === ("EXPIRED" as unknown as DeviceStatus);
 
   return (
     <div className={styles.list_body}>
@@ -47,7 +48,7 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
         >
           <Button variant="secondary" className={styles.list_button}>
             <span className={styles.list_name}>{device.name}</span>
-            <Badge variant="secondary">
+            <Badge>
               {isExpired(device.status) ? "Expired" : device.status}
             </Badge>
             <span className={styles.list_actions}>

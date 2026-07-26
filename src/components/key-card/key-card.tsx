@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import type { KeyEntry } from "~/generated/graphql";
 import styles from "./key-card.module.css";
 import { Card, CardBody, CardFooter } from "@sun/components";
@@ -174,6 +175,7 @@ const KeyCard = (props: KeyCardProps) => {
     null,
   );
   const isEmulator = frontendMode === FrontendMode.EMULATOR;
+  const navigate = useNavigate();
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerSrc, setViewerSrc] = useState("");
   const [viewerKey, setViewerKey] = useState("");
@@ -225,7 +227,6 @@ const KeyCard = (props: KeyCardProps) => {
    * Downloads a file using a presigned GET URL (direct from storage).
    */
   const handleFileDownload = async (keyPath: string) => {
-    const win = window.open("", "_blank");
     const res = await executeMutation("filestore/get-presigned-download-url", {
       bucket: bucketName,
       key: keyPath,
@@ -233,13 +234,9 @@ const KeyCard = (props: KeyCardProps) => {
     if (res.__typename === "QuerySuccess" && res.id) {
       if (isEmulator && bridgeRef.current) {
         bridgeRef.current.send(FILESTORE_EVENTS.FILE_DOWNLOAD, { url: res.id });
-      } else if (win) {
-        win.location.href = res.id;
       } else {
         window.location.href = res.id;
       }
-    } else {
-      if (win) win.close();
     }
   };
 
@@ -263,17 +260,11 @@ const KeyCard = (props: KeyCardProps) => {
       return;
     }
     if (/\.(mp4|webm|mkv|mov|avi|ogg|m4v)$/.test(lower)) {
-      window.open(
-        `/viewer?bucket=${encodeURIComponent(bucketName)}&key=${encodeURIComponent(keyPath)}`,
-        "_blank",
-      );
+      navigate(`/viewer?bucket=${encodeURIComponent(bucketName)}&key=${encodeURIComponent(keyPath)}`);
       return;
     }
     if (/\.pdf$/.test(lower)) {
-      window.open(
-        `/api/view/${encodeURIComponent(bucketName)}?key=${encodeURIComponent(keyPath)}`,
-        "_blank",
-      );
+      window.location.href = `/api/view/${encodeURIComponent(bucketName)}?key=${encodeURIComponent(keyPath)}`;
       return;
     }
     handleFileDownload(keyPath);

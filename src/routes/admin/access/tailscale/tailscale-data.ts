@@ -3,7 +3,9 @@ import { executeDocument } from "@sun/api";
 import { AUTH_COOKIE, getCookieValue } from "~/utils/auth";
 import {
   TailscaleDevicesDocument,
+  TailscaleDeviceDocument,
   type TailscaleDevicesQuery,
+  type TailscaleDeviceQuery,
 } from "~/generated/graphql";
 
 /**
@@ -24,6 +26,29 @@ defineLoader({
       return { tailscaleDevices: data ?? [] };
     } catch {
       return { tailscaleDevices: [] };
+    }
+  },
+});
+
+/**
+ * Loads a single Tailscale device by id for the detail panel.
+ */
+defineLoader({
+  pattern: "tailscaleDevice/:id",
+  async loader(params, context) {
+    const id = params.id as string;
+    if (!id) return { tailscaleDevice: null };
+    const token = getCookieValue(context?.cookie, AUTH_COOKIE);
+    if (!token) return { tailscaleDevice: null };
+    try {
+      const result = await executeDocument<TailscaleDeviceQuery>(
+        TailscaleDeviceDocument,
+        { id },
+        token,
+      );
+      return { tailscaleDevice: result.data?.gaiaQueries?.tailscaleDevice ?? null };
+    } catch {
+      return { tailscaleDevice: null };
     }
   },
 });

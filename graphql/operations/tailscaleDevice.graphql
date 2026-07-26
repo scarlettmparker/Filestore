@@ -1,0 +1,15 @@
+query tailscaleDevice($id: ID!) {
+  gaiaQueries {
+    tailscaleDevice(id: $id) {
+      id
+      headscaleId
+      name
+      ipv4
+      status
+      expiredAt
+      lastSeen
+      createdAt
+      updatedAt
+    }
+  }
+}

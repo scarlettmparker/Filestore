@@ -2,33 +2,26 @@ import { useParams } from "react-router-dom";
 import { usePageData } from "@sun/ssr/react";
 import { useTranslation } from "react-i18next";
 import TailscaleDetail from "~/components/admin/tailscale-detail";
-
-type TailscaleNode = {
-  id: number;
-  name: string;
-  ipv4: string;
-  online: boolean;
-  lastSeen: string;
-};
+import type { TailscaleDevice } from "~/generated/graphql";
 
 /**
- * Route component that loads a single Tailscale node by id from
+ * Route component that loads a single Tailscale device by id from
  * the detail loader and renders the device detail card.
  */
 const TailscaleNodeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation("admin");
-  const { data: node } = usePageData<TailscaleNode>(
-    "tailscaleNode",
-    "tailscaleNode/:id",
+  const { data: device } = usePageData<TailscaleDevice>(
+    "tailscaleDevice",
+    "tailscaleDevice/:id",
     { id },
   );
 
-  if (!node) {
+  if (!device) {
     return <p>{t("ip-not-found")}</p>;
   }
 
-  return <TailscaleDetail node={node} />;
+  return <TailscaleDetail device={device} />;
 };
 
 export default TailscaleNodeDetail;

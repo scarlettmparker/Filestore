@@ -10,11 +10,15 @@ const NAV_ITEMS = [
 
 /**
  * Finds the most specific nav item matching the current pathname.
+ * Falls back to the access item for /admin/access/* sub-pages.
  */
 const getActiveHref = (pathname: string) => {
-  return [...NAV_ITEMS]
+  const exact = [...NAV_ITEMS]
     .sort((a, b) => b.href.length - a.href.length)
-    .find((item) => pathname.startsWith(item.href))?.href;
+    .find((item) => pathname.startsWith(item.href));
+  if (exact) return exact.href;
+  if (pathname.startsWith("/admin/access")) return "/admin/access/ip";
+  return undefined;
 };
 
 /**

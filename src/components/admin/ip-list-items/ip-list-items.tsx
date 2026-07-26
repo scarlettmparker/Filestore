@@ -52,9 +52,7 @@ const IpListItems = (props: IpListItemsProps) => {
           >
             <Button variant="secondary" className={styles.list_button}>
               <span className={styles.list_name}>{entry.pattern}</span>
-              {!entry.enabled && (
-                <Badge variant="secondary">{t("status-suspended")}</Badge>
-              )}
+              {!entry.enabled && <Badge>{t("status-suspended")}</Badge>}
               {!entry.immutable && (
                 <span className={styles.list_actions}>
                   <DropdownMenu>

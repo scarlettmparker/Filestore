@@ -87,6 +87,7 @@
       "last-seen": "Last Seen",
       "items-count_one": "{{count}} device",
       "items-count_other": "{{count}} devices",
+      "expired-at": "Expired At",
       "expire-title": "Expire {{name}}?",
       "expire-body": "This device will be immediately removed from the tailnet. It can re-join using a new pre-auth key."
     }

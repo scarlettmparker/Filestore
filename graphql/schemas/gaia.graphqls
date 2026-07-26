@@ -65,6 +65,7 @@ type GaiaQueries {
   accounts(pagination: PaginationInput): PagedAccounts!
   ipWhitelistEntries: [IpWhitelistEntry!]!
   tailscaleDevices: [TailscaleDevice!]!
+  tailscaleDevice(id: ID!): TailscaleDevice
 }
 
 input LoginInput {
