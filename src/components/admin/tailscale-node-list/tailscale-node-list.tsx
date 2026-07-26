@@ -9,7 +9,7 @@ import {
 } from "@sun/components";
 import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
-import type { TailscaleDevice, DeviceStatus } from "~/generated/graphql";
+import type { TailscaleDevice } from "~/generated/graphql";
 import styles from "./tailscale-node-list.module.css";
 
 type TailscaleNodeListProps = {
@@ -35,9 +35,6 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
     return <p className={styles.no_items}>{t("tailscale.no-nodes")}</p>;
   }
 
-  const isExpired = (status: DeviceStatus) =>
-    status === ("EXPIRED" as unknown as DeviceStatus);
-
   return (
     <div className={styles.list_body}>
       {devices.map((device) => (
@@ -48,9 +45,7 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
         >
           <Button variant="secondary" className={styles.list_button}>
             <span className={styles.list_name}>{device.name}</span>
-            <Badge>
-              {isExpired(device.status) ? "Expired" : device.status}
-            </Badge>
+            <Badge>{device.status}</Badge>
             <span className={styles.list_actions}>
               <DropdownMenu>
                 <DropdownMenuTrigger
