@@ -5,6 +5,7 @@
 import { renderApp } from "@sun/ssr/server";
 import { base, isProduction, manifestPath } from "../config.js";
 import { Buffer } from "buffer";
+import { createHmac, timingSafeEqual } from "crypto";
 import { matchOriginToMode, FrontendMode } from "@sun/shared";
 import { getCookieValue } from "@sun/api";
 import {
@@ -16,6 +17,42 @@ import {
 
 /** Pages that do not require an authenticated session. */
 const PUBLIC_PAGES = new Set(["/login", "/register"]);
+
+/**
+ * Verifies a JWT's HMAC-SHA256 signature using the configured secret.
+ * Returns the decoded payload if valid, null otherwise.
+ */
+function verifyToken(token) {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return null;
+
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+
+  const data = parts[0] + "." + parts[1];
+  const expectedSig = createHmac("sha256", secret)
+    .update(data)
+    .digest("base64url");
+
+  const expectedBuf = Buffer.from(expectedSig);
+  const actualBuf = Buffer.from(parts[2]);
+  if (
+    expectedBuf.length !== actualBuf.length ||
+    !timingSafeEqual(expectedBuf, actualBuf)
+  ) {
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(
+      Buffer.from(parts[1], "base64url").toString(),
+    );
+    if (payload.exp && payload.exp * 1000 < Date.now()) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Sets up all routes for the Fastify application.
@@ -84,17 +121,8 @@ export function setupRoutes(app, vite) {
 
     const token = getCookieValue(request.headers.cookie, AUTH_COOKIE);
     if (token) {
-      try {
-        const payload = JSON.parse(
-          Buffer.from(token.split(".")[1], "base64url").toString(),
-        );
-        if (payload.exp * 1000 < Date.now()) {
-          reply.header("Set-Cookie", clearAuthCookie());
-          return reply.redirect(
-            `/login?error=1&redirect=${encodeURIComponent(request.raw.url)}`,
-          );
-        }
-      } catch {
+      const payload = verifyToken(token);
+      if (!payload) {
         reply.header("Set-Cookie", clearAuthCookie());
         return reply.redirect(
           `/login?redirect=${encodeURIComponent(request.raw.url)}`,
