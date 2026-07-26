@@ -424,7 +424,7 @@ export type TorrentDownload = {
   magnetDetailId?: Maybe<Scalars['String']['output']>;
   peersConnected?: Maybe<Scalars['Int']['output']>;
   progress: Scalars['Float']['output'];
-  status: Scalars['String']['output'];
+  status: TorrentJobStatus;
   totalBytes?: Maybe<Scalars['Long']['output']>;
 };
 
@@ -457,6 +457,18 @@ export type TorrentJob = {
   uploadRateBps?: Maybe<Scalars['Int']['output']>;
   uploadedBytes: Scalars['Long']['output'];
 };
+
+export enum TorrentJobStatus {
+  Cancelled = 'CANCELLED',
+  Completed = 'COMPLETED',
+  Downloading = 'DOWNLOADING',
+  Failed = 'FAILED',
+  Metadata = 'METADATA',
+  Paused = 'PAUSED',
+  Queued = 'QUEUED',
+  Transcoding = 'TRANSCODING',
+  Uploading = 'UPLOADING'
+}
 
 export type TorrentSearchResult = {
   __typename?: 'TorrentSearchResult';
@@ -619,7 +631,7 @@ export type ListKeysQueryVariables = Exact<{
 }>;
 
 
-export type ListKeysQuery = { __typename?: 'Query', filestoreQueries: { __typename?: 'FilestoreQueries', listKeys?: Array<{ __typename?: 'KeyEntry', key: string, isDirectory: boolean, size?: number | null, lastModified?: string | null, name?: string | null, description?: string | null, torrent?: { __typename?: 'TorrentDownload', jobId: string, status: string, progress: number, magnetDetailId?: string | null, downloadRateBps?: number | null, etaSeconds?: number | null, peersConnected?: number | null, errorMessage?: string | null } | null }> | null } };
+export type ListKeysQuery = { __typename?: 'Query', filestoreQueries: { __typename?: 'FilestoreQueries', listKeys?: Array<{ __typename?: 'KeyEntry', key: string, isDirectory: boolean, size?: number | null, lastModified?: string | null, name?: string | null, description?: string | null, torrent?: { __typename?: 'TorrentDownload', jobId: string, status: TorrentJobStatus, progress: number, magnetDetailId?: string | null, downloadRateBps?: number | null, etaSeconds?: number | null, peersConnected?: number | null, errorMessage?: string | null } | null }> | null } };
 
 export type LocateKeyDetailQueryVariables = Exact<{
   bucket: Scalars['String']['input'];

@@ -1,5 +1,5 @@
 import { FileIcon, FolderIcon } from "lucide-react";
-import { KeyEntry } from "~/generated/graphql";
+import { KeyEntry, TorrentJobStatus } from "~/generated/graphql";
 import styles from "./key.module.css";
 
 function formatBytes(bytes: number | null | undefined): string {
@@ -197,8 +197,12 @@ const Key = (props: KeyProps) => {
             {key.torrent ? (
               <span className={styles.progress_wrapper}>
                 <span className={styles.progress_status}>
-                  {`${((key.torrent.progress ?? 0) * 100).toFixed(1)}%`}
-                  <span className={styles.progress_size}>{formatBytes(key.torrent.totalBytes)}</span>
+                  {key.torrent.status === TorrentJobStatus.Transcoding
+                    ? "Transcoding..."
+                    : `${((key.torrent.progress ?? 0) * 100).toFixed(1)}%`}
+                  {key.torrent.status !== TorrentJobStatus.Transcoding && (
+                    <span className={styles.progress_size}>{formatBytes(key.torrent.totalBytes)}</span>
+                  )}
                 </span>
                 <span className={styles.progress_track}>
                   <span

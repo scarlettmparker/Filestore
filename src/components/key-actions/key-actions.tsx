@@ -75,34 +75,38 @@ const KeyActions = (props: KeyActionsProps) => {
         <MoreVertical width={ICON_SIZE} height={ICON_SIZE} />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {onOpen && (
+        {!keyEntry.torrent && onOpen && (
           <DropdownMenuItem onClick={onOpen}>
             <Eye width={ICON_SIZE} height={ICON_SIZE} />{" "}
             {t("context-menu.open")}
           </DropdownMenuItem>
         )}
-        {onDownload && (
+        {!keyEntry.torrent && onDownload && (
           <DropdownMenuItem onClick={onDownload}>
             <Download width={ICON_SIZE} height={ICON_SIZE} />{" "}
             {t("context-menu.download")}
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={startRename}>
-          <Edit width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.edit")}
-        </DropdownMenuItem>
+        {!keyEntry.torrent && (
+          <DropdownMenuItem onClick={startRename}>
+            <Edit width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.edit")}
+          </DropdownMenuItem>
+        )}
         {keyEntry.torrent && onCancelTorrent && (
           <DropdownMenuItem variant="destructive" onClick={onCancelTorrent}>
             <XCircle width={ICON_SIZE} height={ICON_SIZE} />{" "}
             {t("context-menu.cancel-torrent")}
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={() => onDelete?.(keyEntry.key)}
-        >
-          <Trash2Icon width={ICON_SIZE} height={ICON_SIZE} />{" "}
-          {t("context-menu.delete")}
-        </DropdownMenuItem>
+        {!keyEntry.torrent && (
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => onDelete?.(keyEntry.key)}
+          >
+            <Trash2Icon width={ICON_SIZE} height={ICON_SIZE} />{" "}
+            {t("context-menu.delete")}
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

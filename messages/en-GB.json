@@ -148,7 +148,8 @@
       "download-rate": "Download Speed",
       "peers": "Peers",
       "eta": "ETA",
-      "error": "Error"
+      "error": "Error",
+      "transcoding": "Transcoding..."
     }
   },
   "home": {

@@ -1,6 +1,7 @@
 import { Card, CardBody } from "@sun/components";
 import { TFunction } from "i18next";
 import type { TorrentDownload } from "~/generated/graphql";
+import { TorrentJobStatus } from "~/generated/graphql";
 import styles from "./torrent-detail.module.css";
 
 type TorrentDetailPanelProps = {
@@ -15,34 +16,40 @@ const TorrentDetailPanel = (props: TorrentDetailPanelProps) => {
     <Card className={styles.detail_card}>
       <CardBody className={styles.detail_body}>
         <label>{t("torrent.status")}</label>
-        <p className={styles.detail_value}>{torrent.status}</p>
+        <p className={styles.detail_value}>
+          {torrent.status === TorrentJobStatus.Transcoding ? t("torrent.transcoding") : torrent.status}
+        </p>
 
         <label>{t("torrent.progress")}</label>
         <p className={styles.detail_value}>
           {(torrent.progress * 100).toFixed(1)}%
         </p>
 
-        <label>{t("torrent.downloaded")}</label>
-        <p className={styles.detail_value}>
-          {formatBytes(torrent.downloadedBytes)} / {formatBytes(torrent.totalBytes)}
-        </p>
+        {torrent.status !== TorrentJobStatus.Transcoding && (
+          <>
+            <label>{t("torrent.downloaded")}</label>
+            <p className={styles.detail_value}>
+              {formatBytes(torrent.downloadedBytes)} / {formatBytes(torrent.totalBytes)}
+            </p>
 
-        <label>{t("torrent.download-rate")}</label>
-        <p className={styles.detail_value}>
-          {torrent.downloadRateBps != null
-            ? formatBytes(torrent.downloadRateBps) + "/s"
-            : "-"}
-        </p>
+            <label>{t("torrent.download-rate")}</label>
+            <p className={styles.detail_value}>
+              {torrent.downloadRateBps != null
+                ? formatBytes(torrent.downloadRateBps) + "/s"
+                : "-"}
+            </p>
 
-        <label>{t("torrent.peers")}</label>
-        <p className={styles.detail_value}>
-          {torrent.peersConnected != null ? torrent.peersConnected : "-"}
-        </p>
+            <label>{t("torrent.peers")}</label>
+            <p className={styles.detail_value}>
+              {torrent.peersConnected != null ? torrent.peersConnected : "-"}
+            </p>
 
-        <label>{t("torrent.eta")}</label>
-        <p className={styles.detail_value}>
-          {torrent.etaSeconds != null ? formatEta(torrent.etaSeconds) : "-"}
-        </p>
+            <label>{t("torrent.eta")}</label>
+            <p className={styles.detail_value}>
+              {torrent.etaSeconds != null ? formatEta(torrent.etaSeconds) : "-"}
+            </p>
+          </>
+        )}
 
         {torrent.errorMessage && (
           <>

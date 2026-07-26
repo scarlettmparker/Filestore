@@ -348,14 +348,16 @@ const KeyCard = (props: KeyCardProps) => {
    * Handles the download action for a key entry.
    */
   const handleKeyDownload = (key: KeyEntry) => {
-    return key.isDirectory ? undefined : () => handleFileDownload(key.key);
+    if (key.isDirectory || key.torrent) return undefined;
+    return () => handleFileDownload(key.key);
   };
 
   /**
    * Handles the open action for a key entry.
    */
   const handleKeyOpen = (key: KeyEntry) => {
-    return key.isDirectory ? undefined : () => handleFileOpen(key.key);
+    if (key.isDirectory || key.torrent) return undefined;
+    return () => handleFileOpen(key.key);
   };
 
   /**
@@ -385,7 +387,7 @@ const KeyCard = (props: KeyCardProps) => {
   );
 
   return (
-    <ContextMenu className={styles.keys_card}>
+    <><ContextMenu className={styles.keys_card}>
       <ContextMenuTrigger>
         <Card>
           {children}
@@ -438,15 +440,15 @@ const KeyCard = (props: KeyCardProps) => {
           </ContextMenuSubContent>
         </ContextMenuSub>
       </ContextMenuContent>
-      <Viewer
-        open={viewerOpen}
-        onClose={() => setViewerOpen(false)}
-        bucket={bucketName}
-        key={viewerKey}
-        images={viewerSrc ? [viewerSrc] : []}
-        imageIndex={0}
-      />
     </ContextMenu>
+    <Viewer
+      open={viewerOpen}
+      onClose={() => setViewerOpen(false)}
+      bucket={bucketName}
+      key={viewerKey}
+      images={viewerSrc ? [viewerSrc] : []}
+      imageIndex={0}
+    /></>
   );
 };
 
