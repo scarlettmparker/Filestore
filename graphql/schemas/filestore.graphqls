@@ -16,6 +16,16 @@ type File {
 }
 
 # Queries for filestore operations.
+type TorrentSearchResult {
+  name: String!
+  seeders: Int!
+  leechers: Int!
+  size: String!
+  sizeBytes: Long!
+  publishDate: String
+  magnet: String!
+}
+
 type FilestoreQueries {
   health: String
   listBuckets: [Bucket!]
@@ -23,6 +33,8 @@ type FilestoreQueries {
   listKeys(bucket: String!, prefix: String): [KeyEntry!]
   # Locate a single key's metadata by bucket and key path.
   locate(bucket: String!, keyPath: String!): KeyDetail
+  # Searches Jackett for torrents matching the query.
+  searchTorrents(query: String!): [TorrentSearchResult!]!
 }
 
 # Directory-like entry for a bucket key.

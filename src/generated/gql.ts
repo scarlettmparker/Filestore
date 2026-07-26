@@ -36,6 +36,7 @@ type Documents = {
     "query locateKeyDetail($bucket: String!, $keyPath: String!) {\n  filestoreQueries {\n    locate(bucket: $bucket, keyPath: $keyPath) {\n      id\n      bucket\n      keyPath\n      name\n      description\n      status\n      createdAt\n      lastUpdatedAt\n      archivedAt\n    }\n  }\n}": typeof types.LocateKeyDetailDocument,
     "mutation putKey($input: PutKeyInput!) {\n  filestoreMutations {\n    putKey(input: $input)\n  }\n}": typeof types.PutKeyDocument,
     "mutation renameKey($input: RenameKeyInput!) {\n  filestoreMutations {\n    renameKey(input: $input) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": typeof types.RenameKeyDocument,
+    "query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}": typeof types.SearchTorrentsDocument,
 };
 const documents: Documents = {
     "mutation addTorrent($input: AddTorrentInput!) {\n  filestoreMutations {\n    addTorrent(input: $input) {\n      id\n      bucket\n      targetKeyPath\n      status\n      progress\n      magnetDetail {\n        displayName\n      }\n    }\n  }\n}": types.AddTorrentDocument,
@@ -60,6 +61,7 @@ const documents: Documents = {
     "query locateKeyDetail($bucket: String!, $keyPath: String!) {\n  filestoreQueries {\n    locate(bucket: $bucket, keyPath: $keyPath) {\n      id\n      bucket\n      keyPath\n      name\n      description\n      status\n      createdAt\n      lastUpdatedAt\n      archivedAt\n    }\n  }\n}": types.LocateKeyDetailDocument,
     "mutation putKey($input: PutKeyInput!) {\n  filestoreMutations {\n    putKey(input: $input)\n  }\n}": types.PutKeyDocument,
     "mutation renameKey($input: RenameKeyInput!) {\n  filestoreMutations {\n    renameKey(input: $input) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": types.RenameKeyDocument,
+    "query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}": types.SearchTorrentsDocument,
 };
 
 /**
@@ -164,6 +166,10 @@ export function graphql(source: "mutation putKey($input: PutKeyInput!) {\n  file
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation renameKey($input: RenameKeyInput!) {\n  filestoreMutations {\n    renameKey(input: $input) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}"): (typeof documents)["mutation renameKey($input: RenameKeyInput!) {\n  filestoreMutations {\n    renameKey(input: $input) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}"): (typeof documents)["query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

@@ -23,6 +23,7 @@ import {
   LocateKeyDetailDocument,
   PutKeyDocument,
   RenameKeyDocument,
+  SearchTorrentsDocument,
   type PutKeyMutation,
   type DeleteFileMutation,
   type DeleteKeyMutation,
@@ -365,6 +366,30 @@ defineMutation({
       };
     }
     return { __typename: "StandardError", message: "Failed to cancel torrent" };
+  },
+});
+
+/**
+ * Searches Jackett for torrents matching the query.
+ */
+defineMutation({
+  path: "filestore/search-torrents",
+  async handler(body: { query: string }, context: MutationContext): Promise<MutationResult> {
+    const result = await executeDocument<{
+      filestoreQueries: { searchTorrents: Record<string, unknown>[] | null };
+    }>(SearchTorrentsDocument, { query: body.query }, tokenFrom(context));
+    const results = result.data?.filestoreQueries?.searchTorrents;
+    if (results) {
+      return {
+        __typename: "QuerySuccess",
+        message: JSON.stringify(results),
+        id: "",
+      };
+    }
+    return {
+      __typename: "StandardError",
+      message: result.error || "Search failed",
+    };
   },
 });
 

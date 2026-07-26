@@ -9,5 +9,57 @@
 
 .error {
   margin-top: var(--sm);
-  color: var(--destructive);
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: var(--md);
+  padding: 0 var(--xl);
+}
+
+.search_container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lg);
+}
+
+.toolbar {
+  display: flex;
+  gap: var(--md);
+  align-items: center;
+}
+
+.result_list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lg);
+  max-height: 20rem;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.result_button {
+  display: flex;
+  align-items: center;
+  gap: var(--lg);
+  width: 100%;
+}
+
+.result_name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  max-width: 50%;
+}
+
+.result_meta {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--lg);
+  flex-shrink: 0;
 }

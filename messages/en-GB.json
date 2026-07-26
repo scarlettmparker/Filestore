@@ -87,13 +87,20 @@
     },
     "torrent-dialog": {
       "title": "Add torrent",
+      "magnet-tab": "Magnet Link",
+      "search-tab": "Search",
       "magnet-placeholder": "Paste a magnet link",
-      "or": "or",
+      "or": "OR",
       "choose-file": "Choose .torrent file",
       "add": "Add",
       "cancel": "Cancel",
       "error-empty": "Enter a magnet link or choose a .torrent file",
-      "error-generic": "Could not start the torrent download"
+      "error-generic": "Could not start the torrent download",
+      "search-placeholder": "Search movies, games...",
+      "search-button": "Search",
+      "searching-label": "Searching...",
+      "search-error": "Search failed",
+      "seeders": "seeders"
     },
     "confirm-dialog": {
       "title": "Confirm Rename Key?",

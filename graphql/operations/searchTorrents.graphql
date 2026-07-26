@@ -1,0 +1,13 @@
+query searchTorrents($query: String!) {
+  filestoreQueries {
+    searchTorrents(query: $query) {
+      name
+      seeders
+      leechers
+      size
+      sizeBytes
+      publishDate
+      magnet
+    }
+  }
+}
