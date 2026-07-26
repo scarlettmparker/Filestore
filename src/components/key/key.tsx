@@ -121,7 +121,7 @@ const Key = (props: KeyProps) => {
     if (newKey !== displayName) {
       const res = await onRename(
         key.key,
-        currentPath ? `${currentPath}/${newKey}` : newKey,
+        currentPath ? `${currentPath}${newKey}` : newKey,
         false,
       );
 
@@ -141,7 +141,7 @@ const Key = (props: KeyProps) => {
     if (targetKey) {
       await onRename(
         key.key,
-        currentPath ? `${currentPath}/${targetKey}` : targetKey,
+        currentPath ? `${currentPath}${targetKey}` : targetKey,
         true,
       );
       setDialogMessage(null);
