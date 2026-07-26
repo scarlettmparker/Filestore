@@ -221,6 +221,7 @@ const KeyCard = (props: KeyCardProps) => {
    * Downloads a file using a presigned GET URL (direct from storage).
    */
   const handleFileDownload = async (keyPath: string) => {
+    const win = window.open("", "_blank");
     const res = await executeMutation("filestore/get-presigned-download-url", {
       bucket: bucketName,
       key: keyPath,
@@ -228,11 +229,13 @@ const KeyCard = (props: KeyCardProps) => {
     if (res.__typename === "QuerySuccess" && res.id) {
       if (isEmulator && bridgeRef.current) {
         bridgeRef.current.send(FILESTORE_EVENTS.FILE_DOWNLOAD, { url: res.id });
+      } else if (win) {
+        win.location.href = res.id;
       } else {
-        window.open(res.id, "_blank");
+        window.location.href = res.id;
       }
     } else {
-      console.error("Failed to get presigned download URL");
+      if (win) win.close();
     }
   };
 
