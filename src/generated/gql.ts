@@ -18,6 +18,7 @@ type Documents = {
     "mutation cancelTorrent($jobId: String!) {\n  filestoreMutations {\n    cancelTorrent(jobId: $jobId) {\n      id\n      status\n    }\n  }\n}": typeof types.CancelTorrentDocument,
     "mutation deleteFile($input: BucketKeyInput!) {\n  filestoreMutations {\n    deleteFile(input: $input)\n  }\n}": typeof types.DeleteFileDocument,
     "mutation deleteKey($input: BucketKeyInput!) {\n  filestoreMutations {\n    deleteKey(input: $input)\n  }\n}": typeof types.DeleteKeyDocument,
+    "mutation expireTailscaleDevice($id: ID!) {\n  gaiaMutations {\n    expireTailscaleDevice(id: $id) {\n      __typename\n      ... on QuerySuccess {\n        message\n        id\n      }\n      ... on StandardError {\n        message\n      }\n    }\n  }\n}": typeof types.ExpireTailscaleDeviceDocument,
     "query account($id: ID!) {\n  gaiaQueries {\n    account(id: $id) {\n      id\n      username\n      personId\n      status\n      provider\n      remoteUsers {\n        type\n        id\n      }\n      createdAt\n      updatedAt\n    }\n  }\n}": typeof types.AccountDocument,
     "query accounts($pagination: PaginationInput) {\n  gaiaQueries {\n    accounts(pagination: $pagination) {\n      items {\n        id\n        username\n        personId\n        status\n        provider\n        remoteUsers {\n          type\n          id\n        }\n        createdAt\n        updatedAt\n      }\n      pageInfo {\n        page\n        size\n        totalPages\n        totalCount\n        hasNextPage\n        hasPreviousPage\n      }\n    }\n  }\n}": typeof types.AccountsDocument,
     "mutation createIpWhitelistEntry($input: IpWhitelistEntryInput!) {\n  gaiaMutations {\n    createIpWhitelistEntry(input: $input) {\n      ... on QuerySuccess {\n        __typename\n        message\n        id\n      }\n      ... on StandardError {\n        __typename\n        message\n      }\n    }\n  }\n}": typeof types.CreateIpWhitelistEntryDocument,
@@ -37,12 +38,14 @@ type Documents = {
     "mutation putKey($input: PutKeyInput!) {\n  filestoreMutations {\n    putKey(input: $input)\n  }\n}": typeof types.PutKeyDocument,
     "mutation renameKey($input: RenameKeyInput!) {\n  filestoreMutations {\n    renameKey(input: $input) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": typeof types.RenameKeyDocument,
     "query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}": typeof types.SearchTorrentsDocument,
+    "query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": typeof types.TailscaleDevicesDocument,
 };
 const documents: Documents = {
     "mutation addTorrent($input: AddTorrentInput!) {\n  filestoreMutations {\n    addTorrent(input: $input) {\n      id\n      bucket\n      targetKeyPath\n      status\n      progress\n      magnetDetail {\n        displayName\n      }\n    }\n  }\n}": types.AddTorrentDocument,
     "mutation cancelTorrent($jobId: String!) {\n  filestoreMutations {\n    cancelTorrent(jobId: $jobId) {\n      id\n      status\n    }\n  }\n}": types.CancelTorrentDocument,
     "mutation deleteFile($input: BucketKeyInput!) {\n  filestoreMutations {\n    deleteFile(input: $input)\n  }\n}": types.DeleteFileDocument,
     "mutation deleteKey($input: BucketKeyInput!) {\n  filestoreMutations {\n    deleteKey(input: $input)\n  }\n}": types.DeleteKeyDocument,
+    "mutation expireTailscaleDevice($id: ID!) {\n  gaiaMutations {\n    expireTailscaleDevice(id: $id) {\n      __typename\n      ... on QuerySuccess {\n        message\n        id\n      }\n      ... on StandardError {\n        message\n      }\n    }\n  }\n}": types.ExpireTailscaleDeviceDocument,
     "query account($id: ID!) {\n  gaiaQueries {\n    account(id: $id) {\n      id\n      username\n      personId\n      status\n      provider\n      remoteUsers {\n        type\n        id\n      }\n      createdAt\n      updatedAt\n    }\n  }\n}": types.AccountDocument,
     "query accounts($pagination: PaginationInput) {\n  gaiaQueries {\n    accounts(pagination: $pagination) {\n      items {\n        id\n        username\n        personId\n        status\n        provider\n        remoteUsers {\n          type\n          id\n        }\n        createdAt\n        updatedAt\n      }\n      pageInfo {\n        page\n        size\n        totalPages\n        totalCount\n        hasNextPage\n        hasPreviousPage\n      }\n    }\n  }\n}": types.AccountsDocument,
     "mutation createIpWhitelistEntry($input: IpWhitelistEntryInput!) {\n  gaiaMutations {\n    createIpWhitelistEntry(input: $input) {\n      ... on QuerySuccess {\n        __typename\n        message\n        id\n      }\n      ... on StandardError {\n        __typename\n        message\n      }\n    }\n  }\n}": types.CreateIpWhitelistEntryDocument,
@@ -62,6 +65,7 @@ const documents: Documents = {
     "mutation putKey($input: PutKeyInput!) {\n  filestoreMutations {\n    putKey(input: $input)\n  }\n}": types.PutKeyDocument,
     "mutation renameKey($input: RenameKeyInput!) {\n  filestoreMutations {\n    renameKey(input: $input) {\n      success\n      hasConflicts\n      conflicts\n    }\n  }\n}": types.RenameKeyDocument,
     "query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}": types.SearchTorrentsDocument,
+    "query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}": types.TailscaleDevicesDocument,
 };
 
 /**
@@ -94,6 +98,10 @@ export function graphql(source: "mutation deleteFile($input: BucketKeyInput!) {\
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation deleteKey($input: BucketKeyInput!) {\n  filestoreMutations {\n    deleteKey(input: $input)\n  }\n}"): (typeof documents)["mutation deleteKey($input: BucketKeyInput!) {\n  filestoreMutations {\n    deleteKey(input: $input)\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation expireTailscaleDevice($id: ID!) {\n  gaiaMutations {\n    expireTailscaleDevice(id: $id) {\n      __typename\n      ... on QuerySuccess {\n        message\n        id\n      }\n      ... on StandardError {\n        message\n      }\n    }\n  }\n}"): (typeof documents)["mutation expireTailscaleDevice($id: ID!) {\n  gaiaMutations {\n    expireTailscaleDevice(id: $id) {\n      __typename\n      ... on QuerySuccess {\n        message\n        id\n      }\n      ... on StandardError {\n        message\n      }\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -170,6 +178,10 @@ export function graphql(source: "mutation renameKey($input: RenameKeyInput!) {\n
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}"): (typeof documents)["query searchTorrents($query: String!) {\n  filestoreQueries {\n    searchTorrents(query: $query) {\n      name\n      seeders\n      leechers\n      size\n      sizeBytes\n      publishDate\n      magnet\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"): (typeof documents)["query tailscaleDevices {\n  gaiaQueries {\n    tailscaleDevices {\n      id\n      headscaleId\n      name\n      ipv4\n      status\n      expiredAt\n      lastSeen\n      createdAt\n      updatedAt\n    }\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

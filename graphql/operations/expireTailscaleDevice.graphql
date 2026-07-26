@@ -1,0 +1,14 @@
+mutation expireTailscaleDevice($id: ID!) {
+  gaiaMutations {
+    expireTailscaleDevice(id: $id) {
+      __typename
+      ... on QuerySuccess {
+        message
+        id
+      }
+      ... on StandardError {
+        message
+      }
+    }
+  }
+}

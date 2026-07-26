@@ -6,6 +6,7 @@ import {
 } from "@sun/ssr";
 import { executeDocument } from "@sun/api";
 import { tokenFrom } from "./context";
+import { ExpireTailscaleDeviceDocument, type ExpireTailscaleDeviceMutation } from "~/generated/graphql";
 import {
   SuspendAccountDocument,
   UnsuspendAccountDocument,
@@ -227,5 +228,26 @@ defineMutation({
     } catch (e) {
       return { __typename: "StandardError", message: String(e) };
     }
+  },
+});
+
+/**
+ * Marks a Tailscale device as expired in Gaia.
+ */
+defineMutation({
+  path: "gaia/expireTailscaleDevice",
+  async handler(
+    body: { id: string },
+    context: MutationContext,
+  ): Promise<MutationResult> {
+    const result = await executeDocument<ExpireTailscaleDeviceMutation>(ExpireTailscaleDeviceDocument, { id: body.id }, tokenFrom(context));
+    const data = result.data?.gaiaMutations?.expireTailscaleDevice as MutationResult | undefined;
+    return {
+      ...(data ?? {
+        __typename: "StandardError",
+        message: result.error || "Failed to expire Tailscale device.",
+      }),
+      invalidated: [makeCacheKey("tailscaleDevices:tailscaleDevices", {})],
+    } as MutationResult;
   },
 });

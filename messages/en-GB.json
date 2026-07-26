@@ -45,6 +45,7 @@
     "cancel-label": "Cancel",
     "confirm-label": "Confirm",
     "accounts": "Accounts",
+    "access": "Access",
     "ip-title": "IP Configuration",
     "add-ip-title": "Add IP Address",
     "add-ip-submit": "Add",
@@ -85,7 +86,9 @@
       "ip": "Tailscale IP",
       "last-seen": "Last Seen",
       "items-count_one": "{{count}} device",
-      "items-count_other": "{{count}} devices"
+      "items-count_other": "{{count}} devices",
+      "expire-title": "Expire {{name}}?",
+      "expire-body": "This device will be immediately removed from the tailnet. It can re-join using a new pre-auth key."
     }
   },
   "bucket": {

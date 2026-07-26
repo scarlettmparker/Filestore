@@ -9,51 +9,46 @@ import {
 } from "@sun/components";
 import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import type { TailscaleDevice, DeviceStatus } from "~/generated/graphql";
 import styles from "./tailscale-node-list.module.css";
-
-type TailscaleNode = {
-  id: number;
-  name: string;
-  ipv4: string;
-  online: boolean;
-  lastSeen: string;
-};
 
 type TailscaleNodeListProps = {
   /**
-   * Tailscale nodes to display.
+   * Tailscale devices to display.
    */
-  nodes: TailscaleNode[];
+  devices: TailscaleDevice[];
   /**
-   * Callback when the expire action is triggered for a node.
+   * Opens the expire confirmation for a device.
    */
-  onExpire: (nodeId: number) => void;
+  onExpire: (deviceId: string, deviceName: string) => void;
 };
 
 /**
- * List of Tailscale nodes, each showing name, IP, online status,
+ * List of Tailscale devices, each showing name, IP, online status,
  * and an expire action in a dropdown menu.
  */
 const TailscaleNodeList = (props: TailscaleNodeListProps) => {
-  const { nodes, onExpire } = props;
+  const { devices, onExpire } = props;
   const { t } = useTranslation("admin");
 
-  if (!nodes.length) {
+  if (!devices.length) {
     return <p className={styles.no_items}>{t("tailscale.no-nodes")}</p>;
   }
 
+  const isExpired = (status: DeviceStatus) => status === "EXPIRED" as unknown as DeviceStatus;
+
   return (
     <div className={styles.list_body}>
-      {nodes.map((node) => (
+      {devices.map((device) => (
         <Link
-          key={node.id}
-          to={`/admin/access/tailscale/${node.id}`}
+          key={device.id}
+          to={`/admin/access/tailscale/${device.id}`}
           className={styles.item_link}
         >
           <Button variant="secondary" className={styles.list_button}>
-            <span className={styles.list_name}>{node.name}</span>
-            <Badge>
-              {node.online ? t("tailscale.online") : t("tailscale.offline")}
+            <span className={styles.list_name}>{device.name}</span>
+            <Badge variant="secondary">
+              {isExpired(device.status) ? "Expired" : device.status}
             </Badge>
             <span className={styles.list_actions}>
               <DropdownMenu>
@@ -69,7 +64,7 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
                 <DropdownMenuContent>
                   <DropdownMenuItem
                     variant="destructive"
-                    onClick={() => onExpire(node.id)}
+                    onClick={() => onExpire(device.id, device.name)}
                   >
                     <TrashIcon width={16} height={16} />
                     {t("tailscale.expire")}

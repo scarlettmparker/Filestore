@@ -1,38 +1,29 @@
 import { defineLoader } from "@sun/ssr";
-
-const backendUrl = () =>
-  (process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql")
-    .replace("/graphql", "");
-
-/**
- * Loads all Tailscale nodes for the admin page list.
- */
-defineLoader({
-  pattern: "tailscaleNodes",
-  async loader() {
-    try {
-      const res = await fetch(`${backendUrl()}/api/headscale/nodes`);
-      return { tailscaleNodes: await res.json() };
-    } catch {
-      return { tailscaleNodes: [] };
-    }
-  },
-});
+import { executeDocument } from "@sun/api";
+import { AUTH_COOKIE, getCookieValue } from "~/utils/auth";
+import {
+  TailscaleDevicesDocument,
+  type TailscaleDevicesQuery,
+} from "~/generated/graphql";
 
 /**
- * Loads a single Tailscale node by id for the detail panel.
+ * Loads all Tailscale devices from Gaia for the admin page list.
  */
 defineLoader({
-  pattern: "tailscaleNode/:id",
-  async loader(params) {
-    const id = params.id as string;
-    if (!id) return { tailscaleNode: null };
+  pattern: "tailscaleDevices",
+  async loader(_params, context) {
+    const token = getCookieValue(context?.cookie, AUTH_COOKIE);
+    if (!token) return { tailscaleDevices: [] };
     try {
-      const res = await fetch(`${backendUrl()}/api/headscale/nodes/${id}`);
-      if (!res.ok) return { tailscaleNode: null };
-      return { tailscaleNode: await res.json() };
+      const result = await executeDocument<TailscaleDevicesQuery>(
+        TailscaleDevicesDocument,
+        {},
+        token,
+      );
+      const data = result.data?.gaiaQueries?.tailscaleDevices;
+      return { tailscaleDevices: data ?? [] };
     } catch {
-      return { tailscaleNode: null };
+      return { tailscaleDevices: [] };
     }
   },
 });

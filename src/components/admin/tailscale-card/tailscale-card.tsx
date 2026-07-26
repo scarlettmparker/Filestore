@@ -2,25 +2,18 @@ import { Card, CardBody, CardFooter, CardHeader, CardTitle, Button } from "@sun/
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import TailscaleNodeList from "~/components/admin/tailscale-node-list";
+import type { TailscaleDevice } from "~/generated/graphql";
 import styles from "./tailscale-card.module.css";
-
-type TailscaleNode = {
-  id: number;
-  name: string;
-  ipv4: string;
-  online: boolean;
-  lastSeen: string;
-};
 
 type TailscaleCardProps = {
   /**
-   * Tailscale nodes to display in the list.
+   * Tailscale devices to display in the list.
    */
-  nodes: TailscaleNode[];
+  devices: TailscaleDevice[];
   /**
-   * Expires a node by its Headscale id.
+   * Opens the expire confirmation for a device.
    */
-  onExpire: (nodeId: number) => void;
+  onExpire: (deviceId: string, deviceName: string) => void;
   /**
    * Opens the QR code generator dialog.
    */
@@ -28,11 +21,11 @@ type TailscaleCardProps = {
 };
 
 /**
- * Card displaying the list of Tailscale nodes with a button to
+ * Card displaying the list of Tailscale devices with a button to
  * generate pre-auth key QR codes.
  */
 const TailscaleCard = (props: TailscaleCardProps) => {
-  const { nodes, onExpire, onGenerateQr } = props;
+  const { devices, onExpire, onGenerateQr } = props;
   const { t } = useTranslation("admin");
 
   return (
@@ -50,11 +43,11 @@ const TailscaleCard = (props: TailscaleCardProps) => {
         </Button>
       </CardHeader>
       <CardBody>
-        <TailscaleNodeList nodes={nodes} onExpire={onExpire} />
+        <TailscaleNodeList devices={devices} onExpire={onExpire} />
       </CardBody>
-      {nodes.length > 0 && (
+      {devices.length > 0 && (
         <CardFooter>
-          <span>{t("tailscale.items-count", { count: nodes.length })}</span>
+          <span>{t("tailscale.items-count", { count: devices.length })}</span>
         </CardFooter>
       )}
     </Card>

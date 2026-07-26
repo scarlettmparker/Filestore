@@ -1,0 +1,15 @@
+query tailscaleDevices {
+  gaiaQueries {
+    tailscaleDevices {
+      id
+      headscaleId
+      name
+      ipv4
+      status
+      expiredAt
+      lastSeen
+      createdAt
+      updatedAt
+    }
+  }
+}
