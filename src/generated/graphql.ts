@@ -267,6 +267,7 @@ export type IpWhitelistEntry = {
 
 export type IpWhitelistEntryInput = {
   description?: InputMaybe<Scalars['String']['input']>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
   immutable?: InputMaybe<Scalars['Boolean']['input']>;
   pattern: Scalars['String']['input'];
 };
