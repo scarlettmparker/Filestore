@@ -80,6 +80,7 @@
       "new-file": "New File",
       "new-folder": "New Folder",
       "new-torrent": "File from .torrent",
+      "open": "Open",
       "download": "Download",
       "edit": "Rename",
       "delete": "Delete",
@@ -126,6 +127,19 @@
       "created": "Created",
       "last-updated": "Last Updated",
       "no-details": "No details found."
+    },
+    "viewer": {
+      "image": "Image",
+      "previous": "Previous",
+      "next": "Next",
+      "play": "Play",
+      "pause": "Pause",
+      "mute": "Mute",
+      "seek": "Seek",
+      "volume": "Volume",
+      "speed": "Playback Speed",
+      "fullscreen": "Fullscreen",
+      "video-not-supported": "Your browser does not support video playback."
     },
     "torrent": {
       "status": "Torrent Status",

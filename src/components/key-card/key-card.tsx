@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import type { KeyEntry } from "~/generated/graphql";
 import styles from "./key-card.module.css";
 import { Card, CardBody, CardFooter } from "@sun/components";
@@ -17,6 +17,7 @@ import { FileIcon, FolderIcon, MagnetIcon } from "lucide-react";
 import { executeMutation, MutationResult } from "@sun/ssr";
 import { ICON_SIZE } from "~/utils/const";
 import KeyActions from "../key-actions";
+import { Viewer } from "~/components/viewer";
 import { EventBus, PostMessageBridge } from "@sun/events";
 import { FILESTORE_EVENTS, FrontendMode } from "@sun/shared";
 import type {
@@ -173,6 +174,9 @@ const KeyCard = (props: KeyCardProps) => {
     null,
   );
   const isEmulator = frontendMode === FrontendMode.EMULATOR;
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerSrc, setViewerSrc] = useState("");
+  const [viewerKey, setViewerKey] = useState("");
 
   // Set up bridge to parent window when running in emulator mode.
   useEffect(() => {
@@ -237,6 +241,42 @@ const KeyCard = (props: KeyCardProps) => {
     } else {
       if (win) win.close();
     }
+  };
+
+  /**
+   * Opens a file in the appropriate viewer: image dialog, video viewer page,
+   * PDF in new tab, or fallback to download.
+   */
+  const handleFileOpen = async (keyPath: string) => {
+    const res = await executeMutation("filestore/get-presigned-download-url", {
+      bucket: bucketName,
+      key: keyPath,
+    });
+    if (res.__typename !== "QuerySuccess" || !res.id) return;
+    const url = res.id;
+    const lower = keyPath.toLowerCase();
+
+    if (/\.(png|jpg|jpeg|gif|webp|bmp|svg)$/.test(lower)) {
+      setViewerSrc(url);
+      setViewerKey(keyPath);
+      setViewerOpen(true);
+      return;
+    }
+    if (/\.(mp4|webm|mkv|mov|avi|ogg|m4v)$/.test(lower)) {
+      window.open(
+        `/viewer?bucket=${encodeURIComponent(bucketName)}&key=${encodeURIComponent(keyPath)}`,
+        "_blank",
+      );
+      return;
+    }
+    if (/\.pdf$/.test(lower)) {
+      window.open(
+        `/api/view/${encodeURIComponent(bucketName)}?key=${encodeURIComponent(keyPath)}`,
+        "_blank",
+      );
+      return;
+    }
+    handleFileDownload(keyPath);
   };
 
   /**
@@ -305,11 +345,17 @@ const KeyCard = (props: KeyCardProps) => {
   );
 
   /**
-   * Handles the download action for a key entry. Directories do not support download.
-   * @param key Key entry to download.
+   * Handles the download action for a key entry.
    */
   const handleKeyDownload = (key: KeyEntry) => {
     return key.isDirectory ? undefined : () => handleFileDownload(key.key);
+  };
+
+  /**
+   * Handles the open action for a key entry.
+   */
+  const handleKeyOpen = (key: KeyEntry) => {
+    return key.isDirectory ? undefined : () => handleFileOpen(key.key);
   };
 
   /**
@@ -357,6 +403,7 @@ const KeyCard = (props: KeyCardProps) => {
                 <KeyActions
                   keyEntry={key}
                   key={idx}
+                  onOpen={handleKeyOpen(key)}
                   onDelete={getKeyOnDelete(key)}
                   onDownload={handleKeyDownload(key)}
                   onCancelTorrent={getKeyOnCancelTorrent(key)}
@@ -391,6 +438,14 @@ const KeyCard = (props: KeyCardProps) => {
           </ContextMenuSubContent>
         </ContextMenuSub>
       </ContextMenuContent>
+      <Viewer
+        open={viewerOpen}
+        onClose={() => setViewerOpen(false)}
+        bucket={bucketName}
+        key={viewerKey}
+        images={viewerSrc ? [viewerSrc] : []}
+        imageIndex={0}
+      />
     </ContextMenu>
   );
 };

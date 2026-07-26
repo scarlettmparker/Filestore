@@ -160,12 +160,24 @@ defineMutation({
 
 /**
  * Invalidates the keys list after a direct presigned upload completes.
+ * Also triggers transcoding for MKV/AVI files.
  */
 defineMutation({
   path: "filestore/upload-complete",
-  async handler(body: BucketBody): Promise<MutationResult> {
+  async handler(body: BucketBody & { key?: string }): Promise<MutationResult> {
     const cacheKey = keysCacheKey(body.bucket, body.path);
     invalidateCacheKeys([cacheKey]);
+
+    const key = body.key ?? "";
+    if (key.endsWith(".mkv") || key.endsWith(".avi")) {
+      const backendUrl = process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") || "http://localhost:8083";
+      fetch(`${backendUrl}/api/transcode`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bucket: body.bucket, key }),
+      }).catch((err) => console.error("Transcode failed:", err));
+    }
+
     return {
       __typename: "QuerySuccess",
       message: "Uploaded successfully",

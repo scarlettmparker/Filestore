@@ -2,6 +2,7 @@ import { RouteObject, useRoutes } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
 const Index = lazy(() => import("~/routes/index"));
+const ViewerRoute = lazy(() => import("~/routes/viewer/viewer"));
 const NotFound = lazy(() => import("~/routes/not-found"));
 const Status = lazy(() => import("~/routes/status"));
 const BucketLayout = lazy(() => import("~/routes/bucket/bucket-layout"));
@@ -23,6 +24,14 @@ export const routes: RouteObject[] = [
   {
     path: "status",
     element: <Status />,
+  },
+  {
+    path: "viewer",
+    element: (
+      <Suspense fallback={null}>
+        <ViewerRoute />
+      </Suspense>
+    ),
   },
   {
     path: "bucket/:alias/*",

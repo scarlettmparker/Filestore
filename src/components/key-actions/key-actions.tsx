@@ -2,7 +2,14 @@ import { DropdownMenuTrigger } from "@sun/components";
 import { DropdownMenuItem } from "@sun/components";
 import { DropdownMenuContent } from "@sun/components";
 import { DropdownMenu } from "@sun/components";
-import { MoreVertical, Trash2Icon, Download, Edit, XCircle } from "lucide-react";
+import {
+  MoreVertical,
+  Trash2Icon,
+  Download,
+  Edit,
+  XCircle,
+  Eye,
+} from "lucide-react";
 import { useContext } from "react";
 import { ICON_SIZE } from "~/utils/const";
 import { KeyEntry } from "~/generated/graphql";
@@ -16,6 +23,10 @@ type KeyActionsProps = {
    * Key to download/delete.
    */
   keyEntry: KeyEntry;
+  /**
+   * Callback to open the key file in a viewer.
+   */
+  onOpen?: () => void;
   /**
    * Callback to delete the key.
    */
@@ -39,7 +50,15 @@ type KeyActionsProps = {
 };
 
 const KeyActions = (props: KeyActionsProps) => {
-  const { keyEntry, onDelete, onDownload, onCancelTorrent, frontendMode, t } = props;
+  const {
+    keyEntry,
+    onOpen,
+    onDelete,
+    onDownload,
+    onCancelTorrent,
+    frontendMode,
+    t,
+  } = props;
   const { startRename } = useContext(RenameContext);
 
   if (frontendMode === FrontendMode.EMULATOR) return null;
@@ -56,9 +75,16 @@ const KeyActions = (props: KeyActionsProps) => {
         <MoreVertical width={ICON_SIZE} height={ICON_SIZE} />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
+        {onOpen && (
+          <DropdownMenuItem onClick={onOpen}>
+            <Eye width={ICON_SIZE} height={ICON_SIZE} />{" "}
+            {t("context-menu.open")}
+          </DropdownMenuItem>
+        )}
         {onDownload && (
           <DropdownMenuItem onClick={onDownload}>
-            <Download width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.download")}
+            <Download width={ICON_SIZE} height={ICON_SIZE} />{" "}
+            {t("context-menu.download")}
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onClick={startRename}>
@@ -66,11 +92,16 @@ const KeyActions = (props: KeyActionsProps) => {
         </DropdownMenuItem>
         {keyEntry.torrent && onCancelTorrent && (
           <DropdownMenuItem variant="destructive" onClick={onCancelTorrent}>
-            <XCircle width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.cancel-torrent")}
+            <XCircle width={ICON_SIZE} height={ICON_SIZE} />{" "}
+            {t("context-menu.cancel-torrent")}
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem variant="destructive" onClick={() => onDelete?.(keyEntry.key)}>
-          <Trash2Icon width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.delete")}
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={() => onDelete?.(keyEntry.key)}
+        >
+          <Trash2Icon width={ICON_SIZE} height={ICON_SIZE} />{" "}
+          {t("context-menu.delete")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
