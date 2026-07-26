@@ -15,6 +15,7 @@ import {
   Input,
 } from "@sun/components";
 import type { IpWhitelistEntry } from "~/generated/graphql";
+import styles from "./edit-ip-dialog.module.css";
 
 type EditIpDialogProps = {
   /**
@@ -88,11 +89,11 @@ const EditIpDialog = (props: EditIpDialogProps) => {
               />
             </FormItem>
           </FormField>
-          <FormField name="enabled">
+          <FormField name="enabled" className={styles.checkbox_row}>
             <FormItem>
               <Checkbox name="enabled" defaultChecked={entry.enabled} />
             </FormItem>
-            <FormLabel>Enabled</FormLabel>
+            <FormLabel>{t("enabled")}</FormLabel>
           </FormField>
         </Form>
       </DialogBody>

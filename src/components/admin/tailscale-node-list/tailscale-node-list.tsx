@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   Badge,
   Button,
@@ -18,14 +19,14 @@ type TailscaleNode = {
   lastSeen: string;
 };
 
-/**
- * Props for the TailscaleNodeList component.
- *
- * @param nodes Tailscale nodes to display.
- * @param onExpire Callback when the expire action is triggered for a node.
- */
 type TailscaleNodeListProps = {
+  /**
+   * Tailscale nodes to display.
+   */
   nodes: TailscaleNode[];
+  /**
+   * Callback when the expire action is triggered for a node.
+   */
   onExpire: (nodeId: number) => void;
 };
 
@@ -44,10 +45,14 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
   return (
     <div className={styles.list_body}>
       {nodes.map((node) => (
-        <div key={node.id} className={styles.item_link}>
+        <Link
+          key={node.id}
+          to={`/admin/access/tailscale/${node.id}`}
+          className={styles.item_link}
+        >
           <Button variant="secondary" className={styles.list_button}>
             <span className={styles.list_name}>{node.name}</span>
-            <Badge variant="secondary">
+            <Badge>
               {node.online ? t("tailscale.online") : t("tailscale.offline")}
             </Badge>
             <span className={styles.list_actions}>
@@ -73,7 +78,7 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
               </DropdownMenu>
             </span>
           </Button>
-        </div>
+        </Link>
       ))}
     </div>
   );

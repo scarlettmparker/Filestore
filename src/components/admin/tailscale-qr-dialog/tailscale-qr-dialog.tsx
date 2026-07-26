@@ -5,11 +5,20 @@ import {
   DialogBody,
   DialogHeader,
   DialogTitle,
-  Label,
-  Select,
-  SelectOption,
+  Form,
+  FormField,
+  FormLabel,
+  FormItem,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DialogFooter,
 } from "@sun/components";
+import { executeMutation } from "@sun/ssr";
 import { useTranslation } from "react-i18next";
+
+import styles from "./tailscale-qr-dialog.module.css";
 
 type TailscaleQrDialogProps = {
   /**
@@ -39,34 +48,29 @@ const TailscaleQrDialog = (props: TailscaleQrDialogProps) => {
   const [expiry, setExpiry] = useState("1h");
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [keyText, setKeyText] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   /**
-   * Generates a pre-auth key via the backend and stores the QR image
-   * data URL and raw key text.
+   * Generates a pre-auth key via the backend mutation.
    */
   const handleGenerate = useCallback(async () => {
-    const response = await fetch(
-      `/api/headscale/preauth-key?expiry=${encodeURIComponent(expiry)}`,
-    );
-    if (!response.ok) return;
-    // Extract key text from response header or body
-    const keyFromHeader = response.headers.get("X-Preauth-Key");
-    if (keyFromHeader) {
-      setKeyText(keyFromHeader);
+    const res = await executeMutation("headscale/generate-key", { expiry });
+    if (res.__typename === "QuerySuccess" && res.id) {
+      setQrDataUrl(res.id);
+      setKeyText(res.message || null);
     }
-    const blob = await response.blob();
-    const reader = new FileReader();
-    reader.onload = () => setQrDataUrl(reader.result as string);
-    reader.readAsDataURL(blob);
   }, [expiry]);
 
   /**
-   * Copies the pre-auth key to the clipboard.
+   * Copies the pre-auth key to the clipboard and shows a brief
+   * confirmation toast.
    */
   const handleCopyKey = useCallback(async () => {
     if (!keyText) return;
     try {
       await navigator.clipboard.writeText(keyText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000); // 3 seconds
     } catch {
       // Clipboard not available
     }
@@ -88,40 +92,47 @@ const TailscaleQrDialog = (props: TailscaleQrDialogProps) => {
         <DialogTitle>{t("tailscale.qr-title")}</DialogTitle>
       </DialogHeader>
       <DialogBody>
-        <Label htmlFor="tailscale-expiry">{t("tailscale.expiry")}</Label>
-        <Select
-          id="tailscale-expiry"
-          value={expiry}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setExpiry(e.target.value)}
-        >
-          {EXPIRY_OPTIONS.map((opt) => (
-            <SelectOption key={opt.value} value={opt.value}>
-              {opt.label}
-            </SelectOption>
-          ))}
-        </Select>
-
-        <Button variant="default" onClick={handleGenerate}>
-          {t("tailscale.generate-qr")}
-        </Button>
+        <Form id="tailscale-qr-form">
+          <FormField name="expiry" className={styles.row}>
+            <FormLabel>{t("tailscale.expiry")}</FormLabel>
+            <FormItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" type="button">
+                    {EXPIRY_OPTIONS.find((o) => o.value === expiry)?.label}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {EXPIRY_OPTIONS.map((opt) => (
+                    <DropdownMenuItem
+                      key={opt.value}
+                      onClick={() => setExpiry(opt.value)}
+                    >
+                      {opt.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </FormItem>
+          </FormField>
+        </Form>
 
         {qrDataUrl && (
-          <div>
-            <img
-              src={qrDataUrl}
-              alt={t("tailscale.qr-alt")}
-            />
-            {keyText && (
-              <>
-                <p>{keyText}</p>
-                <Button variant="secondary" onClick={handleCopyKey}>
-                  {t("tailscale.copy-key")}
-                </Button>
-              </>
-            )}
+          <div className={styles.qr_wrapper}>
+            <img src={qrDataUrl} alt={t("tailscale.qr-alt")} />
           </div>
         )}
       </DialogBody>
+      <DialogFooter>
+        {keyText && (
+          <Button variant="secondary" onClick={handleCopyKey}>
+            {copied ? t("tailscale.key-copied") : t("tailscale.copy-key")}
+          </Button>
+        )}
+        <Button variant="default" onClick={handleGenerate}>
+          {t("tailscale.generate-qr")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 };

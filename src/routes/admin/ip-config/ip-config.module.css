@@ -12,10 +12,14 @@
   min-width: 350px;
   max-width: 28rem;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lg);
 }
 
 .items_detail_panel {
   min-width: 350px;
   max-width: 44rem;
   flex-grow: 1;
+  margin-top: calc(3 * var(--xl));
 }

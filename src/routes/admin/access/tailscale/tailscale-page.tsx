@@ -1,8 +1,12 @@
-import { useState, useEffect, Suspense, useCallback } from "react";
+import { useState, Suspense, useCallback } from "react";
 import { useOutlet } from "react-router-dom";
+import { executeMutation } from "@sun/ssr";
+import AccessTabs from "~/components/admin/access-tabs";
 import TailscaleCard from "~/components/admin/tailscale-card";
 import TailscaleQrDialog from "~/components/admin/tailscale-qr-dialog";
-import IpDetailPlaceholder from "~/components/admin/ip-detail-placeholder";
+import TailscaleDetailPlaceholder from "~/components/admin/tailscale-detail-placeholder";
+import { IpDetailSkeleton } from "~/components/admin/skeletons";
+import { usePageData } from "@sun/ssr/react";
 import styles from "../../ip-config/ip-config.module.css";
 
 type TailscaleNode = {
@@ -20,35 +24,32 @@ type TailscaleNode = {
 const TailscalePage = () => {
   const outlet = useOutlet();
   const [qrOpen, setQrOpen] = useState(false);
-  const [nodes, setNodes] = useState<TailscaleNode[]>([]);
+  const { data: nodes } = usePageData<TailscaleNode[]>(
+    "tailscaleNodes",
+    "tailscaleNodes",
+  );
 
   /**
-   * Fetches the list of Tailscale nodes on mount.
-   */
-  useEffect(() => {
-    fetch("/api/headscale/nodes")
-      .then((r) => r.json())
-      .then((data) => setNodes(data))
-      .catch(() => {});
-  }, []);
-
-  /**
-   * Expires a Tailscale node by calling the backend.
+   * Expires a Tailscale node via the backend mutation.
    */
   const handleExpire = useCallback(async (nodeId: number) => {
-    await fetch(`/api/headscale/nodes/${nodeId}/expire`, { method: "POST" });
-    setNodes((prev) => prev.filter((n) => n.id !== nodeId));
+    await executeMutation("headscale/expire-node", { id: nodeId });
   }, []);
 
   return (
     <>
       <div className={styles.items_layout}>
         <div className={styles.items_list_panel}>
-          <TailscaleCard nodes={nodes} onExpire={handleExpire} onGenerateQr={() => setQrOpen(true)} />
+          <AccessTabs />
+          <TailscaleCard
+            nodes={nodes ?? []}
+            onExpire={handleExpire}
+            onGenerateQr={() => setQrOpen(true)}
+          />
         </div>
         <div className={styles.items_detail_panel}>
-          <Suspense fallback={null}>
-            {outlet ?? <IpDetailPlaceholder />}
+          <Suspense fallback={<IpDetailSkeleton />}>
+            {outlet ?? <TailscaleDetailPlaceholder />}
           </Suspense>
         </div>
       </div>

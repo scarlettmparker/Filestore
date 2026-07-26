@@ -13,6 +13,7 @@ import "./utils/configure-framework";
 import "./utils/global-data";
 import "./routes/admin/admin-data";
 import "./routes/admin/ip-config/ip-config-data";
+import "./routes/admin/access/tailscale/tailscale-data";
 import "./server/gaia-mutations";
 
 configureApi({ authCookie: AUTH_COOKIE, clientId, clientSecret });

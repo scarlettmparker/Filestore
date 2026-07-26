@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle, Button } from "@sun/components";
+import { Card, CardBody, CardFooter, CardHeader, CardTitle, Button } from "@sun/components";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import TailscaleNodeList from "~/components/admin/tailscale-node-list";
@@ -37,24 +37,26 @@ const TailscaleCard = (props: TailscaleCardProps) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className={styles.title}>
-          {t("tailscale.title")}
-          <Button
-            variant="secondary"
-            className={styles.add_button}
-            onClick={onGenerateQr}
-            title={t("tailscale.generate-qr")}
-            aria-label={t("tailscale.generate-qr")}
-          >
-            <PlusIcon width={16} height={16} />
-            {t("tailscale.generate-qr")}
-          </Button>
-        </CardTitle>
+      <CardHeader className={styles.header}>
+        <CardTitle>{t("tailscale.title")}</CardTitle>
+        <Button
+          variant="secondary"
+          onClick={onGenerateQr}
+          title={t("tailscale.generate-qr")}
+          aria-label={t("tailscale.generate-qr")}
+        >
+          <PlusIcon width={16} height={16} />
+          {t("tailscale.generate-qr")}
+        </Button>
       </CardHeader>
       <CardBody>
         <TailscaleNodeList nodes={nodes} onExpire={onExpire} />
       </CardBody>
+      {nodes.length > 0 && (
+        <CardFooter>
+          <span>{t("tailscale.items-count", { count: nodes.length })}</span>
+        </CardFooter>
+      )}
     </Card>
   );
 };

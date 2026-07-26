@@ -167,3 +167,65 @@ defineMutation({
     } as MutationResult;
   },
 });
+
+/**
+ * Generates a pre-auth key via Headscale and returns the QR code
+ * as a base64 data URL along with the raw key text.
+ */
+defineMutation({
+  path: "headscale/generate-key",
+  async handler(
+    body: { expiry: string },
+  ): Promise<MutationResult> {
+    try {
+      const backendUrl =
+        process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
+        "http://localhost:8083";
+      const res = await fetch(
+        `${backendUrl}/api/headscale/preauth-key?expiry=${encodeURIComponent(body.expiry)}`,
+      );
+      if (!res.ok) {
+        return { __typename: "StandardError", message: `Backend returned ${res.status}` };
+      }
+      const keyText = res.headers.get("X-Preauth-Key") || "";
+      const buffer = await res.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString("base64");
+      return {
+        __typename: "QuerySuccess",
+        message: keyText,
+        id: `data:image/png;base64,${base64}`,
+      };
+    } catch (e) {
+      return { __typename: "StandardError", message: String(e) };
+    }
+  },
+});
+
+/**
+ * Expires a Tailscale node via Headscale.
+ */
+defineMutation({
+  path: "headscale/expire-node",
+  async handler(body: { id: number }): Promise<MutationResult> {
+    try {
+      const backendUrl =
+        process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
+        "http://localhost:8083";
+      const res = await fetch(
+        `${backendUrl}/api/headscale/nodes/${body.id}/expire`,
+        { method: "POST" },
+      );
+      if (!res.ok) {
+        return { __typename: "StandardError", message: `Backend returned ${res.status}` };
+      }
+      return {
+        __typename: "QuerySuccess",
+        message: "Node expired",
+        id: "",
+        invalidated: [makeCacheKey("tailscaleNodes:tailscaleNodes", {})],
+      };
+    } catch (e) {
+      return { __typename: "StandardError", message: String(e) };
+    }
+  },
+});

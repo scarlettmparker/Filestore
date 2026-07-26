@@ -93,11 +93,11 @@ const AddIpDialog = (props: AddIpDialogProps) => {
             </FormItem>
             <FormLabel>{t("immutable")}</FormLabel>
           </FormField>
-          <FormField name="enabled">
+          <FormField name="enabled" className={styles.checkbox_row}>
             <FormItem>
               <Checkbox name="enabled" defaultChecked />
             </FormItem>
-            <FormLabel>Enabled</FormLabel>
+            <FormLabel>{t("enabled")}</FormLabel>
           </FormField>
         </Form>
       </DialogBody>

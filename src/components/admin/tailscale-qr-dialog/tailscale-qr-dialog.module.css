@@ -1,0 +1,19 @@
+.qr_wrapper {
+  margin-top: var(--md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--md);
+  align-items: center;
+}
+
+.qr_wrapper img {
+  height: 8rem;
+  width: 8rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--md);
+}

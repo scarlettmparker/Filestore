@@ -67,17 +67,25 @@
     "ip-no-items-found": "No IP addresses configured",
     "ip-none": "None",
     "immutable": "Immutable",
+    "ip-tab": "IP",
+    "tailscale-tab": "Tailscale",
+    "select-device": "Select a device",
     "tailscale": {
       "title": "Tailscale Devices",
       "generate-qr": "Generate QR",
       "expire": "Expire",
       "expiry": "Expiry",
       "copy-key": "Copy Key",
+      "key-copied": "Copied!",
       "qr-title": "Pre-auth Key",
       "qr-alt": "QR code for Tailscale device enrollment",
       "no-nodes": "No devices connected",
       "online": "Online",
-      "offline": "Offline"
+      "offline": "Offline",
+      "ip": "Tailscale IP",
+      "last-seen": "Last Seen",
+      "items-count_one": "{{count}} device",
+      "items-count_other": "{{count}} devices"
     }
   },
   "bucket": {

@@ -1,5 +1,6 @@
 import { useState, useCallback, Suspense } from "react";
 import { useOutlet, useNavigate } from "react-router-dom";
+import AccessTabs from "~/components/admin/access-tabs";
 import IpList from "~/components/admin/ip-list";
 import IpDetailPlaceholder from "~/components/admin/ip-detail-placeholder";
 import { IpDetailSkeleton, AdminPageSkeleton } from "~/components/admin/skeletons";
@@ -68,6 +69,7 @@ const IpConfig = () => {
     <Suspense fallback={<AdminPageSkeleton />}>
       <div className={styles.items_layout}>
         <div className={styles.items_list_panel}>
+          <AccessTabs />
           <IpList
             onAdd={handleAdd}
             onEdit={handleEdit}
