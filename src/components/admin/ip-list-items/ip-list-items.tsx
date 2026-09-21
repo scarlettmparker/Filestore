@@ -8,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@sun/components";
-import { usePageData } from "@sun/ssr/react";
 import {
   EllipsisVerticalIcon,
   TrashIcon,
@@ -18,6 +17,10 @@ import type { IpWhitelistEntry } from "~/generated/graphql";
 import styles from "./ip-list-items.module.css";
 
 type IpListItemsProps = {
+  /**
+   * IP whitelist entries to display.
+   */
+  entries: IpWhitelistEntry[];
   /**
    * Called when the user clicks edit on an entry.
    */
@@ -32,12 +35,8 @@ type IpListItemsProps = {
  * Renders the IP whitelist body.
  */
 const IpListItems = (props: IpListItemsProps) => {
-  const { onEdit, onDelete } = props;
+  const { entries, onEdit, onDelete } = props;
   const { t } = useTranslation("admin");
-  const { data: entries } = usePageData<IpWhitelistEntry[]>(
-    "ipEntries",
-    "ipEntries",
-  );
 
   return (
     <div className={styles.list_body}>

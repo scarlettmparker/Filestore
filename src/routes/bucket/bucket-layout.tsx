@@ -12,6 +12,7 @@ import ConfirmDeleteDialog from "~/components/confirm-delete-dialog";
 import TorrentDialog from "~/components/torrent-dialog";
 import { ListKeysQuery } from "~/generated/graphql";
 import { executeMutation, makeCacheKey, revalidatePageData } from "@sun/ssr";
+import { revalidateKeys } from "~/utils/filestore-cache";
 import { usePageData } from "@sun/ssr/react";
 import BucketSkeleton from "~/components/bucket-skeleton";
 import styles from "./bucket-layout.module.css";
@@ -74,13 +75,18 @@ const BucketContent = () => {
 
   const handleConfirmDelete = useCallback(async () => {
     if (!deleteTarget) return;
-    await executeMutation("filestore/delete-key", {
-      bucket: alias,
-      key: deleteTarget,
-      path: path,
-    });
+    try {
+      await executeMutation("filestore/delete-key", {
+        bucket: alias,
+        key: deleteTarget,
+        path: path,
+      });
+      revalidateKeys(alias, path);
+    } catch (err) {
+      console.error("Failed to delete key", err);
+    }
     setDeleteTarget(null);
-  }, [deleteTarget, alias]);
+  }, [deleteTarget, alias, path]);
 
   return (
     <>

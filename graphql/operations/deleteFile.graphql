@@ -1,5 +1,8 @@
 mutation deleteFile($input: BucketKeyInput!) {
   filestoreMutations {
-    deleteFile(input: $input)
+    deleteFile(input: $input) {
+      message
+      key
+    }
   }
 }

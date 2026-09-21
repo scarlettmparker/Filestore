@@ -1,14 +1,15 @@
 mutation updateIpWhitelistEntry($id: ID!, $input: IpWhitelistEntryInput!) {
   gaiaMutations {
     updateIpWhitelistEntry(id: $id, input: $input) {
-      ... on QuerySuccess {
-        __typename
-        message
+      message
+      entry {
         id
-      }
-      ... on StandardError {
-        __typename
-        message
+        pattern
+        description
+        enabled
+        immutable
+        createdAt
+        updatedAt
       }
     }
   }

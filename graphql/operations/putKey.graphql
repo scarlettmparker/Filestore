@@ -1,5 +1,8 @@
 mutation putKey($input: PutKeyInput!) {
   filestoreMutations {
-    putKey(input: $input)
+    putKey(input: $input) {
+      message
+      key
+    }
   }
 }

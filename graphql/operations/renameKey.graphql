@@ -1,6 +1,7 @@
 mutation renameKey($input: RenameKeyInput!) {
   filestoreMutations {
     renameKey(input: $input) {
+      message
       success
       hasConflicts
       conflicts

@@ -9,6 +9,10 @@ import styles from "./ip-list.module.css";
 
 type IpListProps = {
   /**
+   * IP whitelist entries to display.
+   */
+  entries: IpWhitelistEntry[];
+  /**
    * Called to open the add dialog.
    */
   onAdd: () => void;
@@ -26,7 +30,7 @@ type IpListProps = {
  * List of IP whitelist entries.
  */
 const IpList = (props: IpListProps) => {
-  const { onAdd, onEdit, onDelete } = props;
+  const { entries, onAdd, onEdit, onDelete } = props;
   const { t } = useTranslation("admin");
 
   return (
@@ -48,7 +52,11 @@ const IpList = (props: IpListProps) => {
         </CardHeader>
         <CardBody>
           <Suspense fallback={null}>
-            <IpListItems onEdit={onEdit} onDelete={onDelete} />
+            <IpListItems
+              entries={entries}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
           </Suspense>
         </CardBody>
         <Suspense fallback={null}>

@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import type { KeyEntry } from "~/generated/graphql";
+import type {
+  GetPresignedDownloadUrlResponse,
+  GetPresignedUploadUrlResponse,
+  KeyEntry,
+  RenameKeyResponse,
+} from "~/generated/graphql";
 import styles from "./key-card.module.css";
 import { Card, CardBody, CardFooter } from "@sun/components";
 import Key from "~/components/key";
@@ -15,7 +20,8 @@ import {
   ContextMenuSubContent,
 } from "@sun/components";
 import { FileIcon, FolderIcon, MagnetIcon } from "lucide-react";
-import { executeMutation, MutationResult } from "@sun/ssr";
+import { executeMutation } from "@sun/ssr";
+import { revalidateKeys } from "~/utils/filestore-cache";
 import { ICON_SIZE } from "~/utils/const";
 import KeyActions from "../key-actions";
 import { Viewer } from "~/components/viewer";
@@ -51,18 +57,21 @@ const uploadFileToStorage = async ({
   const key = `${currentPath}${file.name}`;
   const contentType = file.type || "application/octet-stream";
 
-  const urlRes = await executeMutation("filestore/get-presigned-upload-url", {
-    bucket: bucketName,
-    key,
-    contentType,
-  });
-
-  if (urlRes.__typename !== "QuerySuccess" || !("id" in urlRes && urlRes.id)) {
-    console.error("[Upload] Failed to get presigned upload URL", urlRes);
+  let presignedUrl: string;
+  try {
+    const urlRes = await executeMutation<GetPresignedUploadUrlResponse>(
+      "filestore/get-presigned-upload-url",
+      {
+        bucket: bucketName,
+        key,
+        contentType,
+      },
+    );
+    presignedUrl = urlRes.url;
+  } catch (err) {
+    console.error("[Upload] Failed to get presigned upload URL", err);
     return;
   }
-
-  const presignedUrl = (urlRes as { id: string }).id;
 
   /**
    * Using XMLHttpRequest here instead of fetch to enable upload progress tracking,
@@ -87,16 +96,15 @@ const uploadFileToStorage = async ({
   });
 
   if (putRes.status !== 200) {
-    // An error happened
     return;
   }
 
-  // We can get res from here at some point if we want to
   await executeMutation("filestore/upload-complete", {
     bucket: bucketName,
     key,
     path: currentPath,
   });
+  revalidateKeys(bucketName, currentPath);
 };
 
 /**
@@ -215,28 +223,40 @@ const KeyCard = (props: KeyCardProps) => {
    */
   const handleCreateKey = async () => {
     const key = formatKeyPath(currentPath, null);
-    await executeMutation("filestore/put", {
-      bucket: bucketName,
-      key,
-      isFile: false,
-      path: currentPath,
-    });
+    try {
+      await executeMutation("filestore/put", {
+        bucket: bucketName,
+        key,
+        isFile: false,
+        path: currentPath,
+      });
+      revalidateKeys(bucketName, currentPath);
+    } catch (err) {
+      console.error("Failed to create key", err);
+    }
   };
 
   /**
    * Downloads a file using a presigned GET URL (direct from storage).
    */
   const handleFileDownload = async (keyPath: string) => {
-    const res = await executeMutation("filestore/get-presigned-download-url", {
-      bucket: bucketName,
-      key: keyPath,
-    });
-    if (res.__typename === "QuerySuccess" && res.id) {
+    try {
+      const res = await executeMutation<GetPresignedDownloadUrlResponse>(
+        "filestore/get-presigned-download-url",
+        {
+          bucket: bucketName,
+          key: keyPath,
+        },
+      );
       if (isEmulator && bridgeRef.current) {
-        bridgeRef.current.send(FILESTORE_EVENTS.FILE_DOWNLOAD, { url: res.id });
+        bridgeRef.current.send(FILESTORE_EVENTS.FILE_DOWNLOAD, {
+          url: res.url,
+        });
       } else {
-        window.location.href = res.id;
+        window.location.href = res.url;
       }
+    } catch (err) {
+      console.error("Failed to generate download URL", err);
     }
   };
 
@@ -245,12 +265,20 @@ const KeyCard = (props: KeyCardProps) => {
    * PDF in new tab, or fallback to download.
    */
   const handleFileOpen = async (keyPath: string) => {
-    const res = await executeMutation("filestore/get-presigned-download-url", {
-      bucket: bucketName,
-      key: keyPath,
-    });
-    if (res.__typename !== "QuerySuccess" || !res.id) return;
-    const url = res.id;
+    let url: string;
+    try {
+      const res = await executeMutation<GetPresignedDownloadUrlResponse>(
+        "filestore/get-presigned-download-url",
+        {
+          bucket: bucketName,
+          key: keyPath,
+        },
+      );
+      url = res.url;
+    } catch (err) {
+      console.error("Failed to generate download URL", err);
+      return;
+    }
     const lower = keyPath.toLowerCase();
 
     if (/\.(png|jpg|jpeg|gif|webp|bmp|svg)$/.test(lower)) {
@@ -277,17 +305,18 @@ const KeyCard = (props: KeyCardProps) => {
    */
   const handleFileDelete = useCallback(
     async (keyPath: string) => {
-      const res = await executeMutation("filestore/delete-file", {
-        bucket: bucketName,
-        key: keyPath,
-        path: currentPath,
-      });
-
-      if (!res || res.__typename !== "QuerySuccess") {
-        console.error("Failed to delete file");
+      try {
+        await executeMutation("filestore/delete-file", {
+          bucket: bucketName,
+          key: keyPath,
+          path: currentPath,
+        });
+        revalidateKeys(bucketName, currentPath);
+      } catch (err) {
+        console.error("Failed to delete file", err);
       }
     },
-    [bucketName],
+    [bucketName, currentPath],
   );
 
   /**
@@ -301,14 +330,21 @@ const KeyCard = (props: KeyCardProps) => {
     sourceKey: string,
     targetKey: string,
     merge: boolean,
-  ): Promise<MutationResult> => {
-    return await executeMutation("filestore/rename-key", {
-      bucket: bucketName,
-      sourceKey,
-      targetKey,
-      merge,
-      path: currentPath,
-    });
+  ): Promise<RenameKeyResponse> => {
+    const res = await executeMutation<RenameKeyResponse>(
+      "filestore/rename-key",
+      {
+        bucket: bucketName,
+        sourceKey,
+        targetKey,
+        merge,
+        path: currentPath,
+      },
+    );
+    if (res.success) {
+      revalidateKeys(bucketName, currentPath);
+    }
+    return res;
   };
 
   /**
@@ -358,12 +394,17 @@ const KeyCard = (props: KeyCardProps) => {
    */
   const handleCancelTorrent = useCallback(
     async (jobId: string) => {
-      await executeMutation("filestore/cancel-torrent", {
-        jobId,
-        bucket: bucketName,
-        path: currentPath,
-      });
-      onKeySelect?.(undefined);
+      try {
+        await executeMutation("filestore/cancel-torrent", {
+          jobId,
+          bucket: bucketName,
+          path: currentPath,
+        });
+        revalidateKeys(bucketName, currentPath);
+        onKeySelect?.(undefined);
+      } catch (err) {
+        console.error("Failed to cancel torrent", err);
+      }
     },
     [bucketName, currentPath, onKeySelect],
   );

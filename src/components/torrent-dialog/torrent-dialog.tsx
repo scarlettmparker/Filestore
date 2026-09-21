@@ -18,8 +18,12 @@ import {
 } from "@sun/components";
 import { executeMutation } from "@sun/ssr";
 import { useTranslation } from "react-i18next";
+import { revalidateKeys } from "~/utils/filestore-cache";
 import styles from "./torrent-dialog.module.css";
-import type { SearchTorrentsQuery } from "~/generated/graphql";
+import type {
+  AddTorrentResponse,
+  SearchTorrentsQuery,
+} from "~/generated/graphql";
 
 type TorrentDialogProps = {
   /**
@@ -124,18 +128,19 @@ const TorrentDialog = (props: TorrentDialogProps) => {
       return;
     }
     startTransition(async () => {
-      const res = await executeMutation("filestore/add-torrent", {
-        bucket: bucketName,
-        path: currentPath,
-        magnet: trimmed || null,
-        torrentFileBase64: torrentBase64,
-      });
-      if (res.__typename === "QuerySuccess") {
+      try {
+        await executeMutation<AddTorrentResponse>("filestore/add-torrent", {
+          bucket: bucketName,
+          path: currentPath,
+          magnet: trimmed || null,
+          torrentFileBase64: torrentBase64,
+        });
+        revalidateKeys(bucketName, currentPath);
         handleClose();
-      } else {
+      } catch (err) {
         setError(
-          "message" in res && res.message
-            ? res.message
+          err instanceof Error
+            ? err.message
             : t("torrent-dialog.error-generic"),
         );
       }
@@ -149,16 +154,13 @@ const TorrentDialog = (props: TorrentDialogProps) => {
     async (value: string) => {
       if (!value.trim()) return;
       setError(null);
-      const res = await executeMutation("filestore/search-torrents", {
-        query: value.trim(),
-      });
-      if (res.__typename === "QuerySuccess" && res.message) {
-        try {
-          setResults(JSON.parse(res.message as string));
-        } catch {
-          setError(t("torrent-dialog.search-error"));
-        }
-      } else {
+      try {
+        const results = await executeMutation<SearchResult[]>(
+          "filestore/search-torrents",
+          { query: value.trim() },
+        );
+        setResults(results);
+      } catch {
         setError(t("torrent-dialog.search-error"));
       }
     },
@@ -171,18 +173,19 @@ const TorrentDialog = (props: TorrentDialogProps) => {
   const handleSelectResult = useCallback(
     (result: SearchResult) => {
       startTransition(async () => {
-        const res = await executeMutation("filestore/add-torrent", {
-          bucket: bucketName,
-          path: currentPath,
-          magnet: result.magnet,
-          torrentFileBase64: null,
-        });
-        if (res.__typename === "QuerySuccess") {
+        try {
+          await executeMutation<AddTorrentResponse>("filestore/add-torrent", {
+            bucket: bucketName,
+            path: currentPath,
+            magnet: result.magnet,
+            torrentFileBase64: null,
+          });
+          revalidateKeys(bucketName, currentPath);
           handleClose();
-        } else {
+        } catch (err) {
           setError(
-            "message" in res && res.message
-              ? res.message
+            err instanceof Error
+              ? err.message
               : t("torrent-dialog.error-generic"),
           );
         }

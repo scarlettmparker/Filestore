@@ -1,14 +1,10 @@
-import {
-  defineMutation,
-  makeCacheKey,
-  type MutationContext,
-  type MutationResult,
-} from "@sun/ssr";
+import { defineMutation, MutationError, type MutationContext } from "@sun/ssr";
 import { executeDocument } from "@sun/api";
 import { tokenFrom } from "./context";
 import { clientId, clientSecret } from "../../config.js";
 import {
   ExpireTailscaleDeviceDocument,
+  type ExpireTailscaleDeviceResponse,
   type ExpireTailscaleDeviceMutation,
 } from "~/generated/graphql";
 import {
@@ -17,6 +13,11 @@ import {
   CreateIpWhitelistEntryDocument,
   UpdateIpWhitelistEntryDocument,
   DeleteIpWhitelistEntryDocument,
+  type SuspendAccountResponse,
+  type UnsuspendAccountResponse,
+  type CreateIpWhitelistEntryResponse,
+  type UpdateIpWhitelistEntryResponse,
+  type DeleteIpWhitelistEntryResponse,
   type SuspendAccountMutation,
   type CreateIpWhitelistEntryMutation,
   type UpdateIpWhitelistEntryMutation,
@@ -32,24 +33,17 @@ defineMutation({
   async handler(
     body: { id: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<SuspendAccountResponse> {
     const result = await executeDocument<SuspendAccountMutation>(
       SuspendAccountDocument,
       { id: body.id },
       tokenFrom(context),
     );
-    const data = result.data?.gaiaMutations?.suspendAccount as
-      MutationResult | undefined;
-    return {
-      ...(data ?? {
-        __typename: "StandardError",
-        message: result.error || "Failed to suspend account.",
-      }),
-      invalidated: [
-        makeCacheKey("accounts:accounts", { page: "*" }),
-        makeCacheKey("admin/:id:account", { id: body.id }),
-      ],
-    } as MutationResult;
+    const response = result.data?.gaiaMutations?.suspendAccount;
+    if (response == null) {
+      throw new MutationError(result.error || "Failed to suspend account.");
+    }
+    return response;
   },
 });
 
@@ -66,7 +60,7 @@ defineMutation({
       enabled?: boolean;
     },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<CreateIpWhitelistEntryResponse> {
     const result = await executeDocument<CreateIpWhitelistEntryMutation>(
       CreateIpWhitelistEntryDocument,
       {
@@ -79,15 +73,13 @@ defineMutation({
       },
       tokenFrom(context),
     );
-    const data = result.data?.gaiaMutations?.createIpWhitelistEntry as
-      MutationResult | undefined;
-    return {
-      ...(data ?? {
-        __typename: "StandardError",
-        message: result.error || "Failed to create IP whitelist entry.",
-      }),
-      invalidated: [makeCacheKey("ipEntries:ipEntries", {})],
-    } as MutationResult;
+    const response = result.data?.gaiaMutations?.createIpWhitelistEntry;
+    if (response == null) {
+      throw new MutationError(
+        result.error || "Failed to create IP whitelist entry.",
+      );
+    }
+    return response;
   },
 });
 
@@ -104,22 +96,20 @@ defineMutation({
       enabled?: boolean;
     },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<UpdateIpWhitelistEntryResponse> {
     const { id, ...input } = body;
     const result = await executeDocument<UpdateIpWhitelistEntryMutation>(
       UpdateIpWhitelistEntryDocument,
       { id, input },
       tokenFrom(context),
     );
-    const data = result.data?.gaiaMutations?.updateIpWhitelistEntry as
-      MutationResult | undefined;
-    return {
-      ...(data ?? {
-        __typename: "StandardError",
-        message: result.error || "Failed to update IP whitelist entry.",
-      }),
-      invalidated: [makeCacheKey("ipEntries:ipEntries", {})],
-    } as MutationResult;
+    const response = result.data?.gaiaMutations?.updateIpWhitelistEntry;
+    if (response == null) {
+      throw new MutationError(
+        result.error || "Failed to update IP whitelist entry.",
+      );
+    }
+    return response;
   },
 });
 
@@ -131,21 +121,19 @@ defineMutation({
   async handler(
     body: { id: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<DeleteIpWhitelistEntryResponse> {
     const result = await executeDocument<DeleteIpWhitelistEntryMutation>(
       DeleteIpWhitelistEntryDocument,
       { id: body.id },
       tokenFrom(context),
     );
-    const data = result.data?.gaiaMutations?.deleteIpWhitelistEntry as
-      MutationResult | undefined;
-    return {
-      ...(data ?? {
-        __typename: "StandardError",
-        message: result.error || "Failed to delete IP whitelist entry.",
-      }),
-      invalidated: [makeCacheKey("ipEntries:ipEntries", {})],
-    } as MutationResult;
+    const response = result.data?.gaiaMutations?.deleteIpWhitelistEntry;
+    if (response == null) {
+      throw new MutationError(
+        result.error || "Failed to delete IP whitelist entry.",
+      );
+    }
+    return response;
   },
 });
 
@@ -157,24 +145,17 @@ defineMutation({
   async handler(
     body: { id: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<UnsuspendAccountResponse> {
     const result = await executeDocument<UnsuspendAccountMutation>(
       UnsuspendAccountDocument,
       { id: body.id },
       tokenFrom(context),
     );
-    const data = result.data?.gaiaMutations?.unsuspendAccount as
-      MutationResult | undefined;
-    return {
-      ...(data ?? {
-        __typename: "StandardError",
-        message: result.error || "Failed to unsuspend account.",
-      }),
-      invalidated: [
-        makeCacheKey("accounts:accounts", { page: "*" }),
-        makeCacheKey("admin/:id:account", { id: body.id }),
-      ],
-    } as MutationResult;
+    const response = result.data?.gaiaMutations?.unsuspendAccount;
+    if (response == null) {
+      throw new MutationError(result.error || "Failed to unsuspend account.");
+    }
+    return response;
   },
 });
 
@@ -184,34 +165,25 @@ defineMutation({
  */
 defineMutation({
   path: "headscale/generate-key",
-  async handler(body: { expiry: string }): Promise<MutationResult> {
-    try {
-      const backendUrl =
-        process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
-        "http://localhost:8083";
-      const res = await fetch(
-        `${backendUrl}/api/headscale/preauth-key?expiry=${encodeURIComponent(body.expiry)}`,
-        {
-          headers: { "X-Client-Id": clientId, "X-Client-Secret": clientSecret },
-        },
-      );
-      if (!res.ok) {
-        return {
-          __typename: "StandardError",
-          message: `Backend returned ${res.status}`,
-        };
-      }
-      const keyText = res.headers.get("X-Preauth-Key") || "";
-      const buffer = await res.arrayBuffer();
-      const base64 = Buffer.from(buffer).toString("base64");
-      return {
-        __typename: "QuerySuccess",
-        message: keyText,
-        id: `data:image/png;base64,${base64}`,
-      };
-    } catch (e) {
-      return { __typename: "StandardError", message: String(e) };
+  async handler(
+    body: { expiry: string },
+  ): Promise<{ qrDataUrl: string; keyText: string }> {
+    const backendUrl =
+      process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
+      "http://localhost:8083";
+    const res = await fetch(
+      `${backendUrl}/api/headscale/preauth-key?expiry=${encodeURIComponent(body.expiry)}`,
+      {
+        headers: { "X-Client-Id": clientId, "X-Client-Secret": clientSecret },
+      },
+    );
+    if (!res.ok) {
+      throw new MutationError(`Backend returned ${res.status}`);
     }
+    const keyText = res.headers.get("X-Preauth-Key") || "";
+    const buffer = await res.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString("base64");
+    return { qrDataUrl: `data:image/png;base64,${base64}`, keyText };
   },
 });
 
@@ -220,34 +192,22 @@ defineMutation({
  */
 defineMutation({
   path: "headscale/expire-node",
-  async handler(body: { id: number }): Promise<MutationResult> {
-    try {
-      const backendUrl =
-        process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
-        "http://localhost:8083";
-      const headers = {
-        "X-Client-Id": clientId,
-        "X-Client-Secret": clientSecret,
-      };
-      const res = await fetch(
-        `${backendUrl}/api/headscale/nodes/${body.id}/expire`,
-        { method: "POST", headers },
-      );
-      if (!res.ok) {
-        return {
-          __typename: "StandardError",
-          message: `Backend returned ${res.status}`,
-        };
-      }
-      return {
-        __typename: "QuerySuccess",
-        message: "Node expired",
-        id: "",
-        invalidated: [makeCacheKey("tailscaleNodes:tailscaleNodes", {})],
-      };
-    } catch (e) {
-      return { __typename: "StandardError", message: String(e) };
+  async handler(body: { id: number }): Promise<{ message: string }> {
+    const backendUrl =
+      process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
+      "http://localhost:8083";
+    const headers = {
+      "X-Client-Id": clientId,
+      "X-Client-Secret": clientSecret,
+    };
+    const res = await fetch(
+      `${backendUrl}/api/headscale/nodes/${body.id}/expire`,
+      { method: "POST", headers },
+    );
+    if (!res.ok) {
+      throw new MutationError(`Backend returned ${res.status}`);
     }
+    return { message: "Node expired" };
   },
 });
 
@@ -259,20 +219,16 @@ defineMutation({
   async handler(
     body: { id: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<ExpireTailscaleDeviceResponse> {
     const result = await executeDocument<ExpireTailscaleDeviceMutation>(
       ExpireTailscaleDeviceDocument,
       { id: body.id },
       tokenFrom(context),
     );
-    const data = result.data?.gaiaMutations?.expireTailscaleDevice as
-      MutationResult | undefined;
-    return {
-      ...(data ?? {
-        __typename: "StandardError",
-        message: result.error || "Failed to expire Tailscale device.",
-      }),
-      invalidated: [makeCacheKey("tailscaleDevices:tailscaleDevices", {})],
-    } as MutationResult;
+    const response = result.data?.gaiaMutations?.expireTailscaleDevice;
+    if (response == null) {
+      throw new MutationError(result.error || "Failed to expire Tailscale device.");
+    }
+    return response;
   },
 });

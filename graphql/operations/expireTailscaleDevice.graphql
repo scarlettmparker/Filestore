@@ -1,13 +1,18 @@
 mutation expireTailscaleDevice($id: ID!) {
   gaiaMutations {
     expireTailscaleDevice(id: $id) {
-      __typename
-      ... on QuerySuccess {
-        message
+      message
+      device {
         id
-      }
-      ... on StandardError {
-        message
+        headscaleId
+        name
+        ipv4
+        status
+        online
+        expiredAt
+        lastSeen
+        createdAt
+        updatedAt
       }
     }
   }

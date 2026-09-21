@@ -1,5 +1,9 @@
 import { FileIcon, FolderIcon } from "lucide-react";
-import { KeyEntry, TorrentJobStatus } from "~/generated/graphql";
+import {
+  KeyEntry,
+  TorrentJobStatus,
+  type RenameKeyResponse,
+} from "~/generated/graphql";
 import styles from "./key.module.css";
 
 function formatBytes(bytes: number | null | undefined): string {
@@ -14,7 +18,6 @@ import { cn, formatDate } from "@sun/utils";
 import { Button } from "@sun/components";
 import { ICON_SIZE } from "~/utils/const";
 import { Input } from "@sun/components";
-import { MutationResult } from "@sun/ssr";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ConfirmRenameDialog from "../confirm-rename-dialog";
@@ -35,7 +38,7 @@ type KeyProps = {
     sourceKey: string,
     targetKey: string,
     merge: boolean,
-  ) => Promise<MutationResult>;
+  ) => Promise<RenameKeyResponse>;
   /**
    * Current path for stripping out of dirs.
    */
@@ -125,9 +128,9 @@ const Key = (props: KeyProps) => {
         false,
       );
 
-      if (res.__typename === "FormError") {
+      if (res.hasConflicts) {
         setDialogMessage(res.message);
-      } else if (res.__typename === "StandardError") {
+      } else if (!res.success) {
         console.error(res.message);
       }
     }

@@ -1,7 +1,7 @@
 import { useState, Suspense, useCallback } from "react";
 import { useOutlet } from "react-router-dom";
-import { executeMutation } from "@sun/ssr";
-import { usePageData } from "@sun/ssr/react";
+import { executeMutation, patchPageData } from "@sun/ssr";
+import { useMutation, usePageData } from "@sun/ssr/react";
 import AccessTabs from "~/components/admin/access-tabs";
 import TailscaleCard from "~/components/admin/tailscale-card";
 import TailscaleQrDialog from "~/components/admin/tailscale-qr-dialog";
@@ -9,7 +9,11 @@ import TailscaleDetailPlaceholder from "~/components/admin/tailscale-detail-plac
 import ConfirmExpireNodeDialog from "~/components/admin/confirm-expire-node-dialog";
 import { IpDetailSkeleton } from "~/components/admin/skeletons";
 import TailscalePageSkeleton from "~/components/admin/tailscale-page-skeleton";
-import type { TailscaleDevice } from "~/generated/graphql";
+import {
+  DeviceStatus,
+  type ExpireTailscaleDeviceResponse,
+  type TailscaleDevice,
+} from "~/generated/graphql";
 import styles from "../../ip-config/ip-config.module.css";
 
 /**
@@ -23,10 +27,45 @@ const TailscaleContent = () => {
     name: string;
   } | null>(null);
 
-  const { data: devices } = usePageData<TailscaleDevice[]>(
+  const { data: devicesData } = usePageData<TailscaleDevice[]>(
     "tailscaleDevices",
     "tailscaleDevices",
   );
+
+  const [devices, expireDevice] = useMutation<
+    TailscaleDevice,
+    ExpireTailscaleDeviceResponse,
+    TailscaleDevice[]
+  >({
+    base: devicesData,
+    reducer: (current, device) =>
+      current.map((entry) =>
+        entry.id === device.id
+          ? { ...entry, status: DeviceStatus.Expired }
+          : entry,
+      ),
+    action: async (device) => {
+      await executeMutation("headscale/expire-node", {
+        id: device.headscaleId,
+      });
+      return executeMutation<ExpireTailscaleDeviceResponse>(
+        "gaia/expireTailscaleDevice",
+        { id: device.id },
+      );
+    },
+    onSuccess: (response) => {
+      patchPageData<TailscaleDevice[]>(
+        "tailscaleDevices",
+        "tailscaleDevices",
+        undefined,
+        (current) =>
+          (current ?? devicesData).map((device) =>
+            device.id === response.device.id ? response.device : device,
+          ),
+      );
+    },
+    onError: (error) => console.error(error.message),
+  });
 
   const handleExpireClick = useCallback(
     (deviceId: string, deviceName: string) => {
@@ -35,19 +74,14 @@ const TailscaleContent = () => {
     [],
   );
 
-  const handleExpireConfirm = useCallback(async () => {
+  const handleExpireConfirm = useCallback(() => {
     if (!expiringDevice) return;
-    const device = devices?.find((d) => d.id === expiringDevice.id);
+    const device = devices.find((d) => d.id === expiringDevice.id);
     if (device) {
-      await executeMutation("headscale/expire-node", {
-        id: device.headscaleId,
-      });
+      expireDevice(device);
     }
-    await executeMutation("gaia/expireTailscaleDevice", {
-      id: expiringDevice.id,
-    });
     setExpiringDevice(null);
-  }, [expiringDevice, devices]);
+  }, [expiringDevice, devices, expireDevice]);
 
   return (
     <>

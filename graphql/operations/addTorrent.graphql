@@ -1,13 +1,45 @@
 mutation addTorrent($input: AddTorrentInput!) {
   filestoreMutations {
     addTorrent(input: $input) {
-      id
-      bucket
-      targetKeyPath
-      status
-      progress
-      magnetDetail {
-        displayName
+      message
+      job {
+        id
+        bucket
+        targetKeyPath
+        sourceType
+        status
+        infoHash
+        totalBytes
+        downloadedBytes
+        uploadedBytes
+        progress
+        downloadRateBps
+        uploadRateBps
+        peersConnected
+        seedsConnected
+        etaSeconds
+        errorMessage
+        createdAt
+        completedAt
+        magnetDetail {
+          id
+          infoHash
+          infoHashVersion
+          displayName
+          sourceUri
+          totalSize
+          comment
+          createdBy
+          pieceLength
+          pieceCount
+          isPrivate
+          trackers
+          files {
+            indexInTorrent
+            path
+            size
+          }
+        }
       }
     }
   }

@@ -1,8 +1,46 @@
 mutation cancelTorrent($jobId: String!) {
   filestoreMutations {
     cancelTorrent(jobId: $jobId) {
-      id
-      status
+      message
+      job {
+        id
+        bucket
+        targetKeyPath
+        sourceType
+        status
+        infoHash
+        totalBytes
+        downloadedBytes
+        uploadedBytes
+        progress
+        downloadRateBps
+        uploadRateBps
+        peersConnected
+        seedsConnected
+        etaSeconds
+        errorMessage
+        createdAt
+        completedAt
+        magnetDetail {
+          id
+          infoHash
+          infoHashVersion
+          displayName
+          sourceUri
+          totalSize
+          comment
+          createdBy
+          pieceLength
+          pieceCount
+          isPrivate
+          trackers
+          files {
+            indexInTorrent
+            path
+            size
+          }
+        }
+      }
     }
   }
 }

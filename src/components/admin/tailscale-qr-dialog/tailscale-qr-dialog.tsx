@@ -54,10 +54,15 @@ const TailscaleQrDialog = (props: TailscaleQrDialogProps) => {
    * Generates a pre-auth key via the backend mutation.
    */
   const handleGenerate = useCallback(async () => {
-    const res = await executeMutation("headscale/generate-key", { expiry });
-    if (res.__typename === "QuerySuccess" && res.id) {
-      setQrDataUrl(res.id);
-      setKeyText(res.message || null);
+    try {
+      const res = await executeMutation<{
+        qrDataUrl: string;
+        keyText: string;
+      }>("headscale/generate-key", { expiry });
+      setQrDataUrl(res.qrDataUrl);
+      setKeyText(res.keyText || null);
+    } catch (err) {
+      console.error("Failed to generate pre-auth key", err);
     }
   }, [expiry]);
 

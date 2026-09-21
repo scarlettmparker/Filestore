@@ -30,8 +30,6 @@ export async function render(options: {
   clientJs: string;
   clientCss: string[];
   isProduction: boolean;
-  mutationPayload?: unknown;
-  invalidateCacheCookie?: string;
   frontendMode?: string;
 }) {
   const renderer = createRenderer({
@@ -72,8 +70,6 @@ export async function render(options: {
     clientJs: options.clientJs,
     clientCss: options.clientCss,
     isProduction: options.isProduction,
-    mutationPayload: options.mutationPayload as never,
-    invalidateCacheCookie: options.invalidateCacheCookie,
     frontendMode: options.frontendMode,
   });
 }

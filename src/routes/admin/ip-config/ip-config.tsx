@@ -10,9 +10,39 @@ import {
 import AddIpDialog from "~/components/admin/add-ip-dialog";
 import EditIpDialog from "~/components/admin/edit-ip-dialog";
 import ConfirmDeleteIpDialog from "~/components/admin/confirm-delete-ip-dialog";
-import { executeMutation } from "@sun/ssr";
-import type { IpWhitelistEntry } from "~/generated/graphql";
+import { executeMutation, patchPageData } from "@sun/ssr";
+import { useMutation, usePageData } from "@sun/ssr/react";
+import type {
+  CreateIpWhitelistEntryResponse,
+  DeleteIpWhitelistEntryResponse,
+  IpWhitelistEntry,
+  UpdateIpWhitelistEntryResponse,
+} from "~/generated/graphql";
 import styles from "./ip-config.module.css";
+
+/**
+ * Mutation payload for creating, updating, or deleting an IP whitelist entry.
+ */
+type IpEntryPayload =
+  | {
+      action: "create";
+      tempId: string;
+      pattern: string;
+      description: string | null;
+      immutable: boolean;
+      enabled: boolean;
+    }
+  | {
+      action: "update";
+      id: string;
+      pattern: string;
+      description: string | null;
+      enabled: boolean;
+    }
+  | {
+      action: "delete";
+      id: string;
+    };
 
 /**
  * IP whitelist configuration page.
@@ -28,23 +58,123 @@ const IpConfig = () => {
     null,
   );
 
+  const { data: entriesData } = usePageData<IpWhitelistEntry[]>(
+    "ipEntries",
+    "ipEntries",
+  );
+
+  const [entries, runEntry] = useMutation<
+    IpEntryPayload,
+    | CreateIpWhitelistEntryResponse
+    | UpdateIpWhitelistEntryResponse
+    | DeleteIpWhitelistEntryResponse,
+    IpWhitelistEntry[]
+  >({
+    base: entriesData,
+    reducer: (current, payload) => {
+      if (payload.action === "create") {
+        return [
+          ...current,
+          {
+            id: payload.tempId,
+            pattern: payload.pattern,
+            description: payload.description,
+            enabled: payload.enabled,
+            immutable: payload.immutable,
+            createdAt: null,
+            updatedAt: null,
+          },
+        ];
+      }
+      if (payload.action === "update") {
+        return current.map((entry) =>
+          entry.id === payload.id
+            ? {
+                ...entry,
+                pattern: payload.pattern,
+                description: payload.description,
+                enabled: payload.enabled,
+              }
+            : entry,
+        );
+      }
+      return current.filter((entry) => entry.id !== payload.id);
+    },
+    action: (payload) => {
+      if (payload.action === "create") {
+        return executeMutation<CreateIpWhitelistEntryResponse>(
+          "gaia/createIpWhitelistEntry",
+          {
+            pattern: payload.pattern,
+            description: payload.description,
+            immutable: payload.immutable,
+            enabled: payload.enabled,
+          },
+        );
+      }
+      if (payload.action === "update") {
+        return executeMutation<UpdateIpWhitelistEntryResponse>(
+          "gaia/updateIpWhitelistEntry",
+          {
+            id: payload.id,
+            pattern: payload.pattern,
+            description: payload.description,
+            enabled: payload.enabled,
+          },
+        );
+      }
+      return executeMutation<DeleteIpWhitelistEntryResponse>(
+        "gaia/deleteIpWhitelistEntry",
+        { id: payload.id },
+      );
+    },
+    onSuccess: (response, payload) => {
+      patchPageData<IpWhitelistEntry[]>(
+        "ipEntries",
+        "ipEntries",
+        undefined,
+        (current) => {
+          const list = current ?? entriesData;
+          if ("entry" in response) {
+            const tempId = payload.action === "create" ? payload.tempId : null;
+            const withoutTemp = tempId
+              ? list.filter((entry) => entry.id !== tempId)
+              : list;
+            const exists = withoutTemp.some(
+              (entry) => entry.id === response.entry.id,
+            );
+            return exists
+              ? withoutTemp.map((entry) =>
+                  entry.id === response.entry.id ? response.entry : entry,
+                )
+              : [...withoutTemp, response.entry];
+          }
+          return list.filter((entry) => entry.id !== response.id);
+        },
+      );
+    },
+    onError: (error) => console.error(error.message),
+  });
+
   const handleAdd = () => setAddOpen(true);
   const handleAddClose = () => setAddOpen(false);
   const handleAddSave = useCallback(
-    async (
+    (
       pattern: string,
       description: string | null,
       immutable: boolean,
       enabled: boolean,
     ) => {
-      await executeMutation("gaia/createIpWhitelistEntry", {
+      runEntry({
+        action: "create",
+        tempId: crypto.randomUUID(),
         pattern,
         description,
         immutable,
         enabled,
       });
     },
-    [],
+    [runEntry],
   );
 
   const handleEdit = useCallback((entry: IpWhitelistEntry) => {
@@ -55,21 +185,16 @@ const IpConfig = () => {
   }, []);
 
   const handleSave = useCallback(
-    async (
+    (
       id: string,
       pattern: string,
       description: string | null,
       enabled: boolean,
     ) => {
-      await executeMutation("gaia/updateIpWhitelistEntry", {
-        id,
-        pattern,
-        description,
-        enabled,
-      });
+      runEntry({ action: "update", id, pattern, description, enabled });
       setEditingEntry(null);
     },
-    [],
+    [runEntry],
   );
 
   const handleDelete = useCallback((entry: IpWhitelistEntry) => {
@@ -79,14 +204,12 @@ const IpConfig = () => {
     setDeletingEntry(null);
   }, []);
 
-  const handleDeleteConfirm = useCallback(async () => {
+  const handleDeleteConfirm = useCallback(() => {
     if (!deletingEntry) return;
-    await executeMutation("gaia/deleteIpWhitelistEntry", {
-      id: deletingEntry.id,
-    });
+    runEntry({ action: "delete", id: deletingEntry.id });
     setDeletingEntry(null);
     navigate("/admin/access/ip");
-  }, [deletingEntry, navigate]);
+  }, [deletingEntry, runEntry, navigate]);
 
   return (
     <Suspense fallback={<AdminPageSkeleton />}>
@@ -94,6 +217,7 @@ const IpConfig = () => {
         <div className={styles.items_list_panel}>
           <AccessTabs />
           <IpList
+            entries={entries}
             onAdd={handleAdd}
             onEdit={handleEdit}
             onDelete={handleDelete}

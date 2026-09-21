@@ -8,16 +8,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@sun/components";
-import { usePageData } from "@sun/ssr/react";
+import { useMutation, usePageData } from "@sun/ssr/react";
 import {
   EllipsisVerticalIcon,
   LockClosedIcon,
   LockOpenIcon,
 } from "@heroicons/react/24/outline";
-import { executeMutation } from "@sun/ssr";
+import { executeMutation, patchPageData } from "@sun/ssr";
 import ConfirmSuspendAccountDialog from "~/components/admin/confirm-suspend-account-dialog";
 import ConfirmUnsuspendAccountDialog from "~/components/admin/confirm-unsuspend-account-dialog";
-import type { PagedAccounts } from "~/generated/graphql";
+import {
+  AccountStatus,
+  type Account,
+  type PagedAccounts,
+  type SuspendAccountResponse,
+  type UnsuspendAccountResponse,
+} from "~/generated/graphql";
 import styles from "./user-list-items.module.css";
 
 type AdminUserListItemsProps = {
@@ -32,6 +38,20 @@ type AdminUserListItemsProps = {
 };
 
 /**
+ * Account and target status for a suspend/unsuspend toggle.
+ */
+type AccountToggle = {
+  /**
+   * Account being toggled.
+   */
+  account: Account;
+  /**
+   * Whether the account is being suspended.
+   */
+  suspended: boolean;
+};
+
+/**
  * Renders the account list body.
  */
 const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
@@ -39,11 +59,60 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
   const [suspendId, setSuspendId] = useState<string | null>(null);
   const [unsuspendId, setUnsuspendId] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
-  const { data } = usePageData<PagedAccounts>("accounts", "accounts", {
-    page: String(page),
-    search: search || undefined,
+  const params = { page: String(page), search: search || undefined };
+  const { data: accountsData } = usePageData<PagedAccounts>(
+    "accounts",
+    "accounts",
+    params,
+  );
+
+  const [accounts, toggleAccount] = useMutation<
+    AccountToggle,
+    SuspendAccountResponse | UnsuspendAccountResponse,
+    PagedAccounts
+  >({
+    base: accountsData,
+    reducer: (current, payload) => ({
+      ...current,
+      items: current.items.map((account) =>
+        account.id === payload.account.id
+          ? {
+              ...account,
+              status: payload.suspended
+                ? AccountStatus.Suspended
+                : AccountStatus.Active,
+            }
+          : account,
+      ),
+    }),
+    action: (payload) =>
+      payload.suspended
+        ? executeMutation<SuspendAccountResponse>("gaia/suspendAccount", {
+            id: payload.account.id,
+          })
+        : executeMutation<UnsuspendAccountResponse>("gaia/unsuspendAccount", {
+            id: payload.account.id,
+          }),
+    onSuccess: (response) => {
+      patchPageData<PagedAccounts>(
+        "accounts",
+        "accounts",
+        params,
+        (current) => {
+          const base = current ?? accountsData;
+          return {
+            ...base,
+            items: base.items.map((account) =>
+              account.id === response.account.id
+                ? response.account
+                : account,
+            ),
+          };
+        },
+      );
+    },
+    onError: (error) => console.error(error.message),
   });
-  const accounts = data;
 
   const suspendAccount = suspendId
     ? accounts?.items?.find((a) => a.id === suspendId)
@@ -109,11 +178,9 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
         <ConfirmSuspendAccountDialog
           open={!!suspendId}
           onClose={() => setSuspendId(null)}
-          onConfirm={async () => {
+          onConfirm={() => {
             setSuspendId(null);
-            await executeMutation("gaia/suspendAccount", {
-              id: suspendAccount.id,
-            });
+            toggleAccount({ account: suspendAccount, suspended: true });
           }}
           username={suspendAccount.username}
         />
@@ -122,11 +189,9 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
         <ConfirmUnsuspendAccountDialog
           open={!!unsuspendId}
           onClose={() => setUnsuspendId(null)}
-          onConfirm={async () => {
+          onConfirm={() => {
             setUnsuspendId(null);
-            await executeMutation("gaia/unsuspendAccount", {
-              id: unsuspendAccount.id,
-            });
+            toggleAccount({ account: unsuspendAccount, suspended: false });
           }}
           username={unsuspendAccount.username}
         />

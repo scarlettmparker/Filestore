@@ -1,10 +1,7 @@
 import {
   defineLoader,
-  invalidateCacheKeys,
-  invalidatePageData,
   defineMutation,
-  makeCacheKey,
-  type MutationResult,
+  MutationError,
   type MutationContext,
 } from "@sun/ssr";
 import { executeDocument } from "@sun/api";
@@ -24,23 +21,33 @@ import {
   PutKeyDocument,
   RenameKeyDocument,
   SearchTorrentsDocument,
-  type PutKeyMutation,
-  type DeleteFileMutation,
-  type DeleteKeyMutation,
-  type RenameKeyMutation,
+  type AddTorrentResponse,
+  type CancelTorrentResponse,
+  type DeleteFileResponse,
+  type DeleteKeyResponse,
+  type GetPresignedDownloadUrlResponse,
+  type GetPresignedUploadUrlResponse,
+  type PutKeyResponse,
+  type RenameKeyResponse,
+  type TorrentSearchResult,
   type AddTorrentMutation,
   type CancelTorrentMutation,
+  type DeleteFileMutation,
+  type DeleteKeyMutation,
   type GetPresignedUploadUrlMutation,
   type GetPresignedDownloadUrlMutation,
   type HealthQuery,
   type ListBucketsQuery,
   type ListKeysQuery,
   type LocateKeyDetailQuery,
+  type PutKeyMutation,
+  type RenameKeyMutation,
+  type SearchTorrentsQuery,
 } from "~/generated/graphql";
 
 /**
  * Body shape for key-list-affecting mutations: the bucket and, for nested
- * operations, the folder path used to compute the cache key to invalidate.
+ * operations, the folder path.
  */
 type BucketBody = {
   bucket: string;
@@ -49,55 +56,31 @@ type BucketBody = {
 };
 
 /**
- * Cache key for the keys list of a bucket, optionally at a folder path.
- */
-function keysCacheKey(bucket: string, path?: string): string {
-  const folderPath = path || "";
-  const pattern = folderPath ? "bucket/:alias/*" : "bucket/:alias";
-  const params: Record<string, unknown> = folderPath
-    ? { alias: bucket, path: folderPath }
-    : { alias: bucket };
-  return makeCacheKey(`${pattern}:keys`, params);
-}
-
-/**
- * Puts a file or key, then invalidates the bucket's keys list.
+ * Puts a file or key.
  */
 defineMutation({
   path: "filestore/put",
   async handler(
     body: BucketBody,
     context: MutationContext,
-  ): Promise<MutationResult> {
-    const { bucket, key, path } = body;
+  ): Promise<PutKeyResponse> {
+    const { bucket, key } = body;
     if (!bucket) {
-      return {
-        __typename: "StandardError",
-        message: "Invalid input: bucket required",
-      };
+      throw new MutationError("Invalid input: bucket required");
     }
     if (key !== undefined && key !== null && typeof key !== "string") {
-      return {
-        __typename: "StandardError",
-        message: "Invalid input: key must be a string or null",
-      };
+      throw new MutationError("Invalid input: key must be a string or null");
     }
     const result = await executeDocument<PutKeyMutation>(
       PutKeyDocument,
       { input: { bucket, key: key ?? null } },
       tokenFrom(context),
     );
-    if (result.data?.filestoreMutations?.putKey) {
-      const cacheKey = keysCacheKey(bucket, path);
-      invalidateCacheKeys([cacheKey]);
-      return {
-        __typename: "QuerySuccess",
-        message: "Uploaded",
-        id: "",
-        invalidated: [cacheKey],
-      };
+    const response = result.data?.filestoreMutations?.putKey;
+    if (response == null) {
+      throw new MutationError(result.error ?? "Failed to put file/key");
     }
-    return { __typename: "StandardError", message: "Failed to put file/key" };
+    return response;
   },
 });
 
@@ -109,7 +92,7 @@ defineMutation({
   async handler(
     body: { bucket: string; key: string; contentType?: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<GetPresignedUploadUrlResponse> {
     const result = await executeDocument<GetPresignedUploadUrlMutation>(
       GetPresignedUploadUrlDocument,
       {
@@ -122,14 +105,11 @@ defineMutation({
       },
       tokenFrom(context),
     );
-    const url = result.data?.filestoreMutations?.getPresignedUploadUrl as
-      string | undefined;
-    return url
-      ? { __typename: "QuerySuccess", message: "URL generated", id: url }
-      : {
-          __typename: "StandardError",
-          message: "Failed to generate presigned URL",
-        };
+    const response = result.data?.filestoreMutations?.getPresignedUploadUrl;
+    if (response == null) {
+      throw new MutationError(result.error ?? "Failed to generate presigned URL");
+    }
+    return response;
   },
 });
 
@@ -141,33 +121,31 @@ defineMutation({
   async handler(
     body: { bucket: string; key: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<GetPresignedDownloadUrlResponse> {
     const result = await executeDocument<GetPresignedDownloadUrlMutation>(
       GetPresignedDownloadUrlDocument,
       { input: { bucket: body.bucket, key: body.key } },
       tokenFrom(context),
     );
-    const url = result.data?.filestoreMutations?.getPresignedDownloadUrl as
-      string | undefined;
-    return url
-      ? { __typename: "QuerySuccess", message: "URL generated", id: url }
-      : {
-          __typename: "StandardError",
-          message: "Failed to generate presigned download URL",
-        };
+    const response = result.data?.filestoreMutations?.getPresignedDownloadUrl;
+    if (response == null) {
+      throw new MutationError(
+        result.error ?? "Failed to generate presigned download URL",
+      );
+    }
+    return response;
   },
 });
 
 /**
- * Invalidates the keys list after a direct presigned upload completes.
+ * Notifies the backend that a direct presigned upload completed.
  * Also triggers transcoding for MKV/AVI files.
  */
 defineMutation({
   path: "filestore/upload-complete",
-  async handler(body: BucketBody & { key?: string }): Promise<MutationResult> {
-    const cacheKey = keysCacheKey(body.bucket, body.path);
-    invalidateCacheKeys([cacheKey]);
-
+  async handler(
+    body: BucketBody & { key?: string },
+  ): Promise<{ message: string; key: string }> {
     const key = body.key ?? "";
     if (key.endsWith(".mkv") || key.endsWith(".avi")) {
       const backendUrl =
@@ -180,81 +158,58 @@ defineMutation({
       }).catch((err) => console.error("Transcode failed:", err));
     }
 
-    return {
-      __typename: "QuerySuccess",
-      message: "Uploaded successfully",
-      id: "",
-      invalidated: [cacheKey],
-    };
+    return { message: "Uploaded successfully", key };
   },
 });
 
 /**
- * Deletes a single file, then invalidates the keys list.
+ * Deletes a single file.
  */
 defineMutation({
   path: "filestore/delete-file",
   async handler(
     body: BucketBody & { key: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
-    const { bucket, key, path } = body;
-    const cacheKey = keysCacheKey(bucket, path);
+  ): Promise<DeleteFileResponse> {
+    const { bucket, key } = body;
     const result = await executeDocument<DeleteFileMutation>(
       DeleteFileDocument,
       { input: { bucket, key } },
       tokenFrom(context),
     );
-    if (result.data?.filestoreMutations?.deleteFile) {
-      invalidateCacheKeys([cacheKey]);
-      return {
-        __typename: "QuerySuccess",
-        message: "Deleted successfully",
-        id: "",
-        invalidated: [cacheKey],
-      };
+    const response = result.data?.filestoreMutations?.deleteFile;
+    if (response == null) {
+      throw new MutationError(result.error ?? "Failed to delete file");
     }
-    return { __typename: "StandardError", message: "Failed to delete file" };
+    return response;
   },
 });
 
 /**
- * Deletes a key (folder or file) and its contents; invalidates nested lists.
+ * Deletes a key (folder or file) and its contents.
  */
 defineMutation({
   path: "filestore/delete-key",
   async handler(
     body: BucketBody & { key: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
-    const { bucket, key, path } = body;
-    const cacheKey = keysCacheKey(bucket, path);
+  ): Promise<DeleteKeyResponse> {
+    const { bucket, key } = body;
     const result = await executeDocument<DeleteKeyMutation>(
       DeleteKeyDocument,
       { input: { bucket, key } },
       tokenFrom(context),
     );
-    if (result.data?.filestoreMutations?.deleteKey) {
-      const cleanKey = key.endsWith("/") ? key : key + "/";
-      const nestedKeys = makeCacheKey("bucket/:alias/*:keys", {
-        alias: bucket,
-        path: `${cleanKey}*`,
-      });
-      const invalidated = [nestedKeys, cacheKey];
-      invalidateCacheKeys(invalidated);
-      return {
-        __typename: "QuerySuccess",
-        message: "Deleted successfully",
-        id: "",
-        invalidated,
-      };
+    const response = result.data?.filestoreMutations?.deleteKey;
+    if (response == null) {
+      throw new MutationError(result.error ?? "Failed to delete key");
     }
-    return { __typename: "StandardError", message: "Failed to delete key" };
+    return response;
   },
 });
 
 /**
- * Renames a key, handling merges and conflicts; invalidates source + target.
+ * Renames a key, reporting merge conflicts when merge is false.
  */
 defineMutation({
   path: "filestore/rename-key",
@@ -265,46 +220,23 @@ defineMutation({
       merge?: boolean;
     },
     context: MutationContext,
-  ): Promise<MutationResult> {
-    const { bucket, sourceKey, targetKey, path, merge } = body;
-    const cacheKey = keysCacheKey(bucket, path);
+  ): Promise<RenameKeyResponse> {
+    const { bucket, sourceKey, targetKey, merge } = body;
     const result = await executeDocument<RenameKeyMutation>(
       RenameKeyDocument,
       { input: { bucket, sourceKey, targetKey, merge: merge ?? false } },
       tokenFrom(context),
     );
-    const renameResult = result.data?.filestoreMutations?.renameKey;
-    if (renameResult?.success) {
-      const cleanSource = sourceKey.endsWith("/") ? sourceKey : sourceKey + "/";
-      const cleanTarget = targetKey.endsWith("/") ? targetKey : targetKey + "/";
-      const invalidated = [
-        cacheKey,
-        makeCacheKey("bucket/:alias/*:keys", {
-          alias: bucket,
-          path: `${cleanSource}*`,
-        }),
-        makeCacheKey("bucket/:alias/*:keys", {
-          alias: bucket,
-          path: `${cleanTarget}*`,
-        }),
-      ];
-      invalidateCacheKeys(invalidated);
-      return {
-        __typename: "QuerySuccess",
-        message: "Renamed successfully",
-        id: "",
-        invalidated,
-      };
-    } else if (renameResult?.hasConflicts) {
-      return { __typename: "FormError", message: "Rename has conflicts" };
+    const response = result.data?.filestoreMutations?.renameKey;
+    if (response == null) {
+      throw new MutationError(result.error ?? "Failed to rename key");
     }
-    return { __typename: "StandardError", message: "Failed to rename key" };
+    return response;
   },
 });
 
 /**
- * Starts a torrent download into the bucket; invalidates the keys list so the
- * in-progress key appears immediately.
+ * Starts a torrent download into the bucket.
  */
 defineMutation({
   path: "filestore/add-torrent",
@@ -316,13 +248,10 @@ defineMutation({
       torrentFileBase64?: string;
     },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<AddTorrentResponse> {
     const { bucket, path, magnet, torrentFileBase64 } = body;
     if (!bucket) {
-      return {
-        __typename: "StandardError",
-        message: "Invalid input: bucket required",
-      };
+      throw new MutationError("Invalid input: bucket required");
     }
     const result = await executeDocument<AddTorrentMutation>(
       AddTorrentDocument,
@@ -336,19 +265,11 @@ defineMutation({
       },
       tokenFrom(context),
     );
-    const data = result.data?.filestoreMutations?.addTorrent as
-      { id: string } | undefined;
-    if (data) {
-      const cacheKey = keysCacheKey(bucket, path ?? "");
-      invalidatePageData([cacheKey]);
-      return {
-        __typename: "QuerySuccess",
-        message: "Torrent added",
-        id: data.id,
-        invalidated: [cacheKey],
-      };
+    const response = result.data?.filestoreMutations?.addTorrent;
+    if (response == null) {
+      throw new MutationError(result.error ?? "Failed to add torrent");
     }
-    return { __typename: "StandardError", message: "Failed to add torrent" };
+    return response;
   },
 });
 
@@ -360,26 +281,20 @@ defineMutation({
   async handler(
     body: { jobId: string; bucket: string; path?: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<CancelTorrentResponse> {
     if (!body.jobId) {
-      return { __typename: "StandardError", message: "jobId required" };
+      throw new MutationError("jobId required");
     }
     const result = await executeDocument<CancelTorrentMutation>(
       CancelTorrentDocument,
       { jobId: body.jobId },
       tokenFrom(context),
     );
-    if (result.data?.filestoreMutations?.cancelTorrent) {
-      const cacheKey = keysCacheKey(body.bucket, body.path);
-      invalidatePageData([cacheKey]);
-      return {
-        __typename: "QuerySuccess",
-        message: "Torrent cancelled",
-        id: "",
-        invalidated: [cacheKey],
-      };
+    const response = result.data?.filestoreMutations?.cancelTorrent;
+    if (response == null) {
+      throw new MutationError(result.error ?? "Failed to cancel torrent");
     }
-    return { __typename: "StandardError", message: "Failed to cancel torrent" };
+    return response;
   },
 });
 
@@ -391,22 +306,17 @@ defineMutation({
   async handler(
     body: { query: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
-    const result = await executeDocument<{
-      filestoreQueries: { searchTorrents: Record<string, unknown>[] | null };
-    }>(SearchTorrentsDocument, { query: body.query }, tokenFrom(context));
+  ): Promise<TorrentSearchResult[]> {
+    const result = await executeDocument<SearchTorrentsQuery>(
+      SearchTorrentsDocument,
+      { query: body.query },
+      tokenFrom(context),
+    );
     const results = result.data?.filestoreQueries?.searchTorrents;
-    if (results) {
-      return {
-        __typename: "QuerySuccess",
-        message: JSON.stringify(results),
-        id: "",
-      };
+    if (results == null) {
+      throw new MutationError(result.error || "Search failed");
     }
-    return {
-      __typename: "StandardError",
-      message: result.error || "Search failed",
-    };
+    return results;
   },
 });
 

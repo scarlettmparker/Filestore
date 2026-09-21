@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import VideoViewer from "~/components/video-viewer";
 import { executeMutation } from "@sun/ssr";
+import type { GetPresignedDownloadUrlResponse } from "~/generated/graphql";
 
 /**
  * Route component for the video viewer page. Reads bucket and key from
@@ -17,27 +18,33 @@ const ViewerRoute = () => {
     if (!bucket || !key) return;
     let cancelled = false;
     (async () => {
-      // For MKV/AVI originals, try the transcoded MP4 version first.
-      if (key.endsWith(".mkv") || key.endsWith(".avi")) {
-        const res = await executeMutation(
+      try {
+        if (key.endsWith(".mkv") || key.endsWith(".avi")) {
+          const res = await executeMutation<GetPresignedDownloadUrlResponse>(
+            "filestore/get-presigned-download-url",
+            { bucket, key: key + ".mp4" },
+          );
+          if (!cancelled && res.url) {
+            setSrc(res.url);
+            return;
+          }
+        }
+        const res = await executeMutation<GetPresignedDownloadUrlResponse>(
           "filestore/get-presigned-download-url",
-          { bucket, key: key + ".mp4" },
+          { bucket, key },
         );
-        if (!cancelled && res.__typename === "QuerySuccess" && res.id) {
-          setSrc(res.id);
-          return;
+        if (!cancelled && res.url) {
+          setSrc(res.url);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Failed to resolve video URL", err);
         }
       }
-      // Fall back to the original file
-      const res = await executeMutation(
-        "filestore/get-presigned-download-url",
-        { bucket, key },
-      );
-      if (!cancelled && res.__typename === "QuerySuccess" && res.id) {
-        setSrc(res.id);
-      }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [bucket, key]);
 
   if (!bucket || !key) {
