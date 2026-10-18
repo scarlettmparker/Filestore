@@ -1,6 +1,6 @@
 import { defineConfig } from "vitest/config";
 import preact from "@preact/preset-vite";
-import { forbidModules } from "@sun/build";
+import { forbidModules, stripJsxPragma } from "@sun/build";
 import { visualizer } from "rollup-plugin-visualizer";
 import path from "node:path";
 
@@ -11,7 +11,7 @@ export default defineConfig(() => {
       .filter(Boolean) ?? [];
 
   return {
-    plugins: [preact(), forbidModules(["react", "react-dom"])],
+    plugins: [preact(), stripJsxPragma("preact-heroicons"), forbidModules(["react", "react-dom"])],
     resolve: {
       alias: {
         "~": path.resolve(import.meta.dirname, "./src"),
