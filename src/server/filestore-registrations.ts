@@ -299,7 +299,7 @@ defineMutation({
 });
 
 /**
- * Searches Jackett for torrents matching the query.
+ * Searches Prowlarr for torrents matching the query.
  */
 defineMutation({
   path: "filestore/search-torrents",

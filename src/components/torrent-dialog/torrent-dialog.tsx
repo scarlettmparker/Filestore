@@ -148,7 +148,7 @@ const TorrentDialog = (props: TorrentDialogProps) => {
   }, [magnet, torrentBase64, bucketName, currentPath, handleClose, t]);
 
   /**
-   * Searches Jackett for torrents matching the query.
+   * Searches Prowlarr for torrents matching the query.
    */
   const handleSearch = useCallback(
     async (value: string) => {
