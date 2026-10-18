@@ -1,5 +1,5 @@
 import { Card, CardBody } from "@sun/components";
-import { WrenchIcon } from "@heroicons/react/24/outline";
+import { WrenchOutline } from "preact-heroicons";
 import { useTranslation } from "react-i18next";
 import styles from "./ip-detail-placeholder.module.css";
 
@@ -12,7 +12,7 @@ const IpDetailPlaceholder = () => {
   return (
     <Card>
       <CardBody className={styles.placeholder_body}>
-        <WrenchIcon width={48} height={48} />
+        <WrenchOutline width={48} height={48} />
         <p>{t("ip-select")}</p>
       </CardBody>
     </Card>

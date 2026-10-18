@@ -1,4 +1,4 @@
-import { FileIcon, FolderIcon } from "lucide-react";
+import { FileIcon, FolderIcon } from "lucide-preact";
 import {
   KeyEntry,
   TorrentJobStatus,

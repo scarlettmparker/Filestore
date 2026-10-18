@@ -1,5 +1,5 @@
 import { Card, CardBody } from "@sun/components";
-import { FolderOpen } from "lucide-react";
+import { FolderOpen } from "lucide-preact";
 import { TFunction } from "i18next";
 import styles from "./key-detail-placeholder.module.css";
 

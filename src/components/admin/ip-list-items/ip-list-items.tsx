@@ -8,11 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@sun/components";
-import {
-  EllipsisVerticalIcon,
-  TrashIcon,
-  PencilSquareIcon,
-} from "@heroicons/react/24/outline";
+import { EllipsisVerticalOutline, TrashOutline, PencilSquareOutline } from "preact-heroicons";
 import type { IpWhitelistEntry } from "~/generated/graphql";
 import styles from "./ip-list-items.module.css";
 
@@ -56,7 +52,7 @@ const IpListItems = (props: IpListItemsProps) => {
                 <span className={styles.list_actions}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <EllipsisVerticalIcon
+                      <EllipsisVerticalOutline
                         width={16}
                         height={16}
                         onClick={(e: React.MouseEvent) => {
@@ -67,11 +63,11 @@ const IpListItems = (props: IpListItemsProps) => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem onClick={() => onEdit(entry)}>
-                        <PencilSquareIcon width={16} height={16} />
+                        <PencilSquareOutline width={16} height={16} />
                         {t("edit-ip")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onDelete(entry)}>
-                        <TrashIcon width={16} height={16} />
+                        <TrashOutline width={16} height={16} />
                         {t("ip-delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>

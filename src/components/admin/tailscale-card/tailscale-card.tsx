@@ -6,7 +6,7 @@ import {
   CardTitle,
   Button,
 } from "@sun/components";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PlusOutline } from "preact-heroicons";
 import { useTranslation } from "react-i18next";
 import TailscaleNodeList from "~/components/admin/tailscale-node-list";
 import type { TailscaleDevice } from "~/generated/graphql";
@@ -45,7 +45,7 @@ const TailscaleCard = (props: TailscaleCardProps) => {
           title={t("tailscale.generate-qr")}
           aria-label={t("tailscale.generate-qr")}
         >
-          <PlusIcon width={16} height={16} />
+          <PlusOutline width={16} height={16} />
           {t("tailscale.generate-qr")}
         </Button>
       </CardHeader>

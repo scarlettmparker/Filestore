@@ -15,7 +15,7 @@ import {
   VolumeX,
   Maximize,
   Minimize,
-} from "lucide-react";
+} from "lucide-preact";
 import { useTranslation } from "react-i18next";
 import styles from "./video-viewer.module.css";
 

@@ -6,7 +6,7 @@ import {
   DialogTitle,
   Button,
 } from "@sun/components";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-preact";
 import { useTranslation } from "react-i18next";
 import { cn } from "@sun/utils";
 import styles from "./image-viewer.module.css";

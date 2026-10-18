@@ -9,11 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@sun/components";
 import { useMutation, usePageData } from "@sun/ssr/react";
-import {
-  EllipsisVerticalIcon,
-  LockClosedIcon,
-  LockOpenIcon,
-} from "@heroicons/react/24/outline";
+import { EllipsisVerticalOutline, LockClosedOutline, LockOpenOutline } from "preact-heroicons";
 import { executeMutation, patchPageData } from "@sun/ssr";
 import ConfirmSuspendAccountDialog from "~/components/admin/confirm-suspend-account-dialog";
 import ConfirmUnsuspendAccountDialog from "~/components/admin/confirm-unsuspend-account-dialog";
@@ -141,7 +137,7 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
                 <span className={styles.list_actions}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <EllipsisVerticalIcon
+                      <EllipsisVerticalOutline
                         width={16}
                         height={16}
                         onClick={(e: React.MouseEvent) => {
@@ -155,14 +151,14 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
                         <DropdownMenuItem
                           onClick={() => setUnsuspendId(account.id)}
                         >
-                          <LockOpenIcon width={16} height={16} />
+                          <LockOpenOutline width={16} height={16} />
                           {t("unsuspend-account")}
                         </DropdownMenuItem>
                       ) : (
                         <DropdownMenuItem
                           onClick={() => setSuspendId(account.id)}
                         >
-                          <LockClosedIcon width={16} height={16} />
+                          <LockClosedOutline width={16} height={16} />
                           {t("suspend-account")}
                         </DropdownMenuItem>
                       )}

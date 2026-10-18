@@ -9,7 +9,7 @@ import {
   Edit,
   XCircle,
   Eye,
-} from "lucide-react";
+} from "lucide-preact";
 import { useContext } from "react";
 import { ICON_SIZE } from "~/utils/const";
 import { KeyEntry } from "~/generated/graphql";

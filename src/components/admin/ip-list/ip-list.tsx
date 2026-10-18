@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@sun/components";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PlusOutline } from "preact-heroicons";
 import IpListItems from "~/components/admin/ip-list-items";
 import IpListFooter from "~/components/admin/ip-list-footer";
 import type { IpWhitelistEntry } from "~/generated/graphql";
@@ -45,7 +45,7 @@ const IpList = (props: IpListProps) => {
               onClick={onAdd}
               title={t("add-ip-title")}
             >
-              <PlusIcon width={16} height={16} />
+              <PlusOutline width={16} height={16} />
               {t("add-ip-title")}
             </Button>
           </CardTitle>

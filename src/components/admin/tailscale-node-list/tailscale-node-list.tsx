@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@sun/components";
-import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalOutline, TrashOutline } from "preact-heroicons";
 import { useTranslation } from "react-i18next";
 import type { TailscaleDevice } from "~/generated/graphql";
 import styles from "./tailscale-node-list.module.css";
@@ -58,14 +58,14 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
                     e.preventDefault();
                   }}
                 >
-                  <EllipsisVerticalIcon width={16} height={16} />
+                  <EllipsisVerticalOutline width={16} height={16} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={() => onExpire(device.id, device.name)}
                   >
-                    <TrashIcon width={16} height={16} />
+                    <TrashOutline width={16} height={16} />
                     {t("tailscale.expire")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>

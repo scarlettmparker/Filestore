@@ -19,7 +19,7 @@ import {
   ContextMenuSub,
   ContextMenuSubContent,
 } from "@sun/components";
-import { FileIcon, FolderIcon, MagnetIcon } from "lucide-react";
+import { FileIcon, FolderIcon, MagnetIcon } from "lucide-preact";
 import { executeMutation } from "@sun/ssr";
 import { revalidateKeys } from "~/utils/filestore-cache";
 import { ICON_SIZE } from "~/utils/const";
