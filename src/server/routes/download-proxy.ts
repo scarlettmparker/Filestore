@@ -5,15 +5,7 @@
  * to the backend service configured by {@code GRAPHQL_ENDPOINT}.
  */
 import { Buffer } from "buffer";
-import type { FastifyInstance } from "fastify";
-
-type DownloadProxyParams = {
-  bucket: string;
-};
-
-type DownloadProxyQuery = {
-  key?: string | string[];
-};
+import type { SunApp } from "@sun/ssr/server";
 
 /**
  * Returns the base URL for the backend API derived from the GraphQL endpoint.
@@ -39,11 +31,8 @@ function getBackendApiBase(): string {
  *
  * @param app Fastify application instance
  */
-export function registerDownloadProxyRoute(app: FastifyInstance): void {
-  app.get<{
-    Params: DownloadProxyParams;
-    Querystring: DownloadProxyQuery;
-  }>("/rest/buckets/:bucket/download", async (request, reply) => {
+export function registerDownloadProxyRoute(app: SunApp): void {
+  app.get("/rest/buckets/:bucket/download", async (request, reply) => {
     const bucket = request.params.bucket;
     const key = request.query.key;
 
