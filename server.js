@@ -14,12 +14,15 @@ import {
   clientSecret,
   clientId,
 } from "./config.js";
+import { configureApi } from "@sun/api";
 import { setupRoutes } from "./routes/index.js";
 import { registerDownloadProxyRoute } from "./src/server/routes/download-proxy.ts";
 import { AUTH_COOKIE } from "./src/utils/auth.ts";
 
 import "./src/server/filestore-registrations.ts";
 import "./src/server/gaia-mutations.ts";
+
+configureApi({ authCookie: AUTH_COOKIE, clientId, clientSecret });
 
 await createServer({
   config: {
