@@ -19,13 +19,5 @@ export declare global {
      * Current loaded translations.
      */
     __translations__?: Record<string, unknown>;
-    /**
-     * Posthog Key.
-     */
-    __posthog_key__?: string;
-    /**
-     * Posthog Host.
-     */
-    __posthog_host__?: string;
   }
 }
