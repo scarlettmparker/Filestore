@@ -54,7 +54,7 @@ const BucketContent = () => {
   const hasDownloading = !!keys?.some((key) => key.torrent);
   useEffect(() => {
     if (!hasDownloading) return;
-    const cacheKey = makeCacheKey(`${pattern}:keys`, pageParams);
+    const cacheKey = makeCacheKey(pattern, pageParams);
     const interval = setInterval(() => revalidatePageData([cacheKey]), 3000);
     return () => clearInterval(interval);
   }, [hasDownloading, alias, path, pattern]);

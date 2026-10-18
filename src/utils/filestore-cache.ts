@@ -9,7 +9,7 @@ export function keysCacheKey(bucket: string, path?: string): string {
   const params: Record<string, unknown> = folderPath
     ? { alias: bucket, path: folderPath }
     : { alias: bucket };
-  return makeCacheKey(`${pattern}:keys`, params);
+  return makeCacheKey(pattern, params);
 }
 
 /**
