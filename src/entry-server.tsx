@@ -7,6 +7,7 @@ import { matchRoutes } from "react-router-dom";
 import { createRenderer } from "@sun/ssr/renderer";
 import { autoDiscoverRegistrations } from "@sun/ssr/server";
 import { createI18nInstance } from "./utils/i18n";
+import { setI18n } from "@sun/i18n";
 import { configureApi } from "@sun/api";
 import { AUTH_COOKIE } from "./utils/auth";
 import { clientId, clientSecret } from "../config.js";
@@ -37,8 +38,9 @@ export async function render(options: {
     title: "Filestore | Scarlet Sun",
     emitFrontendMode: true,
     initI18n(locale, translations) {
-      const i18n = createI18nInstance();
-      return i18n.init({
+      const instance = createI18nInstance();
+      setI18n(instance);
+      return instance.init({
         lng: locale,
         fallbackLng: "en",
         resources: { [locale]: translations } as never,

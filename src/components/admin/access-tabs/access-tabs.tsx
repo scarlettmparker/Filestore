@@ -1,7 +1,7 @@
 import { Button } from "@sun/components";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import styles from "./access-tabs.module.css";
 
 const TABS = [

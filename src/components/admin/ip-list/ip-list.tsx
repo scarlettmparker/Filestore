@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import { Card, CardBody, CardHeader, CardTitle, Button } from "@sun/components";
 import { PlusOutline } from "preact-heroicons";
 import IpListItems from "~/components/admin/ip-list-items";

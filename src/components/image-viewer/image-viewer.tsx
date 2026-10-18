@@ -7,7 +7,7 @@ import {
   Button,
 } from "@sun/components";
 import { ChevronLeft, ChevronRight } from "lucide-preact";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import { cn } from "@sun/utils";
 import styles from "./image-viewer.module.css";
 

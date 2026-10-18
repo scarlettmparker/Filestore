@@ -13,7 +13,7 @@ import {
 } from "@sun/components";
 import { Folder } from "lucide-preact";
 import styles from "./index.module.css";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import { Link } from "react-router-dom";
 
 /**

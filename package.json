@@ -64,7 +64,8 @@
     "lucide-preact": "^1.59.0",
     "preact": "^11.0.1",
     "preact-render-to-string": "^6.8.1",
-    "react-i18next": "^15.4.1",
+    "@sun/i18n": "^0.1.1",
+    "i18next": "^25.0.0",
     "react-router-dom": "^6.22.0",
     "sirv": "^3.0.1",
     "@sun/themes": "^0.2.10"

@@ -7,7 +7,7 @@ import {
   Button,
 } from "@sun/components";
 import { PlusOutline } from "preact-heroicons";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import TailscaleNodeList from "~/components/admin/tailscale-node-list";
 import type { TailscaleDevice } from "~/generated/graphql";
 import styles from "./tailscale-card.module.css";

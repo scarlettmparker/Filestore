@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@sun/components";
 import { EllipsisVerticalOutline, TrashOutline } from "preact-heroicons";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import type { TailscaleDevice } from "~/generated/graphql";
 import styles from "./tailscale-node-list.module.css";
 

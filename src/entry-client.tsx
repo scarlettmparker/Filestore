@@ -1,16 +1,16 @@
 import { BrowserRouter } from "react-router-dom";
 import { Router } from "./router";
-import { initReactI18next } from "react-i18next";
 import ReactDOM from "react-dom/client";
 import i18n from "i18next";
 import { Suspense } from "react";
 
 import Layout from "./components/layout";
+import { setI18n } from "@sun/i18n";
 import { initClientBootstrap } from "@sun/ssr";
 import "./utils/configure-framework";
 import "@sun/components/style.css";
 
-i18n.use(initReactI18next);
+setI18n(i18n);
 
 initClientBootstrap({ i18n })
   .then(() => {

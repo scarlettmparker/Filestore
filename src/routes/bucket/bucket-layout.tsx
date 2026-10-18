@@ -1,5 +1,5 @@
 import { Breadcrumb, CardHeader, CardTitle } from "@sun/components";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useCallback, useEffect, Suspense } from "react";
 import { FrontendMode, detectFrontendMode } from "@sun/shared";

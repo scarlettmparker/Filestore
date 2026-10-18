@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import { Button } from "@sun/components";
 import styles from "./admin-subnav.module.css";
 

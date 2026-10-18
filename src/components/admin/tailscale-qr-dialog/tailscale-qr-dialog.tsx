@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from "@sun/components";
 import { executeMutation } from "@sun/ssr";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 
 import styles from "./tailscale-qr-dialog.module.css";
 

@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { usePageData } from "@sun/ssr/react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import TailscaleDetail from "~/components/admin/tailscale-detail";
 import type { TailscaleDevice } from "~/generated/graphql";
 

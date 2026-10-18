@@ -17,7 +17,7 @@ import {
   SearchBar,
 } from "@sun/components";
 import { executeMutation } from "@sun/ssr";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import { revalidateKeys } from "~/utils/filestore-cache";
 import styles from "./torrent-dialog.module.css";
 import type {

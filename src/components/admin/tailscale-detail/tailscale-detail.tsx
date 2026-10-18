@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, CardTitle, Badge } from "@sun/components";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import type { TailscaleDevice } from "~/generated/graphql";
 import styles from "./tailscale-detail.module.css";
 
