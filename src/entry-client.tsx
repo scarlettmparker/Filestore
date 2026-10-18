@@ -7,7 +7,6 @@ import { Suspense } from "react";
 
 import Layout from "./components/layout";
 import { initClientBootstrap } from "@sun/ssr";
-import { PostHogProvider } from "@sun/utils";
 import "./utils/configure-framework";
 import "@sun/components/style.css";
 
@@ -17,15 +16,13 @@ initClientBootstrap({ i18n })
   .then(() => {
     ReactDOM.hydrateRoot(
       document.getElementById("app") as HTMLElement,
-      <PostHogProvider client>
-        <BrowserRouter>
-          <Layout>
-            <Suspense fallback={null}>
-              <Router />
-            </Suspense>
-          </Layout>
-        </BrowserRouter>
-      </PostHogProvider>,
+      <BrowserRouter>
+        <Layout>
+          <Suspense fallback={null}>
+            <Router />
+          </Suspense>
+        </Layout>
+      </BrowserRouter>,
     );
   })
   .catch((error) => {

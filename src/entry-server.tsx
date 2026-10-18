@@ -34,7 +34,6 @@ export async function render(options: {
 }) {
   const renderer = createRenderer({
     title: "Filestore | Scarlet Sun",
-    posthog: true,
     emitFrontendMode: true,
     initI18n(locale, translations) {
       const i18n = createI18nInstance();

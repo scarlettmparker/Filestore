@@ -3,6 +3,7 @@
  * @module routes
  */
 import { renderApp } from "@sun/ssr/server";
+import { trackPageView, trackSignIn, trackSignOut } from "@sun/analytics/server";
 import { base, isProduction, manifestPath } from "../config.js";
 import { Buffer } from "buffer";
 import { createHmac, timingSafeEqual } from "crypto";
@@ -68,6 +69,12 @@ export function setupRoutes(app, vite) {
     const { username, password } = request.body ?? {};
     const token = await loginViaGaia(username, password);
     if (!token) return reply.redirect("/login?error=1");
+    trackSignIn({
+      app: "filestore",
+      token,
+      ip: request.ip,
+      userAgent: request.headers["user-agent"],
+    });
     reply.header("Set-Cookie", buildAuthCookie(token));
     const redirectTo =
       typeof request.query?.redirect === "string"
@@ -79,7 +86,14 @@ export function setupRoutes(app, vite) {
   /**
    * Logout via PRG: clear the cookie, redirect to /login.
    */
-  app.post("/__logout", async (_request, reply) => {
+  app.post("/__logout", async (request, reply) => {
+    const token = getCookieValue(request.headers.cookie, AUTH_COOKIE);
+    trackSignOut({
+      app: "filestore",
+      token,
+      ip: request.ip,
+      userAgent: request.headers["user-agent"],
+    });
     reply.header("Set-Cookie", clearAuthCookie());
     return reply.redirect("/login");
   });
@@ -148,6 +162,17 @@ export function setupRoutes(app, vite) {
         // invalid
       }
     }
+
+    trackPageView({
+      app: "filestore",
+      url: `${request.protocol}://${request.headers.host}${request.raw.url}`,
+      path: pathname,
+      authCookie: AUTH_COOKIE,
+      cookie: request.headers.cookie,
+      ip: request.ip,
+      userAgent: request.headers["user-agent"],
+      referrer: request.headers.referer,
+    });
 
     try {
       await renderApp(
