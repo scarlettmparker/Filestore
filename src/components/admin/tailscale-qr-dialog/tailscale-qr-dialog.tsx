@@ -109,10 +109,7 @@ const TailscaleQrDialog = (props: TailscaleQrDialogProps) => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {EXPIRY_OPTIONS.map((opt) => (
-                    <DropdownMenuItem
-                      key={opt.value}
-                      onClick={() => setExpiry(opt.value)}
-                    >
+                    <DropdownMenuItem key={opt.value} onClick={() => setExpiry(opt.value)}>
                       {opt.label}
                     </DropdownMenuItem>
                   ))}

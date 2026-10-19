@@ -1,17 +1,12 @@
 import { FileIcon, FolderIcon } from "lucide-preact";
-import {
-  KeyEntry,
-  TorrentJobStatus,
-  type RenameKeyResponse,
-} from "~/generated/graphql";
+import { KeyEntry, TorrentJobStatus, type RenameKeyResponse } from "~/generated/graphql";
 import styles from "./key.module.css";
 
 function formatBytes(bytes: number | null | undefined): string {
   if (!bytes) return "-";
   if (bytes < 1024) return bytes + " B";
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-  if (bytes < 1024 * 1024 * 1024)
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
 }
 import { cn, formatDate } from "@sun/utils";
@@ -34,11 +29,7 @@ type KeyProps = {
    * @param sourceKey Key to rename from.
    * @param targetKey Key to rename to.
    */
-  onRename: (
-    sourceKey: string,
-    targetKey: string,
-    merge: boolean,
-  ) => Promise<RenameKeyResponse>;
+  onRename: (sourceKey: string, targetKey: string, merge: boolean) => Promise<RenameKeyResponse>;
   /**
    * Current path for stripping out of dirs.
    */
@@ -104,11 +95,7 @@ const Key = (props: KeyProps) => {
    */
   const getKeyIcon = useCallback(() => {
     return key.isDirectory ? (
-      <FolderIcon
-        className={styles.icon}
-        width={ICON_SIZE}
-        height={ICON_SIZE}
-      />
+      <FolderIcon className={styles.icon} width={ICON_SIZE} height={ICON_SIZE} />
     ) : (
       <FileIcon className={styles.icon} width={ICON_SIZE} height={ICON_SIZE} />
     );
@@ -122,11 +109,7 @@ const Key = (props: KeyProps) => {
     setTargetKey(newKey);
 
     if (newKey !== displayName) {
-      const res = await onRename(
-        key.key,
-        currentPath ? `${currentPath}${newKey}` : newKey,
-        false,
-      );
+      const res = await onRename(key.key, currentPath ? `${currentPath}${newKey}` : newKey, false);
 
       if (res.hasConflicts) {
         setDialogMessage(res.message);
@@ -142,11 +125,7 @@ const Key = (props: KeyProps) => {
    */
   const handleConfirmRename = useCallback(async () => {
     if (targetKey) {
-      await onRename(
-        key.key,
-        currentPath ? `${currentPath}${targetKey}` : targetKey,
-        true,
-      );
+      await onRename(key.key, currentPath ? `${currentPath}${targetKey}` : targetKey, true);
       setDialogMessage(null);
       setTargetKey(null);
     }
@@ -187,15 +166,9 @@ const Key = (props: KeyProps) => {
   return (
     <RenameContext.Provider value={contextValue}>
       <div className={styles.key_wrapper} onDoubleClick={handleDoubleClick}>
-        <Button
-          variant="secondary"
-          className={cn(styles.key_button, className)}
-          {...rest}
-        >
+        <Button variant="secondary" className={cn(styles.key_button, className)} {...rest}>
           {getKeyIcon()}
-          <span className={styles.key_hidden_spacer}>
-            {inputValue || displayName}
-          </span>
+          <span className={styles.key_hidden_spacer}>{inputValue || displayName}</span>
 
           <span className={styles.key_actions_wrapper}>
             {key.torrent ? (
@@ -236,9 +209,7 @@ const Key = (props: KeyProps) => {
             ref={inputRef}
             className={styles.key_input_absolute}
             value={inputValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setInputValue(e.target.value)
-            }
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === "Enter") {
                 e.currentTarget.blur();

@@ -80,11 +80,7 @@ const AddIpDialog = (props: AddIpDialogProps) => {
           <FormField name="description">
             <FormLabel>{t("ip-description")}</FormLabel>
             <FormItem>
-              <Input
-                name="description"
-                type="text"
-                placeholder={t("ip-description-placeholder")}
-              />
+              <Input name="description" type="text" placeholder={t("ip-description-placeholder")} />
             </FormItem>
           </FormField>
           <FormField name="immutable" className={styles.immutable}>

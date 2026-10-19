@@ -40,18 +40,15 @@ const TailscaleContent = () => {
     base: devicesData,
     reducer: (current, device) =>
       current.map((entry) =>
-        entry.id === device.id
-          ? { ...entry, status: DeviceStatus.Expired }
-          : entry,
+        entry.id === device.id ? { ...entry, status: DeviceStatus.Expired } : entry,
       ),
     action: async (device) => {
       await executeMutation("headscale/expire-node", {
         id: device.headscaleId,
       });
-      return executeMutation<ExpireTailscaleDeviceResponse>(
-        "gaia/expireTailscaleDevice",
-        { id: device.id },
-      );
+      return executeMutation<ExpireTailscaleDeviceResponse>("gaia/expireTailscaleDevice", {
+        id: device.id,
+      });
     },
     onSuccess: (response) => {
       patchPageData<TailscaleDevice[]>(
@@ -67,12 +64,9 @@ const TailscaleContent = () => {
     onError: (error) => console.error(error.message),
   });
 
-  const handleExpireClick = useCallback(
-    (deviceId: string, deviceName: string) => {
-      setExpiringDevice({ id: deviceId, name: deviceName });
-    },
-    [],
-  );
+  const handleExpireClick = useCallback((deviceId: string, deviceName: string) => {
+    setExpiringDevice({ id: deviceId, name: deviceName });
+  }, []);
 
   const handleExpireConfirm = useCallback(() => {
     if (!expiringDevice) return;

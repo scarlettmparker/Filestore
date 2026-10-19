@@ -13,8 +13,7 @@ import type { SunApp } from "@sun/ssr/server";
  * @returns normalized backend base URL without a trailing slash
  */
 function getBackendApiBase(): string {
-  const endpoint =
-    process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql";
+  const endpoint = process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql";
 
   try {
     const url = new URL(endpoint);

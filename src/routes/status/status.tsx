@@ -8,9 +8,10 @@ import StatusSkeleton from "~/components/status-skeleton";
  * Loads and renders the health status.
  */
 const StatusContent = () => {
-  const { data: health } = usePageData<
-    HealthQuery["filestoreQueries"]["health"]
-  >("health", "filestore");
+  const { data: health } = usePageData<HealthQuery["filestoreQueries"]["health"]>(
+    "health",
+    "filestore",
+  );
 
   return (
     <Card>

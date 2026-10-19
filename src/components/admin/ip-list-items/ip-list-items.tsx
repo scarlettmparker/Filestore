@@ -40,11 +40,7 @@ const IpListItems = (props: IpListItemsProps) => {
         <p className={styles.no_items}>{t("ip-no-items-found")}</p>
       ) : (
         entries.map((entry: IpWhitelistEntry) => (
-          <Link
-            key={entry.id}
-            to={`/admin/access/ip/${entry.id}`}
-            className={styles.item_link}
-          >
+          <Link key={entry.id} to={`/admin/access/ip/${entry.id}`} className={styles.item_link}>
             <Button variant="secondary" className={styles.list_button}>
               <span className={styles.list_name}>{entry.pattern}</span>
               {!entry.enabled && <Badge>{t("status-suspended")}</Badge>}

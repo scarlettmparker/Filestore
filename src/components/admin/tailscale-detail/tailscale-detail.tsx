@@ -29,9 +29,7 @@ const TailscaleDetail = (props: TailscaleDetailProps) => {
         </p>
         <label>{t("tailscale.online")}</label>
         <p className={styles.detail_value}>
-          <Badge>
-            {device.online ? t("tailscale.online") : t("tailscale.offline")}
-          </Badge>
+          <Badge>{device.online ? t("tailscale.online") : t("tailscale.offline")}</Badge>
         </p>
         <label>{t("tailscale.ip")}</label>
         <p className={styles.detail_value}>{device.ipv4 ?? "-"}</p>
@@ -42,9 +40,7 @@ const TailscaleDetail = (props: TailscaleDetailProps) => {
         {device.expiredAt && (
           <>
             <label>{t("tailscale.expired-at")}</label>
-            <p className={styles.detail_value}>
-              {new Date(device.expiredAt).toLocaleString()}
-            </p>
+            <p className={styles.detail_value}>{new Date(device.expiredAt).toLocaleString()}</p>
           </>
         )}
       </CardBody>

@@ -52,11 +52,7 @@ const IpList = (props: IpListProps) => {
         </CardHeader>
         <CardBody>
           <Suspense fallback={null}>
-            <IpListItems
-              entries={entries}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <IpListItems entries={entries} onEdit={onEdit} onDelete={onDelete} />
           </Suspense>
         </CardBody>
         <Suspense fallback={null}>

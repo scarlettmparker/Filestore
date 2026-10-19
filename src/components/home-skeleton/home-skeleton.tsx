@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Skeleton,
-} from "@sun/components";
+import { Card, CardBody, CardFooter, CardHeader, Skeleton } from "@sun/components";
 import styles from "./home-skeleton.module.css";
 
 /**

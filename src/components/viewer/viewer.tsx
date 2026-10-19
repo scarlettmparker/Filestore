@@ -41,14 +41,7 @@ const Viewer = (props: ViewerProps) => {
   const { open, onClose, fileKey: keyPath, images, imageIndex } = props;
 
   if (isImage(keyPath)) {
-    return (
-      <ImageViewer
-        open={open}
-        onClose={onClose}
-        images={images}
-        index={imageIndex}
-      />
-    );
+    return <ImageViewer open={open} onClose={onClose} images={images} index={imageIndex} />;
   }
 
   return null;

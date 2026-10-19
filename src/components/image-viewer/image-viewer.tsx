@@ -1,11 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import {
-  Dialog,
-  DialogBody,
-  DialogHeader,
-  DialogTitle,
-  Button,
-} from "@sun/components";
+import { Dialog, DialogBody, DialogHeader, DialogTitle, Button } from "@sun/components";
 import { ChevronLeft, ChevronRight } from "lucide-preact";
 import { useTranslation } from "@sun/i18n";
 import { cn } from "@sun/utils";

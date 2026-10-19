@@ -11,11 +11,9 @@ import type { TailscaleDevice } from "~/generated/graphql";
 const TailscaleNodeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation("admin");
-  const { data: device } = usePageData<TailscaleDevice>(
-    "tailscaleDevice",
-    "tailscaleDevice/:id",
-    { id },
-  );
+  const { data: device } = usePageData<TailscaleDevice>("tailscaleDevice", "tailscaleDevice/:id", {
+    id,
+  });
 
   if (!device) {
     return <p>{t("ip-not-found")}</p>;

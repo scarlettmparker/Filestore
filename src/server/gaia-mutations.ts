@@ -30,10 +30,7 @@ import {
  */
 defineMutation({
   path: "gaia/suspendAccount",
-  async handler(
-    body: { id: string },
-    context: MutationContext,
-  ): Promise<SuspendAccountResponse> {
+  async handler(body: { id: string }, context: MutationContext): Promise<SuspendAccountResponse> {
     const result = await executeDocument<SuspendAccountMutation>(
       SuspendAccountDocument,
       { id: body.id },
@@ -75,9 +72,7 @@ defineMutation({
     );
     const response = result.data?.gaiaMutations?.createIpWhitelistEntry;
     if (response == null) {
-      throw new MutationError(
-        result.error || "Failed to create IP whitelist entry.",
-      );
+      throw new MutationError(result.error || "Failed to create IP whitelist entry.");
     }
     return response;
   },
@@ -105,9 +100,7 @@ defineMutation({
     );
     const response = result.data?.gaiaMutations?.updateIpWhitelistEntry;
     if (response == null) {
-      throw new MutationError(
-        result.error || "Failed to update IP whitelist entry.",
-      );
+      throw new MutationError(result.error || "Failed to update IP whitelist entry.");
     }
     return response;
   },
@@ -129,9 +122,7 @@ defineMutation({
     );
     const response = result.data?.gaiaMutations?.deleteIpWhitelistEntry;
     if (response == null) {
-      throw new MutationError(
-        result.error || "Failed to delete IP whitelist entry.",
-      );
+      throw new MutationError(result.error || "Failed to delete IP whitelist entry.");
     }
     return response;
   },
@@ -142,10 +133,7 @@ defineMutation({
  */
 defineMutation({
   path: "gaia/unsuspendAccount",
-  async handler(
-    body: { id: string },
-    context: MutationContext,
-  ): Promise<UnsuspendAccountResponse> {
+  async handler(body: { id: string }, context: MutationContext): Promise<UnsuspendAccountResponse> {
     const result = await executeDocument<UnsuspendAccountMutation>(
       UnsuspendAccountDocument,
       { id: body.id },
@@ -165,12 +153,9 @@ defineMutation({
  */
 defineMutation({
   path: "headscale/generate-key",
-  async handler(
-    body: { expiry: string },
-  ): Promise<{ qrDataUrl: string; keyText: string }> {
+  async handler(body: { expiry: string }): Promise<{ qrDataUrl: string; keyText: string }> {
     const backendUrl =
-      process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
-      "http://localhost:8083";
+      process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") || "http://localhost:8083";
     const res = await fetch(
       `${backendUrl}/api/headscale/preauth-key?expiry=${encodeURIComponent(body.expiry)}`,
       {
@@ -194,16 +179,15 @@ defineMutation({
   path: "headscale/expire-node",
   async handler(body: { id: number }): Promise<{ message: string }> {
     const backendUrl =
-      process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
-      "http://localhost:8083";
+      process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") || "http://localhost:8083";
     const headers = {
       "X-Client-Id": clientId,
       "X-Client-Secret": clientSecret,
     };
-    const res = await fetch(
-      `${backendUrl}/api/headscale/nodes/${body.id}/expire`,
-      { method: "POST", headers },
-    );
+    const res = await fetch(`${backendUrl}/api/headscale/nodes/${body.id}/expire`, {
+      method: "POST",
+      headers,
+    });
     if (!res.ok) {
       throw new MutationError(`Backend returned ${res.status}`);
     }

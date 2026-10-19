@@ -21,9 +21,7 @@ const AccessTabs = () => {
     <div className={styles.tabs}>
       {TABS.map((tab) => (
         <Link key={tab.to} to={tab.to} className={styles.link}>
-          <Button
-            variant={pathname.startsWith(tab.to) ? "default" : "secondary"}
-          >
+          <Button variant={pathname.startsWith(tab.to) ? "default" : "secondary"}>
             {t(tab.labelKey)}
           </Button>
         </Link>

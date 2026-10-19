@@ -17,10 +17,7 @@ type IpDetailProps = {
 const IpDetail = (props: IpDetailProps) => {
   const { ipId } = props;
   const { t } = useTranslation("admin");
-  const { data: entries } = usePageData<IpWhitelistEntry[]>(
-    "ipEntries",
-    "ipEntries",
-  );
+  const { data: entries } = usePageData<IpWhitelistEntry[]>("ipEntries", "ipEntries");
   const entry = entries?.find((e: IpWhitelistEntry) => e.id === ipId);
 
   if (!entry) {
@@ -36,9 +33,7 @@ const IpDetail = (props: IpDetailProps) => {
         <label>{t("ip-pattern")}</label>
         <p className={styles.detail_value}>{entry.pattern}</p>
         <label>{t("ip-description")}</label>
-        <p className={styles.detail_value}>
-          {entry.description ?? t("ip-none")}
-        </p>
+        <p className={styles.detail_value}>{entry.description ?? t("ip-none")}</p>
         <label>{t("status")}</label>
         <p className={styles.detail_value}>
           {entry.enabled ? t("status-active") : t("status-suspended")}

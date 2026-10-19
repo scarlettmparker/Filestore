@@ -13,16 +13,10 @@ const BucketLayout = lazy(() => import("~/routes/bucket/bucket-layout"));
 const Login = lazy(() => import("~/routes/login"));
 const AdminLayout = lazy(() => import("~/routes/admin/admin-layout"));
 const Admin = lazy(() => import("~/routes/admin"));
-const AccountDetailPage = lazy(
-  () => import("~/routes/admin/account-detail-page"),
-);
+const AccountDetailPage = lazy(() => import("~/routes/admin/account-detail-page"));
 const IpConfig = lazy(() => import("~/routes/admin/ip-config"));
-const IpDetailPage = lazy(
-  () => import("~/routes/admin/ip-config/ip-detail-page"),
-);
-const TailscalePage = lazy(
-  () => import("~/routes/admin/access/tailscale/tailscale-page"),
-);
+const IpDetailPage = lazy(() => import("~/routes/admin/ip-config/ip-detail-page"));
+const TailscalePage = lazy(() => import("~/routes/admin/access/tailscale/tailscale-page"));
 const TailscaleNodeDetail = lazy(
   () => import("~/routes/admin/access/tailscale/tailscale-node-detail"),
 );

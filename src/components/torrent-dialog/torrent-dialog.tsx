@@ -1,10 +1,4 @@
-import {
-  useState,
-  useTransition,
-  useRef,
-  useCallback,
-  type ChangeEvent,
-} from "react";
+import { useState, useTransition, useRef, useCallback, type ChangeEvent } from "react";
 import {
   Button,
   Dialog,
@@ -20,10 +14,7 @@ import { executeMutation } from "@sun/ssr";
 import { useTranslation } from "@sun/i18n";
 import { revalidateKeys } from "~/utils/filestore-cache";
 import styles from "./torrent-dialog.module.css";
-import type {
-  AddTorrentResponse,
-  SearchTorrentsQuery,
-} from "~/generated/graphql";
+import type { AddTorrentResponse, SearchTorrentsQuery } from "~/generated/graphql";
 
 type TorrentDialogProps = {
   /**
@@ -44,8 +35,7 @@ type TorrentDialogProps = {
   currentPath: string;
 };
 
-type SearchResult =
-  SearchTorrentsQuery["filestoreQueries"]["searchTorrents"][number];
+type SearchResult = SearchTorrentsQuery["filestoreQueries"]["searchTorrents"][number];
 
 /**
  * Dialog for starting a torrent download.
@@ -87,35 +77,29 @@ const TorrentDialog = (props: TorrentDialogProps) => {
   /**
    * Reads a .torrent file and stores its base64 content.
    */
-  const handleFileChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        setTorrentBase64(result.split(",")[1] ?? null);
-        setTorrentFileName(file.name);
-        setMagnet("");
-      };
-      reader.readAsDataURL(file);
-    },
-    [],
-  );
+  const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setTorrentBase64(result.split(",")[1] ?? null);
+      setTorrentFileName(file.name);
+      setMagnet("");
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   /**
    * Handles magnet input change.
    */
-  const handleMagnetChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setMagnet(event.target.value);
-      if (event.target.value) {
-        setTorrentBase64(null);
-        setTorrentFileName(null);
-      }
-    },
-    [],
-  );
+  const handleMagnetChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setMagnet(event.target.value);
+    if (event.target.value) {
+      setTorrentBase64(null);
+      setTorrentFileName(null);
+    }
+  }, []);
 
   /**
    * Submits the magnet link or .torrent file to start a download.
@@ -138,11 +122,7 @@ const TorrentDialog = (props: TorrentDialogProps) => {
         revalidateKeys(bucketName, currentPath);
         handleClose();
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : t("torrent-dialog.error-generic"),
-        );
+        setError(err instanceof Error ? err.message : t("torrent-dialog.error-generic"));
       }
     });
   }, [magnet, torrentBase64, bucketName, currentPath, handleClose, t]);
@@ -155,10 +135,9 @@ const TorrentDialog = (props: TorrentDialogProps) => {
       if (!value.trim()) return;
       setError(null);
       try {
-        const results = await executeMutation<SearchResult[]>(
-          "filestore/search-torrents",
-          { query: value.trim() },
-        );
+        const results = await executeMutation<SearchResult[]>("filestore/search-torrents", {
+          query: value.trim(),
+        });
         setResults(results);
       } catch {
         setError(t("torrent-dialog.search-error"));
@@ -183,11 +162,7 @@ const TorrentDialog = (props: TorrentDialogProps) => {
           revalidateKeys(bucketName, currentPath);
           handleClose();
         } catch (err) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : t("torrent-dialog.error-generic"),
-          );
+          setError(err instanceof Error ? err.message : t("torrent-dialog.error-generic"));
         }
       });
     },
@@ -202,10 +177,7 @@ const TorrentDialog = (props: TorrentDialogProps) => {
   }, []);
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(open: boolean) => !open && handleClose()}
-    >
+    <Dialog open={open} onOpenChange={(open: boolean) => !open && handleClose()}>
       <DialogHeader>
         <DialogTitle>{t("torrent-dialog.title")}</DialogTitle>
       </DialogHeader>
@@ -248,11 +220,7 @@ const TorrentDialog = (props: TorrentDialogProps) => {
               onChange={handleFileChange}
               hidden
             />
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={handleChooseFile}
-            >
+            <Button variant="secondary" type="button" onClick={handleChooseFile}>
               {torrentFileName ?? t("torrent-dialog.choose-file")}
             </Button>
             {error && <p className={styles.error}>{error}</p>}

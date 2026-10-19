@@ -56,11 +56,7 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
   const [unsuspendId, setUnsuspendId] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const params = { page: String(page), search: search || undefined };
-  const { data: accountsData } = usePageData<PagedAccounts>(
-    "accounts",
-    "accounts",
-    params,
-  );
+  const { data: accountsData } = usePageData<PagedAccounts>("accounts", "accounts", params);
 
   const [accounts, toggleAccount] = useMutation<
     AccountToggle,
@@ -74,9 +70,7 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
         account.id === payload.account.id
           ? {
               ...account,
-              status: payload.suspended
-                ? AccountStatus.Suspended
-                : AccountStatus.Active,
+              status: payload.suspended ? AccountStatus.Suspended : AccountStatus.Active,
             }
           : account,
       ),
@@ -90,32 +84,21 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
             id: payload.account.id,
           }),
     onSuccess: (response) => {
-      patchPageData<PagedAccounts>(
-        "accounts",
-        "accounts",
-        params,
-        (current) => {
-          const base = current ?? accountsData;
-          return {
-            ...base,
-            items: base.items.map((account) =>
-              account.id === response.account.id
-                ? response.account
-                : account,
-            ),
-          };
-        },
-      );
+      patchPageData<PagedAccounts>("accounts", "accounts", params, (current) => {
+        const base = current ?? accountsData;
+        return {
+          ...base,
+          items: base.items.map((account) =>
+            account.id === response.account.id ? response.account : account,
+          ),
+        };
+      });
     },
     onError: (error) => console.error(error.message),
   });
 
-  const suspendAccount = suspendId
-    ? accounts?.items?.find((a) => a.id === suspendId)
-    : null;
-  const unsuspendAccount = unsuspendId
-    ? accounts?.items?.find((a) => a.id === unsuspendId)
-    : null;
+  const suspendAccount = suspendId ? accounts?.items?.find((a) => a.id === suspendId) : null;
+  const unsuspendAccount = unsuspendId ? accounts?.items?.find((a) => a.id === unsuspendId) : null;
 
   return (
     <>
@@ -148,16 +131,12 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       {account.status === "SUSPENDED" ? (
-                        <DropdownMenuItem
-                          onClick={() => setUnsuspendId(account.id)}
-                        >
+                        <DropdownMenuItem onClick={() => setUnsuspendId(account.id)}>
                           <LockOpenOutline width={16} height={16} />
                           {t("unsuspend-account")}
                         </DropdownMenuItem>
                       ) : (
-                        <DropdownMenuItem
-                          onClick={() => setSuspendId(account.id)}
-                        >
+                        <DropdownMenuItem onClick={() => setSuspendId(account.id)}>
                           <LockClosedOutline width={16} height={16} />
                           {t("suspend-account")}
                         </DropdownMenuItem>

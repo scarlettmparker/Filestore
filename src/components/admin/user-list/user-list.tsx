@@ -1,13 +1,6 @@
 import { Suspense, useState } from "react";
 import { useTranslation } from "@sun/i18n";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  CardTitle,
-  SearchBar,
-  Skeleton,
-} from "@sun/components";
+import { Card, CardBody, CardHeader, CardTitle, SearchBar, Skeleton } from "@sun/components";
 import AdminUserListItems from "~/components/admin/user-list-items";
 import AdminUserListFooter from "~/components/admin/user-list-footer";
 import AdminUserListPagination from "~/components/admin/user-list-pagination";
@@ -35,12 +28,7 @@ type AdminUserListProps = {
 /**
  * Searchable, paginated list of accounts.
  */
-const AdminUserList = ({
-  search,
-  page,
-  onSearch,
-  onPageChange,
-}: AdminUserListProps) => {
+const AdminUserList = ({ search, page, onSearch, onPageChange }: AdminUserListProps) => {
   const { t } = useTranslation("admin");
   const [searchInput, setSearchInput] = useState(search);
 
@@ -74,11 +62,7 @@ const AdminUserList = ({
         </Suspense>
       </Card>
       <Suspense fallback={null}>
-        <AdminUserListPagination
-          search={search}
-          page={page}
-          onPageChange={onPageChange}
-        />
+        <AdminUserListPagination search={search} page={page} onPageChange={onPageChange} />
       </Suspense>
     </>
   );

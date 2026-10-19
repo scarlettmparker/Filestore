@@ -1,9 +1,4 @@
-import {
-  defineLoader,
-  defineMutation,
-  MutationError,
-  type MutationContext,
-} from "@sun/ssr";
+import { defineLoader, defineMutation, MutationError, type MutationContext } from "@sun/ssr";
 import { executeDocument } from "@sun/api";
 import { tokenFrom } from "./context";
 import { AUTH_COOKIE, getCookieValue } from "~/utils/auth";
@@ -60,10 +55,7 @@ type BucketBody = {
  */
 defineMutation({
   path: "filestore/put",
-  async handler(
-    body: BucketBody,
-    context: MutationContext,
-  ): Promise<PutKeyResponse> {
+  async handler(body: BucketBody, context: MutationContext): Promise<PutKeyResponse> {
     const { bucket, key } = body;
     if (!bucket) {
       throw new MutationError("Invalid input: bucket required");
@@ -99,8 +91,7 @@ defineMutation({
         input: {
           bucket: body.bucket,
           key: body.key,
-          contentType:
-            typeof body.contentType === "string" ? body.contentType : null,
+          contentType: typeof body.contentType === "string" ? body.contentType : null,
         },
       },
       tokenFrom(context),
@@ -129,9 +120,7 @@ defineMutation({
     );
     const response = result.data?.filestoreMutations?.getPresignedDownloadUrl;
     if (response == null) {
-      throw new MutationError(
-        result.error ?? "Failed to generate presigned download URL",
-      );
+      throw new MutationError(result.error ?? "Failed to generate presigned download URL");
     }
     return response;
   },
@@ -143,14 +132,11 @@ defineMutation({
  */
 defineMutation({
   path: "filestore/upload-complete",
-  async handler(
-    body: BucketBody & { key?: string },
-  ): Promise<{ message: string; key: string }> {
+  async handler(body: BucketBody & { key?: string }): Promise<{ message: string; key: string }> {
     const key = body.key ?? "";
     if (key.endsWith(".mkv") || key.endsWith(".avi")) {
       const backendUrl =
-        process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") ||
-        "http://localhost:8083";
+        process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") || "http://localhost:8083";
       fetch(`${backendUrl}/api/transcode`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -303,10 +289,7 @@ defineMutation({
  */
 defineMutation({
   path: "filestore/search-torrents",
-  async handler(
-    body: { query: string },
-    context: MutationContext,
-  ): Promise<TorrentSearchResult[]> {
+  async handler(body: { query: string }, context: MutationContext): Promise<TorrentSearchResult[]> {
     const result = await executeDocument<SearchTorrentsQuery>(
       SearchTorrentsDocument,
       { query: body.query },
@@ -339,11 +322,7 @@ defineLoader({
   pattern: "filestore",
   async loader(_params, context) {
     const token = getCookieValue(context?.cookie, AUTH_COOKIE);
-    const result = await executeDocument<ListBucketsQuery>(
-      ListBucketsDocument,
-      {},
-      token,
-    );
+    const result = await executeDocument<ListBucketsQuery>(ListBucketsDocument, {}, token);
     const buckets = result.data?.filestoreQueries?.listBuckets;
     return buckets ? { buckets } : null;
   },

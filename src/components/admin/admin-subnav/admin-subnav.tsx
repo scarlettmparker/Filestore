@@ -37,9 +37,7 @@ const AdminSubnav = () => {
 
         return (
           <Link key={item.href} to={item.href} className={styles.link}>
-            <Button variant={isActive ? "default" : "secondary"}>
-              {t(item.labelKey)}
-            </Button>
+            <Button variant={isActive ? "default" : "secondary"}>{t(item.labelKey)}</Button>
           </Link>
         );
       })}

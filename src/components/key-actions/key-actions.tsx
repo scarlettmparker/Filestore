@@ -2,14 +2,7 @@ import { DropdownMenuTrigger } from "@sun/components";
 import { DropdownMenuItem } from "@sun/components";
 import { DropdownMenuContent } from "@sun/components";
 import { DropdownMenu } from "@sun/components";
-import {
-  MoreVertical,
-  Trash2Icon,
-  Download,
-  Edit,
-  XCircle,
-  Eye,
-} from "lucide-preact";
+import { MoreVertical, Trash2Icon, Download, Edit, XCircle, Eye } from "lucide-preact";
 import { useContext } from "react";
 import { ICON_SIZE } from "~/utils/const";
 import { KeyEntry } from "~/generated/graphql";
@@ -50,15 +43,7 @@ type KeyActionsProps = {
 };
 
 const KeyActions = (props: KeyActionsProps) => {
-  const {
-    keyEntry,
-    onOpen,
-    onDelete,
-    onDownload,
-    onCancelTorrent,
-    frontendMode,
-    t,
-  } = props;
+  const { keyEntry, onOpen, onDelete, onDownload, onCancelTorrent, frontendMode, t } = props;
   const { startRename } = useContext(RenameContext);
 
   if (frontendMode === FrontendMode.EMULATOR) return null;
@@ -77,35 +62,27 @@ const KeyActions = (props: KeyActionsProps) => {
       <DropdownMenuContent>
         {!keyEntry.torrent && onOpen && (
           <DropdownMenuItem onClick={onOpen}>
-            <Eye width={ICON_SIZE} height={ICON_SIZE} />{" "}
-            {t("context-menu.open")}
+            <Eye width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.open")}
           </DropdownMenuItem>
         )}
         {!keyEntry.torrent && onDownload && (
           <DropdownMenuItem onClick={onDownload}>
-            <Download width={ICON_SIZE} height={ICON_SIZE} />{" "}
-            {t("context-menu.download")}
+            <Download width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.download")}
           </DropdownMenuItem>
         )}
         {!keyEntry.torrent && (
           <DropdownMenuItem onClick={startRename}>
-            <Edit width={ICON_SIZE} height={ICON_SIZE} />{" "}
-            {t("context-menu.edit")}
+            <Edit width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.edit")}
           </DropdownMenuItem>
         )}
         {keyEntry.torrent && onCancelTorrent && (
           <DropdownMenuItem variant="destructive" onClick={onCancelTorrent}>
-            <XCircle width={ICON_SIZE} height={ICON_SIZE} />{" "}
-            {t("context-menu.cancel-torrent")}
+            <XCircle width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.cancel-torrent")}
           </DropdownMenuItem>
         )}
         {!keyEntry.torrent && (
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => onDelete?.(keyEntry.key)}
-          >
-            <Trash2Icon width={ICON_SIZE} height={ICON_SIZE} />{" "}
-            {t("context-menu.delete")}
+          <DropdownMenuItem variant="destructive" onClick={() => onDelete?.(keyEntry.key)}>
+            <Trash2Icon width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.delete")}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

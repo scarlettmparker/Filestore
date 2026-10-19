@@ -21,9 +21,7 @@ import "./server/gaia-mutations";
 configureApi({ authCookie: AUTH_COOKIE, clientId, clientSecret });
 
 // Colocated mutation handlers self-register at boot.
-autoDiscoverRegistrations(
-  import.meta.glob("./server/**/*-registrations.ts", { eager: true }),
-);
+autoDiscoverRegistrations(import.meta.glob("./server/**/*-registrations.ts", { eager: true }));
 
 export async function render(options: {
   url: string;

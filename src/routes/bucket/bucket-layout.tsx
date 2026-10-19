@@ -42,9 +42,11 @@ const BucketContent = () => {
   const pattern = path ? "bucket/:alias/*" : "bucket/:alias";
   const pageParams = path ? { alias, path } : { alias };
 
-  const { data: keys } = usePageData<
-    ListKeysQuery["filestoreQueries"]["listKeys"]
-  >("keys", pattern, pageParams);
+  const { data: keys } = usePageData<ListKeysQuery["filestoreQueries"]["listKeys"]>(
+    "keys",
+    pattern,
+    pageParams,
+  );
 
   const selectedEntry = keys?.find((k) => k.key === selectedKey);
   const torrentInfo = selectedEntry?.torrent;

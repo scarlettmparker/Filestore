@@ -20,9 +20,12 @@ import { Link } from "react-router-dom";
  * Loads and renders the bucket list.
  */
 const HomeContent = () => {
-  const { data: buckets } = usePageData<
-    ListBucketsQuery["filestoreQueries"]["listBuckets"]
-  >("buckets", "filestore");
+  const { data: buckets } = usePageData<ListBucketsQuery["filestoreQueries"]["listBuckets"]>(
+    "buckets",
+    "filestore",
+  );
+
+  const items = buckets ?? [];
 
   const { t } = useTranslation("home");
 
@@ -33,12 +36,8 @@ const HomeContent = () => {
         <CardDescription>{t("card-description")}</CardDescription>
       </CardHeader>
       <CardBody className={styles.bucket_card_body}>
-        {buckets!.map((bucket, idx) => (
-          <Link
-            key={idx}
-            to={`/bucket/${bucket.globalAliases}`}
-            className={styles.bucket_link}
-          >
+        {items.map((bucket, idx) => (
+          <Link key={idx} to={`/bucket/${bucket.globalAliases}`} className={styles.bucket_link}>
             <Button variant="secondary" className={styles.bucket_button}>
               <Folder width={16} height={16} />
               {bucket.globalAliases}
@@ -46,7 +45,7 @@ const HomeContent = () => {
           </Link>
         ))}
       </CardBody>
-      <CardFooter>{t("items", { count: buckets!.length })}</CardFooter>
+      <CardFooter>{t("items", { count: items.length })}</CardFooter>
     </Card>
   );
 };

@@ -1,11 +1,4 @@
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Button,
-} from "@sun/components";
+import { Card, CardBody, CardFooter, CardHeader, CardTitle, Button } from "@sun/components";
 import { PlusOutline } from "preact-heroicons";
 import { useTranslation } from "@sun/i18n";
 import TailscaleNodeList from "~/components/admin/tailscale-node-list";

@@ -1,10 +1,7 @@
 import { defineLoader } from "@sun/ssr";
 import { executeDocument } from "@sun/api";
 import { AUTH_COOKIE, getCookieValue } from "~/utils/auth";
-import {
-  IpWhitelistEntriesDocument,
-  type IpWhitelistEntriesQuery,
-} from "~/generated/graphql";
+import { IpWhitelistEntriesDocument, type IpWhitelistEntriesQuery } from "~/generated/graphql";
 
 /**
  * Loads all IP whitelist entries for the admin IP config page.

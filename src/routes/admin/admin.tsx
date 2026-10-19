@@ -2,10 +2,7 @@ import { Suspense, useTransition } from "react";
 import { useOutlet, useSearchParams } from "react-router-dom";
 import AdminUserList from "~/components/admin/user-list";
 import AdminDetailPlaceholder from "~/components/admin/admin-detail-placeholder";
-import {
-  AdminDetailSkeleton,
-  AdminPageSkeleton,
-} from "~/components/admin/skeletons";
+import { AdminDetailSkeleton, AdminPageSkeleton } from "~/components/admin/skeletons";
 import styles from "./admin.module.css";
 
 const Admin = () => {
@@ -30,9 +27,7 @@ const Admin = () => {
 
   const handlePageChange = (newPage: number) => {
     startTransition(() => {
-      setSearchParams(
-        updateParams("page", newPage > 0 ? String(newPage) : null),
-      );
+      setSearchParams(updateParams("page", newPage > 0 ? String(newPage) : null));
     });
   };
 

@@ -36,10 +36,7 @@ const ConfirmRenameDialog = (props: ConfirmRenameDialogProps) => {
   }, [setMessage]);
 
   return (
-    <Dialog
-      open={!!message}
-      onOpenChange={(open: boolean) => !open && handleCancel()}
-    >
+    <Dialog open={!!message} onOpenChange={(open: boolean) => !open && handleCancel()}>
       <DialogHeader>
         <DialogTitle>{t("confirm-dialog.title")}</DialogTitle>
       </DialogHeader>

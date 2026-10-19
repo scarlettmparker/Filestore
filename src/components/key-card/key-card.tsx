@@ -27,10 +27,7 @@ import KeyActions from "../key-actions";
 import { Viewer } from "~/components/viewer";
 import { EventBus, PostMessageBridge } from "@sun/events";
 import { FILESTORE_EVENTS, FrontendMode } from "@sun/shared";
-import type {
-  FrontendMode as FrontendModeType,
-  FilestoreEventPayloads,
-} from "@sun/shared";
+import type { FrontendMode as FrontendModeType, FilestoreEventPayloads } from "@sun/shared";
 
 /**
  * Options required to process a direct-to-storage file upload.
@@ -115,10 +112,7 @@ const uploadFileToStorage = async ({
  * @param targetName String name of the item being generated.
  * @returns Formatted path combination string, or null if root.
  */
-const formatKeyPath = (
-  currentPath: string,
-  targetName: string | null,
-): string | null => {
+const formatKeyPath = (currentPath: string, targetName: string | null): string | null => {
   const base = currentPath ? currentPath.replace(/\/$/, "") : "";
 
   if (!targetName) {
@@ -179,9 +173,7 @@ const KeyCard = (props: KeyCardProps) => {
     onDeleteTargetChange,
     onAddTorrent,
   } = props;
-  const bridgeRef = useRef<PostMessageBridge<FilestoreEventPayloads> | null>(
-    null,
-  );
+  const bridgeRef = useRef<PostMessageBridge<FilestoreEventPayloads> | null>(null);
   const isEmulator = frontendMode === FrontendMode.EMULATOR;
   const navigate = useNavigate();
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -331,16 +323,13 @@ const KeyCard = (props: KeyCardProps) => {
     targetKey: string,
     merge: boolean,
   ): Promise<RenameKeyResponse> => {
-    const res = await executeMutation<RenameKeyResponse>(
-      "filestore/rename-key",
-      {
-        bucket: bucketName,
-        sourceKey,
-        targetKey,
-        merge,
-        path: currentPath,
-      },
-    );
+    const res = await executeMutation<RenameKeyResponse>("filestore/rename-key", {
+      bucket: bucketName,
+      sourceKey,
+      targetKey,
+      merge,
+      path: currentPath,
+    });
     if (res.success) {
       revalidateKeys(bucketName, currentPath);
     }
@@ -456,9 +445,7 @@ const KeyCard = (props: KeyCardProps) => {
         <ContextMenuContent>
           <ContextMenuItem>{t("context-menu.refetch")}</ContextMenuItem>
           <ContextMenuSub>
-            <ContextMenuSubTrigger>
-              {t("context-menu.new")}
-            </ContextMenuSubTrigger>
+            <ContextMenuSubTrigger>{t("context-menu.new")}</ContextMenuSubTrigger>
             <ContextMenuSubContent>
               <ContextMenuItem onClick={handleFileUpload}>
                 <FileIcon width={ICON_SIZE} height={ICON_SIZE} />

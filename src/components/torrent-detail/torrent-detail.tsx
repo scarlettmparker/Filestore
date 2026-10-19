@@ -23,23 +23,18 @@ const TorrentDetailPanel = (props: TorrentDetailPanelProps) => {
         </p>
 
         <label>{t("torrent.progress")}</label>
-        <p className={styles.detail_value}>
-          {(torrent.progress * 100).toFixed(1)}%
-        </p>
+        <p className={styles.detail_value}>{(torrent.progress * 100).toFixed(1)}%</p>
 
         {torrent.status !== TorrentJobStatus.Transcoding && (
           <>
             <label>{t("torrent.downloaded")}</label>
             <p className={styles.detail_value}>
-              {formatBytes(torrent.downloadedBytes)} /{" "}
-              {formatBytes(torrent.totalBytes)}
+              {formatBytes(torrent.downloadedBytes)} / {formatBytes(torrent.totalBytes)}
             </p>
 
             <label>{t("torrent.download-rate")}</label>
             <p className={styles.detail_value}>
-              {torrent.downloadRateBps != null
-                ? formatBytes(torrent.downloadRateBps) + "/s"
-                : "-"}
+              {torrent.downloadRateBps != null ? formatBytes(torrent.downloadRateBps) + "/s" : "-"}
             </p>
 
             <label>{t("torrent.peers")}</label>
@@ -57,9 +52,7 @@ const TorrentDetailPanel = (props: TorrentDetailPanelProps) => {
         {torrent.errorMessage && (
           <>
             <label>{t("torrent.error")}</label>
-            <p className={styles.detail_value + " " + styles.error}>
-              {torrent.errorMessage}
-            </p>
+            <p className={styles.detail_value + " " + styles.error}>{torrent.errorMessage}</p>
           </>
         )}
       </CardBody>
@@ -71,15 +64,13 @@ function formatBytes(bytes: number | null | undefined): string {
   if (bytes == null) return "-";
   if (bytes < 1024) return bytes + " B";
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-  if (bytes < 1024 * 1024 * 1024)
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
 }
 
 function formatEta(seconds: number): string {
   if (seconds < 60) return seconds + "s";
-  if (seconds < 3600)
-    return Math.floor(seconds / 60) + "m " + (seconds % 60) + "s";
+  if (seconds < 3600) return Math.floor(seconds / 60) + "m " + (seconds % 60) + "s";
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   return h + "h " + m + "m";

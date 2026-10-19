@@ -8,14 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@sun/components";
-import {
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Maximize,
-  Minimize,
-} from "lucide-preact";
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize } from "lucide-preact";
 import { useTranslation } from "@sun/i18n";
 import styles from "./video-viewer.module.css";
 
@@ -222,11 +215,7 @@ const VideoViewer = (props: VideoViewerProps) => {
             title={playing ? t("viewer.pause") : t("viewer.play")}
             aria-label={playing ? t("viewer.pause") : t("viewer.play")}
           >
-            {playing ? (
-              <Pause width={16} height={16} />
-            ) : (
-              <Play width={16} height={16} />
-            )}
+            {playing ? <Pause width={16} height={16} /> : <Play width={16} height={16} />}
           </Button>
           <Label className={styles.time}>
             {formatTime(currentTime)} / {formatTime(duration)}
@@ -265,11 +254,7 @@ const VideoViewer = (props: VideoViewerProps) => {
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="secondary"
-                title={t("viewer.speed")}
-                aria-label={t("viewer.speed")}
-              >
+              <Button variant="secondary" title={t("viewer.speed")} aria-label={t("viewer.speed")}>
                 {speed}x
               </Button>
             </DropdownMenuTrigger>
@@ -293,11 +278,7 @@ const VideoViewer = (props: VideoViewerProps) => {
             title={t("viewer.fullscreen")}
             aria-label={t("viewer.fullscreen")}
           >
-            {fullscreen ? (
-              <Minimize width={16} height={16} />
-            ) : (
-              <Maximize width={16} height={16} />
-            )}
+            {fullscreen ? <Minimize width={16} height={16} /> : <Maximize width={16} height={16} />}
           </Button>
         </div>
       </div>
