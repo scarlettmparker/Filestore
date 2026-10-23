@@ -106,7 +106,7 @@
       "download": "Download",
       "edit": "Rename",
       "delete": "Delete",
-      "cancel-torrent": "Cancel Download"
+      "cancel-torrent": "Cancel and Delete Files"
     },
     "torrent-dialog": {
       "title": "Add torrent",

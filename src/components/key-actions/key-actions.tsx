@@ -2,7 +2,7 @@ import { DropdownMenuTrigger } from "@sun/components";
 import { DropdownMenuItem } from "@sun/components";
 import { DropdownMenuContent } from "@sun/components";
 import { DropdownMenu } from "@sun/components";
-import { MoreVertical, Trash2Icon, Download, Edit, XCircle, Eye } from "lucide-preact";
+import { MoreVertical, Trash2Icon, Download, Edit, Eye } from "lucide-preact";
 import { useContext } from "react";
 import { ICON_SIZE } from "~/utils/const";
 import { KeyEntry } from "~/generated/graphql";
@@ -77,7 +77,7 @@ const KeyActions = (props: KeyActionsProps) => {
         )}
         {keyEntry.torrent && onCancelTorrent && (
           <DropdownMenuItem variant="destructive" onClick={onCancelTorrent}>
-            <XCircle width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.cancel-torrent")}
+            <Trash2Icon width={ICON_SIZE} height={ICON_SIZE} /> {t("context-menu.cancel-torrent")}
           </DropdownMenuItem>
         )}
         {!keyEntry.torrent && (
