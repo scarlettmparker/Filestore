@@ -1,4 +1,5 @@
-import { Badge, DropdownMenuItem } from "@sun/components";
+import { Button } from "@sun/components";
+import { Check } from "lucide-preact";
 import { useTranslation } from "@sun/i18n";
 import { SubtitleSource, type Subtitle } from "~/generated/graphql";
 import styles from "./subtitle-option.module.css";
@@ -28,17 +29,16 @@ const SubtitleOption = (props: SubtitleOptionProps) => {
       : t("viewer.subtitles-source-opensubtitles");
 
   return (
-    <DropdownMenuItem onClick={() => onSelect(subtitle.subtitleKey)}>
-      <span>
-        {language} ({source})
-      </span>
-      {selected ? (
-        <Badge variant="secondary" className={styles.active}>
-          {t("viewer.subtitles-active")}
-        </Badge>
-      ) : null}
-    </DropdownMenuItem>
+    <Button
+      variant="secondary"
+      onClick={() => onSelect(subtitle.subtitleKey)}
+      className={styles.option}
+    >
+      <span>{language} ({source})</span>
+      {selected ? <Check width={16} height={16} /> : null}
+    </Button>
   );
 };
 
 export default SubtitleOption;
+/

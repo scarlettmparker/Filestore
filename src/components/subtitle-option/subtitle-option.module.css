@@ -1,3 +1,5 @@
-.active {
-  margin-left: auto;
+.option {
+  width: 100%;
+  justify-content: space-between;
+  gap: var(--md);
 }

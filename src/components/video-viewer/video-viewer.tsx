@@ -23,6 +23,7 @@ import {
 import { useTranslation } from "@sun/i18n";
 import { executeMutation } from "@sun/ssr";
 import SubtitleOffsetControls from "~/components/subtitle-offset-controls";
+import SubtitleScaleControls from "~/components/subtitle-scale-controls";
 import SubtitleSearch from "~/components/subtitle-search";
 import SubtitleSearchResults from "~/components/subtitle-search-results";
 import SubtitleOption from "~/components/subtitle-option";
@@ -78,6 +79,7 @@ const VideoViewer = (props: VideoViewerProps) => {
   const { src, bucket, sourceKey } = props;
   const { t } = useTranslation("bucket");
   const videoRef = useRef<HTMLVideoElement>(null);
+  const trackRef = useRef<HTMLTrackElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -97,7 +99,9 @@ const VideoViewer = (props: VideoViewerProps) => {
   const [searchResults, setSearchResults] = useState<SubtitleSearchResult[]>([]);
   const [saving, setSaving] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [saveAlongside, setSaveAlongside] = useState(false);
+  const [saveAlongside, setSaveAlongside] = useState(true);
+  const [activeResultId, setActiveResultId] = useState<number | null>(null);
+  const [subtitleScale, setSubtitleScale] = useState(1);
   const [searchNonce, setSearchNonce] = useState(0);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
   const [filePickerLoading, setFilePickerLoading] = useState(false);
@@ -138,6 +142,15 @@ const VideoViewer = (props: VideoViewerProps) => {
     setVttUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [baseVtt, offsetMs]);
+
+  /**
+   * Ensures the active subtitle track is displayed.
+   */
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    track.track.mode = vttUrl ? "showing" : "disabled";
+  }, [vttUrl]);
 
   /**
    * Fetches a local subtitle's VTT.
@@ -182,6 +195,7 @@ const VideoViewer = (props: VideoViewerProps) => {
         });
         setBaseVtt(response?.vtt ?? null);
         setSelectedKey(response?.subtitleKey ?? null);
+        setActiveResultId(result.fileId ?? null);
         if (persist) {
           const list = await executeMutation<Subtitle[]>("filestore/subtitles", {
             bucket,
@@ -243,6 +257,7 @@ const VideoViewer = (props: VideoViewerProps) => {
     (key: string) => {
       setSelectedKey(key);
       void fetchLocal(key);
+      setActiveResultId(null);
       setFilePickerOpen(false);
     },
     [fetchLocal],
@@ -256,12 +271,14 @@ const VideoViewer = (props: VideoViewerProps) => {
       setSelectedKey(key);
       if (key === null) {
         setBaseVtt(null);
+        setActiveResultId(null);
         return;
       }
       const local = subtitles.find((s) => s.subtitleKey === key);
       if (local) {
         void fetchLocal(key);
       }
+      setActiveResultId(null);
     },
     [subtitles, fetchLocal],
   );
@@ -425,6 +442,7 @@ const VideoViewer = (props: VideoViewerProps) => {
         <video
           ref={videoRef}
           src={src}
+          style={{ "--subtitle-scale": subtitleScale } as React.CSSProperties}
           className={styles.video_element}
           autoPlay
           onClick={handlePlayPause}
@@ -437,6 +455,7 @@ const VideoViewer = (props: VideoViewerProps) => {
           {vttUrl ? (
             <track
               key={vttUrl}
+              ref={trackRef}
               kind="subtitles"
               src={vttUrl}
               srcLang={searchLanguage || "en"}
@@ -553,6 +572,7 @@ const VideoViewer = (props: VideoViewerProps) => {
 
                   <div className={styles.subtitle_section}>
                     <SubtitleOffsetControls offsetMs={offsetMs} onOffsetChange={setOffsetMs} />
+                    <SubtitleScaleControls scale={subtitleScale} onScaleChange={setSubtitleScale} />
                   </div>
 
                   <div className={styles.subtitle_section}>
@@ -569,6 +589,7 @@ const VideoViewer = (props: VideoViewerProps) => {
                       saving={saving}
                       saveAlongside={saveAlongside}
                       onSaveAlongsideChange={setSaveAlongside}
+                      activeFileId={activeResultId}
                       onUse={(result, persist) => fetchResult(result, persist)}
                     />
                   </div>

@@ -1,4 +1,5 @@
-import { Button, Checkbox, ScrollArea } from "@sun/components";
+import { Button, Checkbox, Form, ScrollArea } from "@sun/components";
+import { Check } from "lucide-preact";
 import type { SubtitleSearchResult } from "~/generated/graphql";
 import { useTranslation } from "@sun/i18n";
 import type { TargetedEvent } from "preact";
@@ -29,6 +30,10 @@ type SubtitleSearchResultsProps = {
    * Uses a result.
    */
   onUse: (result: SubtitleSearchResult, persist: boolean) => void;
+  /**
+   * File id of the active search result.
+   */
+  activeFileId: number | null;
 };
 
 const SubtitleSearchResults = (props: SubtitleSearchResultsProps) => {
@@ -39,6 +44,7 @@ const SubtitleSearchResults = (props: SubtitleSearchResultsProps) => {
     saveAlongside,
     onSaveAlongsideChange,
     onUse,
+    activeFileId,
   } = props;
   const { t } = useTranslation("bucket");
 
@@ -50,14 +56,18 @@ const SubtitleSearchResults = (props: SubtitleSearchResultsProps) => {
 
   return (
     <div className={styles.container}>
-      <Checkbox
-        checked={saveAlongside}
-        onChange={(event: TargetedEvent<HTMLInputElement, Event>) =>
-          onSaveAlongsideChange(event.currentTarget.checked)
-        }
-        label={t("viewer.subtitles-save")}
+      <Form
+        onSubmit={(event: React.FormEvent) => event.preventDefault()}
         className={styles.save_option}
-      />
+      >
+        <Checkbox
+          checked={saveAlongside}
+          onChange={(event: TargetedEvent<HTMLInputElement, Event>) =>
+            onSaveAlongsideChange(event.currentTarget.checked)
+          }
+          label={t("viewer.subtitles-save")}
+        />
+      </Form>
       <ScrollArea maxHeight="12rem" className={styles.scroll_area}>
         <div className={styles.results}>
           {results.map((result) => (
@@ -69,6 +79,7 @@ const SubtitleSearchResults = (props: SubtitleSearchResultsProps) => {
               onClick={() => onUse(result, saveAlongside)}
             >
               <span className={styles.label}>{result.label}</span>
+            {activeFileId === result.fileId ? <Check width={16} height={16} /> : null}
             </Button>
           ))}
         </div>

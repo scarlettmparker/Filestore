@@ -1,0 +1,21 @@
+.row {
+  display: flex;
+  gap: var(--md);
+  align-items: center;
+  width: 100%;
+}
+
+.label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+}
+
+.value {
+  min-width: 3rem;
+  text-align: center;
+}

@@ -202,7 +202,9 @@
       "subtitles-file-picker-loading": "Loading files...",
       "subtitles-file-picker-empty": "No subtitle files found",
       "subtitles-file-picker-cancel": "Cancel",
-      "subtitles-active": "Active"
+      "subtitles-active": "Active",
+      "subtitles-scale": "Scale",
+      "subtitles-scale-reset": "Reset"
     },
     "torrent": {
       "status": "Torrent Status",
