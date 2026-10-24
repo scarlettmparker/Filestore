@@ -1,6 +1,7 @@
-import { Button } from "@sun/components";
+import { Button, Checkbox, ScrollArea } from "@sun/components";
 import type { SubtitleSearchResult } from "~/generated/graphql";
 import { useTranslation } from "@sun/i18n";
+import type { TargetedEvent } from "preact";
 import styles from "./subtitle-search-results.module.css";
 
 type SubtitleSearchResultsProps = {
@@ -17,17 +18,28 @@ type SubtitleSearchResultsProps = {
    */
   saving: boolean;
   /**
-   * Uses a result without persisting.
+   * Whether downloaded subtitles are persisted.
    */
-  onUse: (result: SubtitleSearchResult) => void;
+  saveAlongside: boolean;
   /**
-   * Uses a result and persists it.
+   * Changes the persist preference.
    */
-  onSave: (result: SubtitleSearchResult) => void;
+  onSaveAlongsideChange: (value: boolean) => void;
+  /**
+   * Uses a result.
+   */
+  onUse: (result: SubtitleSearchResult, persist: boolean) => void;
 };
 
 const SubtitleSearchResults = (props: SubtitleSearchResultsProps) => {
-  const { results, hasSearched, saving, onUse, onSave } = props;
+  const {
+    results,
+    hasSearched,
+    saving,
+    saveAlongside,
+    onSaveAlongsideChange,
+    onUse,
+  } = props;
   const { t } = useTranslation("bucket");
 
   if (!hasSearched) return null;
@@ -37,20 +49,30 @@ const SubtitleSearchResults = (props: SubtitleSearchResultsProps) => {
   }
 
   return (
-    <div className={styles.results}>
-      {results.map((result) => (
-        <div key={result.fileId ?? result.label} className={styles.result}>
-          <span className={styles.label}>{result.label}</span>
-          <div className={styles.actions}>
-            <Button variant="secondary" disabled={saving} onClick={() => onUse(result)}>
-              {t("viewer.subtitles-use")}
+    <div className={styles.container}>
+      <Checkbox
+        checked={saveAlongside}
+        onChange={(event: TargetedEvent<HTMLInputElement, Event>) =>
+          onSaveAlongsideChange(event.currentTarget.checked)
+        }
+        label={t("viewer.subtitles-save")}
+        className={styles.save_option}
+      />
+      <ScrollArea maxHeight="12rem" className={styles.scroll_area}>
+        <div className={styles.results}>
+          {results.map((result) => (
+            <Button
+              key={result.fileId ?? result.label}
+              variant="secondary"
+              disabled={saving}
+              className={styles.result}
+              onClick={() => onUse(result, saveAlongside)}
+            >
+              <span className={styles.label}>{result.label}</span>
             </Button>
-            <Button variant="secondary" disabled={saving} onClick={() => onSave(result)}>
-              {t("viewer.subtitles-save")}
-            </Button>
-          </div>
+          ))}
         </div>
-      ))}
+      </ScrollArea>
     </div>
   );
 };

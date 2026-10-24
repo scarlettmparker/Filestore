@@ -97,6 +97,8 @@ const VideoViewer = (props: VideoViewerProps) => {
   const [searchResults, setSearchResults] = useState<SubtitleSearchResult[]>([]);
   const [saving, setSaving] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [saveAlongside, setSaveAlongside] = useState(false);
+  const [searchNonce, setSearchNonce] = useState(0);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
   const [filePickerLoading, setFilePickerLoading] = useState(false);
   const [bucketFiles, setBucketFiles] = useState<
@@ -179,7 +181,7 @@ const VideoViewer = (props: VideoViewerProps) => {
           },
         });
         setBaseVtt(response?.vtt ?? null);
-        setSelectedKey(response?.subtitleKey ?? selectedKey);
+        setSelectedKey(response?.subtitleKey ?? null);
         if (persist) {
           const list = await executeMutation<Subtitle[]>("filestore/subtitles", {
             bucket,
@@ -191,7 +193,7 @@ const VideoViewer = (props: VideoViewerProps) => {
         setSaving(false);
       }
     },
-    [bucket, sourceKey, searchLanguage, selectedKey],
+    [bucket, sourceKey, searchLanguage],
   );
 
   /**
@@ -209,6 +211,7 @@ const VideoViewer = (props: VideoViewerProps) => {
       },
     });
     setSearchResults(results ?? []);
+    setSearchNonce((value) => value + 1);
   }, [bucket, sourceKey, searchQuery, searchLanguage]);
 
   /**
@@ -520,12 +523,12 @@ const VideoViewer = (props: VideoViewerProps) => {
                   <Subtitles width={16} height={16} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className={styles.subtitle_menu_content}>
+              <DropdownMenuContent key={searchNonce} className={styles.subtitle_menu_content}>
                 <div className={styles.subtitle_menu}>
                   <div className={styles.subtitle_section}>
                     <DropdownMenuItem onClick={() => handleSelect(null)}>
                       <span>{t("viewer.subtitles-off")}</span>
-                      {selectedKey === null ? (
+                      {vttUrl === null ? (
                         <Badge variant="secondary" className={styles.track_badge}>
                           {t("viewer.subtitles-active")}
                         </Badge>
@@ -564,8 +567,9 @@ const VideoViewer = (props: VideoViewerProps) => {
                       results={searchResults}
                       hasSearched={hasSearched}
                       saving={saving}
-                      onUse={(result) => fetchResult(result, false)}
-                      onSave={(result) => fetchResult(result, true)}
+                      saveAlongside={saveAlongside}
+                      onSaveAlongsideChange={setSaveAlongside}
+                      onUse={(result, persist) => fetchResult(result, persist)}
                     />
                   </div>
                 </div>
