@@ -78,8 +78,8 @@ const SubtitleSearchResults = (props: SubtitleSearchResultsProps) => {
               className={styles.result}
               onClick={() => onUse(result, saveAlongside)}
             >
-              <span className={styles.label}>{result.label}</span>
-            {activeFileId === result.fileId ? <Check width={16} height={16} /> : null}
+              {activeFileId === result.fileId ? <Check width={16} height={16} /> : null}
+            <span className={styles.label}>{result.label}</span>
             </Button>
           ))}
         </div>

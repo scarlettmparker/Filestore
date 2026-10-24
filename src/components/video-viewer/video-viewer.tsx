@@ -8,7 +8,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  Badge,
 } from "@sun/components";
 import {
   Play,
@@ -268,19 +267,36 @@ const VideoViewer = (props: VideoViewerProps) => {
    */
   const handleSelect = useCallback(
     (key: string | null) => {
-      setSelectedKey(key);
-      if (key === null) {
+      if (key === null || (key === selectedKey && vttUrl !== null)) {
+        setSelectedKey(null);
         setBaseVtt(null);
         setActiveResultId(null);
         return;
       }
+      setSelectedKey(key);
       const local = subtitles.find((s) => s.subtitleKey === key);
       if (local) {
         void fetchLocal(key);
       }
       setActiveResultId(null);
     },
-    [subtitles, fetchLocal],
+    [subtitles, fetchLocal, selectedKey, vttUrl],
+  );
+
+  /**
+   * Uses a search result, or turns subtitles off when it is already active.
+   */
+  const handleUseResult = useCallback(
+    (result: SubtitleSearchResult, persist: boolean) => {
+      if (activeResultId === result.fileId && vttUrl !== null) {
+        setSelectedKey(null);
+        setBaseVtt(null);
+        setActiveResultId(null);
+        return;
+      }
+      void fetchResult(result, persist);
+    },
+    [activeResultId, vttUrl, fetchResult],
   );
 
   /**
@@ -545,14 +561,6 @@ const VideoViewer = (props: VideoViewerProps) => {
               <DropdownMenuContent key={searchNonce} className={styles.subtitle_menu_content}>
                 <div className={styles.subtitle_menu}>
                   <div className={styles.subtitle_section}>
-                    <DropdownMenuItem onClick={() => handleSelect(null)}>
-                      <span>{t("viewer.subtitles-off")}</span>
-                      {vttUrl === null ? (
-                        <Badge variant="secondary" className={styles.track_badge}>
-                          {t("viewer.subtitles-active")}
-                        </Badge>
-                      ) : null}
-                    </DropdownMenuItem>
                     {subtitles.map((subtitle) => (
                       <SubtitleOption
                         key={subtitle.subtitleKey}
@@ -590,7 +598,7 @@ const VideoViewer = (props: VideoViewerProps) => {
                       saveAlongside={saveAlongside}
                       onSaveAlongsideChange={setSaveAlongside}
                       activeFileId={activeResultId}
-                      onUse={(result, persist) => fetchResult(result, persist)}
+                      onUse={handleUseResult}
                     />
                   </div>
                 </div>

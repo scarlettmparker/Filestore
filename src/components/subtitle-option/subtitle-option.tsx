@@ -34,11 +34,10 @@ const SubtitleOption = (props: SubtitleOptionProps) => {
       onClick={() => onSelect(subtitle.subtitleKey)}
       className={styles.option}
     >
-      <span>{language} ({source})</span>
       {selected ? <Check width={16} height={16} /> : null}
+      <span>{language} ({source})</span>
     </Button>
   );
 };
 
 export default SubtitleOption;
-/
