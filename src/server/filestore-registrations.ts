@@ -43,6 +43,7 @@ import {
   type HealthQuery,
   type ListBucketsQuery,
   type ListKeysQuery,
+  type ListKeysQueryVariables,
   type LocateKeyDetailQuery,
   type PutKeyMutation,
   type RenameKeyMutation,
@@ -504,6 +505,24 @@ defineLoader({
 });
 
 /**
+ * Lists files in a bucket folder.
+ */
+defineMutation({
+  path: "filestore/list-keys",
+  async handler(
+    body: ListKeysQueryVariables,
+    context: MutationContext,
+  ): Promise<ListKeysQuery["filestoreQueries"]["listKeys"]> {
+    const result = await executeDocument<ListKeysQuery, ListKeysQueryVariables>(
+      ListKeysDocument,
+      body,
+      tokenFrom(context),
+    );
+    return result.data?.filestoreQueries?.listKeys ?? [];
+  },
+});
+
+/**
  * Lists subtitles for a video key.
  */
 defineMutation({
@@ -530,10 +549,11 @@ defineMutation({
     body: SearchSubtitlesMutationVariables,
     context: MutationContext,
   ): Promise<SearchSubtitlesMutation["filestoreMutations"]["searchSubtitles"]> {
-    const result = await executeDocument<
-      SearchSubtitlesMutation,
-      SearchSubtitlesMutationVariables
-    >(SearchSubtitlesDocument, body, tokenFrom(context));
+    const result = await executeDocument<SearchSubtitlesMutation, SearchSubtitlesMutationVariables>(
+      SearchSubtitlesDocument,
+      body,
+      tokenFrom(context),
+    );
     return result.data?.filestoreMutations?.searchSubtitles ?? [];
   },
 });
@@ -547,10 +567,11 @@ defineMutation({
     body: FetchSubtitleMutationVariables,
     context: MutationContext,
   ): Promise<FetchSubtitleMutation["filestoreMutations"]["fetchSubtitle"]> {
-    const result = await executeDocument<
-      FetchSubtitleMutation,
-      FetchSubtitleMutationVariables
-    >(FetchSubtitleDocument, body, tokenFrom(context));
+    const result = await executeDocument<FetchSubtitleMutation, FetchSubtitleMutationVariables>(
+      FetchSubtitleDocument,
+      body,
+      tokenFrom(context),
+    );
     const response = result.data?.filestoreMutations?.fetchSubtitle;
     if (response == null) {
       throw new MutationError(result.error ?? "Failed to fetch subtitle");
@@ -568,10 +589,11 @@ defineMutation({
     body: DeleteSubtitleMutationVariables,
     context: MutationContext,
   ): Promise<DeleteSubtitleMutation["filestoreMutations"]["deleteSubtitle"]> {
-    const result = await executeDocument<
-      DeleteSubtitleMutation,
-      DeleteSubtitleMutationVariables
-    >(DeleteSubtitleDocument, body, tokenFrom(context));
+    const result = await executeDocument<DeleteSubtitleMutation, DeleteSubtitleMutationVariables>(
+      DeleteSubtitleDocument,
+      body,
+      tokenFrom(context),
+    );
     const response = result.data?.filestoreMutations?.deleteSubtitle;
     if (response == null) {
       throw new MutationError(result.error ?? "Failed to delete subtitle");

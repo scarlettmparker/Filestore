@@ -119,7 +119,7 @@ const ViewerRoute = () => {
   }
 
   if (source.playable && source.url) {
-    return <VideoViewer src={source.url} />;
+    return <VideoViewer src={source.url} bucket={bucket ?? undefined} sourceKey={key ?? undefined} />;
   }
 
   if (source.needsTranscode) {

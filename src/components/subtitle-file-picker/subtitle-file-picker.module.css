@@ -1,0 +1,42 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lg);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md);
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.file {
+  display: flex;
+  align-items: center;
+  gap: var(--lg);
+  width: 100%;
+}
+
+.file_name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  flex-shrink: 0;
+  max-width: 40%;
+}
+
+.file_path {
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  text-align: right;
+}
+
+.empty {
+  margin: 0;
+}

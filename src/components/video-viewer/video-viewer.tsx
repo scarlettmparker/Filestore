@@ -8,9 +8,33 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Badge,
 } from "@sun/components";
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize } from "lucide-preact";
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Minimize,
+  Subtitles,
+  FolderOpen,
+} from "lucide-preact";
 import { useTranslation } from "@sun/i18n";
+import { executeMutation } from "@sun/ssr";
+import SubtitleOffsetControls from "~/components/subtitle-offset-controls";
+import SubtitleSearch from "~/components/subtitle-search";
+import SubtitleSearchResults from "~/components/subtitle-search-results";
+import SubtitleOption from "~/components/subtitle-option";
+import SubtitleFilePicker from "~/components/subtitle-file-picker";
+import { retimeVtt } from "~/utils/subtitle";
+import {
+  Subtitle,
+  SubtitleSearchResult,
+  FetchSubtitleResponse,
+  type ListKeysQuery,
+} from "~/generated/graphql";
+import { SubtitleSource } from "~/generated/graphql";
 import styles from "./video-viewer.module.css";
 
 type VideoViewerProps = {
@@ -18,6 +42,14 @@ type VideoViewerProps = {
    * URL of the video (presigned or /api/view/... endpoint).
    */
   src: string;
+  /**
+   * Bucket holding the video.
+   */
+  bucket?: string;
+  /**
+   * Original key of the video.
+   */
+  sourceKey?: string;
 };
 
 const SPEEDS = [0.5, 1, 1.5, 2];
@@ -43,7 +75,7 @@ function formatTime(seconds: number): string {
  * for use in a route or new tab.
  */
 const VideoViewer = (props: VideoViewerProps) => {
-  const { src } = props;
+  const { src, bucket, sourceKey } = props;
   const { t } = useTranslation("bucket");
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,6 +86,182 @@ const VideoViewer = (props: VideoViewerProps) => {
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(1);
   const [speed, setSpeed] = useState(1);
+
+  const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [baseVtt, setBaseVtt] = useState<string | null>(null);
+  const [offsetMs, setOffsetMs] = useState(0);
+  const [vttUrl, setVttUrl] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchLanguage, setSearchLanguage] = useState("en");
+  const [searchResults, setSearchResults] = useState<SubtitleSearchResult[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [filePickerOpen, setFilePickerOpen] = useState(false);
+  const [filePickerLoading, setFilePickerLoading] = useState(false);
+  const [bucketFiles, setBucketFiles] = useState<
+    NonNullable<ListKeysQuery["filestoreQueries"]["listKeys"]>
+  >([]);
+
+  /**
+   * Loads subtitles for the current video.
+   */
+  useEffect(() => {
+    if (!bucket || !sourceKey) return;
+    executeMutation<Subtitle[]>("filestore/subtitles", { bucket, keyPath: sourceKey })
+      .then((result) => setSubtitles(result ?? []))
+      .catch(() => setSubtitles([]));
+  }, [bucket, sourceKey]);
+
+  /**
+   * Prefills the search query from the file name.
+   */
+  useEffect(() => {
+    if (!sourceKey) return;
+    const name = sourceKey.split("/").pop() ?? sourceKey;
+    const stem = name.replace(/\.[^.]+$/, "");
+    setSearchQuery(stem.replace(/[._]/g, " "));
+  }, [sourceKey]);
+
+  /**
+   * Regenerates the Blob URL whenever the base VTT or offset changes.
+   */
+  useEffect(() => {
+    if (!baseVtt) {
+      if (vttUrl) URL.revokeObjectURL(vttUrl);
+      setVttUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([retimeVtt(baseVtt, offsetMs)], { type: "text/vtt" }));
+    setVttUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [baseVtt, offsetMs]);
+
+  /**
+   * Fetches a local subtitle's VTT.
+   */
+  const fetchLocal = useCallback(
+    async (subtitleKey: string) => {
+      if (!bucket || !sourceKey) return;
+      const response = await executeMutation<FetchSubtitleResponse>("filestore/fetch-subtitle", {
+        input: {
+          bucket,
+          keyPath: sourceKey,
+          subtitleKey,
+          source: SubtitleSource.Local,
+          language: null,
+          persist: false,
+          fileId: null,
+        },
+      });
+      setBaseVtt(response?.vtt ?? null);
+    },
+    [bucket, sourceKey],
+  );
+
+  /**
+   * Fetches an OpenSubtitles result.
+   */
+  const fetchResult = useCallback(
+    async (result: SubtitleSearchResult, persist: boolean) => {
+      if (!bucket || !sourceKey) return;
+      setSaving(true);
+      try {
+        const response = await executeMutation<FetchSubtitleResponse>("filestore/fetch-subtitle", {
+          input: {
+            bucket,
+            keyPath: sourceKey,
+            subtitleKey: null,
+            source: SubtitleSource.Opensubtitles,
+            fileId: result.fileId ?? null,
+            language: result.language || searchLanguage || "en",
+            persist,
+          },
+        });
+        setBaseVtt(response?.vtt ?? null);
+        setSelectedKey(response?.subtitleKey ?? selectedKey);
+        if (persist) {
+          const list = await executeMutation<Subtitle[]>("filestore/subtitles", {
+            bucket,
+            keyPath: sourceKey,
+          });
+          setSubtitles(list ?? []);
+        }
+      } finally {
+        setSaving(false);
+      }
+    },
+    [bucket, sourceKey, searchLanguage, selectedKey],
+  );
+
+  /**
+   * Runs an OpenSubtitles search.
+   */
+  const runSearch = useCallback(async () => {
+    if (!bucket || !sourceKey) return;
+    setHasSearched(true);
+    const results = await executeMutation<SubtitleSearchResult[]>("filestore/search-subtitles", {
+      input: {
+        bucket,
+        keyPath: sourceKey,
+        query: searchQuery || null,
+        language: searchLanguage || null,
+      },
+    });
+    setSearchResults(results ?? []);
+  }, [bucket, sourceKey, searchQuery, searchLanguage]);
+
+  /**
+   * Opens the subtitle file picker and loads the current folder.
+   */
+  const openFilePicker = useCallback(async () => {
+    if (!bucket || !sourceKey) return;
+    setFilePickerOpen(true);
+    setFilePickerLoading(true);
+    const slash = sourceKey.lastIndexOf("/");
+    const prefix = slash >= 0 ? sourceKey.slice(0, slash + 1) : undefined;
+    try {
+      const files = await executeMutation<ListKeysQuery["filestoreQueries"]["listKeys"]>(
+        "filestore/list-keys",
+        { bucket, prefix },
+      );
+      setBucketFiles(files ?? []);
+    } catch {
+      setBucketFiles([]);
+    } finally {
+      setFilePickerLoading(false);
+    }
+  }, [bucket, sourceKey]);
+
+  /**
+   * Uses a subtitle file selected from the bucket.
+   */
+  const handleFileSelect = useCallback(
+    (key: string) => {
+      setSelectedKey(key);
+      void fetchLocal(key);
+      setFilePickerOpen(false);
+    },
+    [fetchLocal],
+  );
+
+  /**
+   * Selects a subtitle by key.
+   */
+  const handleSelect = useCallback(
+    (key: string | null) => {
+      setSelectedKey(key);
+      if (key === null) {
+        setBaseVtt(null);
+        return;
+      }
+      const local = subtitles.find((s) => s.subtitleKey === key);
+      if (local) {
+        void fetchLocal(key);
+      }
+    },
+    [subtitles, fetchLocal],
+  );
 
   /**
    * Toggles play/pause on the video element.
@@ -150,8 +358,22 @@ const VideoViewer = (props: VideoViewerProps) => {
       if (e.key === "ArrowRight") {
         v.currentTime = Math.min(v.duration || 0, v.currentTime + SKIP_OFFSET);
       }
+      if (e.key === "c") {
+        if (selectedKey === null) {
+          const first = subtitles[0]?.subtitleKey ?? null;
+          if (first) handleSelect(first);
+        } else {
+          handleSelect(null);
+        }
+      }
+      if (e.key === "[") {
+        setOffsetMs((value) => value - 100);
+      }
+      if (e.key === "]") {
+        setOffsetMs((value) => value + 100);
+      }
     },
-    [handlePlayPause, handleFullscreen, handleMute],
+    [handlePlayPause, handleFullscreen, handleMute, selectedKey, subtitles, handleSelect],
   );
 
   /**
@@ -190,99 +412,187 @@ const VideoViewer = (props: VideoViewerProps) => {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className={styles.video_container}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
-      <video
-        ref={videoRef}
-        src={src}
-        className={styles.video_element}
-        autoPlay
-        onClick={handlePlayPause}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleMetadata}
-        onEnded={handleEnded}
-        onPlay={handlePlay}
-        onPause={handlePause}
-      />
-      <div className={styles.controls}>
-        <div className={styles.controls_main}>
-          <Button
-            variant="secondary"
-            onClick={handlePlayPause}
-            title={playing ? t("viewer.pause") : t("viewer.play")}
-            aria-label={playing ? t("viewer.pause") : t("viewer.play")}
-          >
-            {playing ? <Pause width={16} height={16} /> : <Play width={16} height={16} />}
-          </Button>
-          <Label className={styles.time}>
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </Label>
-          <Input
-            type="range"
-            min={0}
-            max={duration || 1}
-            step={0.1}
-            value={currentTime}
-            onChange={handleSeek}
-            className={styles.seek_bar}
-            aria-label={t("viewer.seek")}
-          />
-          <Button
-            variant="secondary"
-            onClick={handleMute}
-            title={t("viewer.mute")}
-            aria-label={t("viewer.mute")}
-          >
-            {muted || volume === 0 ? (
-              <VolumeX width={16} height={16} />
-            ) : (
-              <Volume2 width={16} height={16} />
-            )}
-          </Button>
-          <Input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={muted ? 0 : volume}
-            onChange={handleVolume}
-            className={styles.volume_bar}
-            aria-label={t("viewer.volume")}
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" title={t("viewer.speed")} aria-label={t("viewer.speed")}>
-                {speed}x
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {SPEEDS.map((s) => (
-                <DropdownMenuItem
-                  key={s}
-                  onClick={() => {
-                    setSpeed(s);
-                    if (videoRef.current) videoRef.current.playbackRate = s;
-                  }}
+    <div className={styles.page}>
+      <div
+        ref={containerRef}
+        className={styles.video_container}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+      >
+        <video
+          ref={videoRef}
+          src={src}
+          className={styles.video_element}
+          autoPlay
+          onClick={handlePlayPause}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleMetadata}
+          onEnded={handleEnded}
+          onPlay={handlePlay}
+          onPause={handlePause}
+        >
+          {vttUrl ? (
+            <track
+              key={vttUrl}
+              kind="subtitles"
+              src={vttUrl}
+              srcLang={searchLanguage || "en"}
+              default
+            />
+          ) : null}
+        </video>
+        <div className={styles.controls}>
+          <div className={styles.controls_main}>
+            <Button
+              variant="secondary"
+              onClick={handlePlayPause}
+              title={playing ? t("viewer.pause") : t("viewer.play")}
+              aria-label={playing ? t("viewer.pause") : t("viewer.play")}
+            >
+              {playing ? <Pause width={16} height={16} /> : <Play width={16} height={16} />}
+            </Button>
+            <Label className={styles.time}>
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </Label>
+            <Input
+              type="range"
+              min={0}
+              max={duration || 1}
+              step={0.1}
+              value={currentTime}
+              onChange={handleSeek}
+              className={styles.seek_bar}
+              aria-label={t("viewer.seek")}
+            />
+            <Button
+              variant="secondary"
+              onClick={handleMute}
+              title={t("viewer.mute")}
+              aria-label={t("viewer.mute")}
+            >
+              {muted || volume === 0 ? (
+                <VolumeX width={16} height={16} />
+              ) : (
+                <Volume2 width={16} height={16} />
+              )}
+            </Button>
+            <Input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={muted ? 0 : volume}
+              onChange={handleVolume}
+              className={styles.volume_bar}
+              aria-label={t("viewer.volume")}
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  title={t("viewer.speed")}
+                  aria-label={t("viewer.speed")}
                 >
-                  {s}x
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button
-            variant="secondary"
-            onClick={handleFullscreen}
-            title={t("viewer.fullscreen")}
-            aria-label={t("viewer.fullscreen")}
-          >
-            {fullscreen ? <Minimize width={16} height={16} /> : <Maximize width={16} height={16} />}
-          </Button>
+                  {speed}x
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {SPEEDS.map((s) => (
+                  <DropdownMenuItem
+                    key={s}
+                    onClick={() => {
+                      setSpeed(s);
+                      if (videoRef.current) videoRef.current.playbackRate = s;
+                    }}
+                  >
+                    {s}x
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  title={t("viewer.subtitles")}
+                  aria-label={t("viewer.subtitles")}
+                >
+                  <Subtitles width={16} height={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className={styles.subtitle_menu_content}>
+                <div className={styles.subtitle_menu}>
+                  <div className={styles.subtitle_section}>
+                    <DropdownMenuItem onClick={() => handleSelect(null)}>
+                      <span>{t("viewer.subtitles-off")}</span>
+                      {selectedKey === null ? (
+                        <Badge variant="secondary" className={styles.track_badge}>
+                          {t("viewer.subtitles-active")}
+                        </Badge>
+                      ) : null}
+                    </DropdownMenuItem>
+                    {subtitles.map((subtitle) => (
+                      <SubtitleOption
+                        key={subtitle.subtitleKey}
+                        subtitle={subtitle}
+                        selected={selectedKey === subtitle.subtitleKey}
+                        onSelect={handleSelect}
+                      />
+                    ))}
+                  </div>
+
+                  <div className={styles.subtitle_section}>
+                    <DropdownMenuItem onClick={openFilePicker}>
+                      <FolderOpen width={16} height={16} />
+                      {t("viewer.subtitles-browse-files")}
+                    </DropdownMenuItem>
+                  </div>
+
+                  <div className={styles.subtitle_section}>
+                    <SubtitleOffsetControls offsetMs={offsetMs} onOffsetChange={setOffsetMs} />
+                  </div>
+
+                  <div className={styles.subtitle_section}>
+                    <SubtitleSearch
+                      query={searchQuery}
+                      language={searchLanguage}
+                      onQueryChange={setSearchQuery}
+                      onLanguageChange={setSearchLanguage}
+                      onSearch={runSearch}
+                    />
+                    <SubtitleSearchResults
+                      results={searchResults}
+                      hasSearched={hasSearched}
+                      saving={saving}
+                      onUse={(result) => fetchResult(result, false)}
+                      onSave={(result) => fetchResult(result, true)}
+                    />
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="secondary"
+              onClick={handleFullscreen}
+              title={t("viewer.fullscreen")}
+              aria-label={t("viewer.fullscreen")}
+            >
+              {fullscreen ? (
+                <Minimize width={16} height={16} />
+              ) : (
+                <Maximize width={16} height={16} />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
+      <SubtitleFilePicker
+        open={filePickerOpen}
+        files={bucketFiles}
+        loading={filePickerLoading}
+        onClose={() => setFilePickerOpen(false)}
+        onSelect={handleFileSelect}
+      />
     </div>
   );
 };
