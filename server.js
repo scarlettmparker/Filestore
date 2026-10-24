@@ -49,4 +49,5 @@ await createServer({
     app: "filestore",
     authCookie: AUTH_COOKIE,
   },
+  additionalConnectSrc: ["https://cdn.jsdelivr.net"],
 });

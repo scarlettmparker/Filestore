@@ -15,8 +15,9 @@
         "@sun/components": "^0.12.14",
         "@sun/events": "^0.1.1",
         "@sun/i18n": "^0.1.1",
+        "@sun/security": "0.1.10",
         "@sun/shared": "^0.2.12",
-        "@sun/ssr": "^0.10.1",
+        "@sun/ssr": "0.10.2",
         "@sun/themes": "^0.2.10",
         "@sun/utils": "^0.2.0",
         "@testing-library/user-event": "^14.6.1",
@@ -515,11 +516,11 @@
 
     "@sun/i18n": ["@sun/i18n@0.1.1", "https://registry.int.scarlettparker.co.uk/@sun/i18n/-/i18n-0.1.1.tgz", { "peerDependencies": { "i18next": ">=23", "preact": "^11.0.0" } }, "sha512-7iV/qz7TPF/gznpdAWeVCA1Vlwz1RjiGcahbRdJFKoPPfzWVKeDrhpkAtKUTMRbrGcuLWs33Kc3WnukjsYkTNg=="],
 
-    "@sun/security": ["@sun/security@0.1.8", "https://registry.int.scarlettparker.co.uk/@sun/security/-/security-0.1.8.tgz", {}, "sha512-j8YEt8WZVOMkmjGHQh4u5Aa8OY/Mo9Wlmt02qGjbmny/DGDAWQALX/WEI4lpDQiHAADs8cqzgpq5/7HUec2yVA=="],
+    "@sun/security": ["@sun/security@0.1.10", "https://registry.int.scarlettparker.co.uk/@sun/security/-/security-0.1.10.tgz", {}, "sha512-zL4TIBhRJ0lGFaWUzxdY7MaxdtAmfbV86KsvwolOlpbCPQZL8g8pVAPeP8ZzFLimc3HV5w/TiErq0I+zRdj82g=="],
 
     "@sun/shared": ["@sun/shared@0.2.12", "https://registry.int.scarlettparker.co.uk/@sun/shared/-/shared-0.2.12.tgz", {}, "sha512-spDJFUSnio/Xv9/+v0USInoxcrrP6OuIl7mk9NG/1dp5zPg+ipnuOGoy3y7Tqjh1Zf4T+m5DhoKKwiNlYMkWjw=="],
 
-    "@sun/ssr": ["@sun/ssr@0.10.1", "https://registry.int.scarlettparker.co.uk/@sun/ssr/-/ssr-0.10.1.tgz", { "dependencies": { "@sun/analytics": "^0.1.2", "@sun/security": "^0.1.5", "@sun/utils": "^0.1.6", "preact-render-to-string": "^6.8.1" }, "peerDependencies": { "preact": "^11.0.0" } }, "sha512-2QcZU5UxuDTHhk2zQhEw4nQMUUarPv+nbdch2s6w2o2L7DPPy/yDurviriMf3J61S25uVVbT22UZllvXOeSDhA=="],
+    "@sun/ssr": ["@sun/ssr@0.10.2", "https://registry.int.scarlettparker.co.uk/@sun/ssr/-/ssr-0.10.2.tgz", { "dependencies": { "@sun/analytics": "^0.1.2", "@sun/security": "^0.1.10", "@sun/utils": "^0.1.6", "preact-render-to-string": "^6.8.1" }, "peerDependencies": { "preact": "^11.0.0" } }, "sha512-FAw2Its1h5IlJL1Uv6qwuuQl4019yjEw3lAdTBy1gMhH4kDjvuDxgKZ5C3/GAGAr90cMAQnf4W+K2khx9psLrA=="],
 
     "@sun/themes": ["@sun/themes@0.2.13", "https://registry.int.scarlettparker.co.uk/@sun/themes/-/themes-0.2.13.tgz", { "peerDependencies": { "@sun/components": ">=0.11.35", "react": "^19.0.0" } }, "sha512-1PiYNT1fNBPtOt8MW7yLgSJwKlp1cFeTFhVxXevDkXP4QNXRMz7tyHMwIYAw7YZB6fFYXsiMwfcQjAEANJUyzA=="],
 
