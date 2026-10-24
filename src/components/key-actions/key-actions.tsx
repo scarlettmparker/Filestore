@@ -8,7 +8,7 @@ import { ICON_SIZE } from "~/utils/const";
 import { KeyEntry } from "~/generated/graphql";
 import { FrontendMode } from "@sun/shared";
 import type { FrontendMode as FrontendModeType } from "@sun/shared";
-import { TFunction } from "i18next";
+import type { Translator } from "@sun/i18n";
 import RenameContext from "~/contexts/rename-context";
 
 type KeyActionsProps = {
@@ -39,7 +39,7 @@ type KeyActionsProps = {
   /**
    * i18n translation function.
    */
-  t: TFunction<"bucket">;
+  t: Translator;
 };
 
 const KeyActions = (props: KeyActionsProps) => {
@@ -52,7 +52,7 @@ const KeyActions = (props: KeyActionsProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger
         asChild
-        onClick={(e: React.MouseEvent) => {
+        onClick={(e: MouseEvent) => {
           e.stopPropagation();
           e.preventDefault();
         }}

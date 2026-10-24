@@ -1,29 +1,6 @@
-/**
- * Server route for proxying file download requests through the Filestore server.
- *
- * <p>This keeps browser requests same-origin while forwarding the download call
- * to the backend service configured by {@code GRAPHQL_ENDPOINT}.
- */
 import { Buffer } from "buffer";
 import type { SunApp } from "@sun/ssr/server";
-
-/**
- * Returns the base URL for the backend API derived from the GraphQL endpoint.
- *
- * @returns normalized backend base URL without a trailing slash
- */
-function getBackendApiBase(): string {
-  const endpoint = process.env.GRAPHQL_ENDPOINT || "http://localhost:8083/graphql";
-
-  try {
-    const url = new URL(endpoint);
-    url.pathname = "/";
-    url.search = "";
-    return url.toString().replace(/\/$/, "");
-  } catch {
-    return endpoint.replace(/\/graphql$/, "").replace(/\/$/, "");
-  }
-}
+import { getBackendApiBase } from "../backend";
 
 /**
  * Registers the download proxy route on the provided Fastify app.

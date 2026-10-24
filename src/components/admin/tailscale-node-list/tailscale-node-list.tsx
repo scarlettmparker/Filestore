@@ -51,7 +51,7 @@ const TailscaleNodeList = (props: TailscaleNodeListProps) => {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   asChild
-                  onClick={(e: React.MouseEvent) => {
+                  onClick={(e: MouseEvent) => {
                     e.stopPropagation();
                     e.preventDefault();
                   }}

@@ -78,7 +78,7 @@ const TorrentDialog = (props: TorrentDialogProps) => {
    * Reads a .torrent file and stores its base64 content.
    */
   const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.currentTarget.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
@@ -94,8 +94,8 @@ const TorrentDialog = (props: TorrentDialogProps) => {
    * Handles magnet input change.
    */
   const handleMagnetChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setMagnet(event.target.value);
-    if (event.target.value) {
+    setMagnet(event.currentTarget.value);
+    if (event.currentTarget.value) {
       setTorrentBase64(null);
       setTorrentFileName(null);
     }

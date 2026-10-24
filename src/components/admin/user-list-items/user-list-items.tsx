@@ -123,7 +123,7 @@ const AdminUserListItems = ({ search, page }: AdminUserListItemsProps) => {
                       <EllipsisVerticalOutline
                         width={16}
                         height={16}
-                        onClick={(e: React.MouseEvent) => {
+                        onClick={(e: MouseEvent) => {
                           e.stopPropagation();
                           e.preventDefault();
                         }}

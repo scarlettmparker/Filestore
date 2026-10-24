@@ -161,7 +161,14 @@
       "volume": "Volume",
       "speed": "Playback Speed",
       "fullscreen": "Fullscreen",
-      "video-not-supported": "Your browser does not support video playback."
+      "video-not-supported": "Your browser does not support video playback.",
+      "missing-params": "Missing bucket or key parameter.",
+      "not-found": "This file could not be found.",
+      "prepare-title": "Video needs converting",
+      "prepare-body": "This video has not been prepared for browser playback yet.",
+      "prepare-action": "Prepare for playback",
+      "preparing": "Preparing video, this can take a few minutes.",
+      "prepare-failed": "The video could not be prepared. Try again later."
     },
     "torrent": {
       "status": "Torrent Status",

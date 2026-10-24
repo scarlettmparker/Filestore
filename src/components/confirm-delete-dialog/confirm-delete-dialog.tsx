@@ -6,7 +6,7 @@ import {
   DialogFooter,
   Button,
 } from "@sun/components";
-import { TFunction } from "i18next";
+import type { Translator } from "@sun/i18n";
 
 type ConfirmDeleteDialogProps = {
   /**
@@ -28,7 +28,7 @@ type ConfirmDeleteDialogProps = {
   /**
    * i18n translation function.
    */
-  t: TFunction<"bucket">;
+  t: Translator;
 };
 
 /**

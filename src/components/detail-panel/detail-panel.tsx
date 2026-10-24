@@ -3,7 +3,7 @@ import { KeyDetail, LocateKeyDetailQuery, TorrentDownload } from "~/generated/gr
 import KeyDetailPanel from "~/components/key-detail";
 import KeyDetailPlaceholder from "~/components/key-detail-placeholder";
 import TorrentDetailPanel from "~/components/torrent-detail";
-import { TFunction } from "i18next";
+import type { Translator } from "@sun/i18n";
 
 type DetailPanelProps = {
   /**
@@ -21,7 +21,7 @@ type DetailPanelProps = {
   /**
    * i18n translation function.
    */
-  t: TFunction<"bucket">;
+  t: Translator;
   /**
    * Torrent download data for the selected key, if it is a torrent.
    */

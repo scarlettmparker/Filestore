@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { DialogFooter, Button } from "@sun/components";
 import { DialogHeader, DialogTitle, DialogBody } from "@sun/components";
 import { Dialog } from "@sun/components";
-import { TFunction } from "i18next";
+import type { Translator } from "@sun/i18n";
 import styles from "./confirm-rename-dialog.module.css";
 
 type ConfirmRenameDialogProps = {
@@ -21,7 +21,7 @@ type ConfirmRenameDialogProps = {
   /**
    * i18n translation function.
    */
-  t: TFunction<"bucket">;
+  t: Translator;
 };
 
 /**

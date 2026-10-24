@@ -1,6 +1,7 @@
 import { defineLoader, defineMutation, MutationError, type MutationContext } from "@sun/ssr";
 import { executeDocument } from "@sun/api";
 import { tokenFrom } from "./context";
+import { objectExists, triggerTranscode } from "./backend";
 import { AUTH_COOKIE, getCookieValue } from "~/utils/auth";
 import {
   AddTorrentDocument,
@@ -49,6 +50,48 @@ type BucketBody = {
   key?: string | null;
   path?: string;
 };
+
+/**
+ * Playable source resolved for a video key.
+ */
+type VideoSource = {
+  /**
+   * Presigned URL for the playable object, or null when nothing is playable.
+   */
+  url: string | null;
+  /**
+   * Key of the playable object, or the requested key when unresolved.
+   */
+  key: string;
+  /**
+   * Whether the returned URL points at a browser-playable object.
+   */
+  playable: boolean;
+  /**
+   * Whether the original still needs transcoding before it can play.
+   */
+  needsTranscode: boolean;
+  /**
+   * Whether any source object exists for the key.
+   */
+  found: boolean;
+};
+
+/**
+ * Returns a presigned download URL for a key.
+ */
+async function presignDownload(
+  bucket: string,
+  key: string,
+  context: MutationContext,
+): Promise<string | null> {
+  const result = await executeDocument<GetPresignedDownloadUrlMutation>(
+    GetPresignedDownloadUrlDocument,
+    { input: { bucket, key } },
+    tokenFrom(context),
+  );
+  return result.data?.filestoreMutations?.getPresignedDownloadUrl?.url ?? null;
+}
 
 /**
  * Puts a file or key.
@@ -135,16 +178,70 @@ defineMutation({
   async handler(body: BucketBody & { key?: string }): Promise<{ message: string; key: string }> {
     const key = body.key ?? "";
     if (key.endsWith(".mkv") || key.endsWith(".avi")) {
-      const backendUrl =
-        process.env.GRAPHQL_ENDPOINT?.replace("/graphql", "") || "http://localhost:8083";
-      fetch(`${backendUrl}/api/transcode`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bucket: body.bucket, key }),
-      }).catch((err) => console.error("Transcode failed:", err));
+      triggerTranscode(body.bucket, key);
     }
 
     return { message: "Uploaded successfully", key };
+  },
+});
+
+/**
+ * Resolves the browser-playable source for a video key, preferring a
+ * transcoded MP4 when one exists.
+ */
+defineMutation({
+  path: "filestore/resolve-video-source",
+  async handler(
+    body: BucketBody & { key: string },
+    context: MutationContext,
+  ): Promise<VideoSource> {
+    const { bucket, key } = body;
+    if (!bucket || !key) {
+      throw new MutationError("Invalid input: bucket and key required");
+    }
+
+    const needsTranscode = /\.(mkv|avi)$/i.test(key);
+    if (!needsTranscode) {
+      if (!(await objectExists(bucket, key))) {
+        return { url: null, key, playable: false, needsTranscode: false, found: false };
+      }
+      return {
+        url: await presignDownload(bucket, key, context),
+        key,
+        playable: true,
+        needsTranscode: false,
+        found: true,
+      };
+    }
+
+    const mp4Key = `${key}.mp4`;
+    if (await objectExists(bucket, mp4Key)) {
+      return {
+        url: await presignDownload(bucket, mp4Key, context),
+        key: mp4Key,
+        playable: true,
+        needsTranscode: false,
+        found: true,
+      };
+    }
+
+    const found = await objectExists(bucket, key);
+    return { url: null, key, playable: false, needsTranscode: found, found };
+  },
+});
+
+/**
+ * Starts a background transcode for a video key.
+ */
+defineMutation({
+  path: "filestore/transcode-video",
+  async handler(body: BucketBody & { key: string }): Promise<{ message: string; key: string }> {
+    const { bucket, key } = body;
+    if (!bucket || !key) {
+      throw new MutationError("Invalid input: bucket and key required");
+    }
+    triggerTranscode(bucket, key);
+    return { message: "Transcode started", key };
   },
 });
 

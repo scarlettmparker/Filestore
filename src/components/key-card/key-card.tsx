@@ -9,7 +9,7 @@ import type {
 import styles from "./key-card.module.css";
 import { Card, CardBody, CardFooter } from "@sun/components";
 import Key from "~/components/key";
-import { TFunction } from "i18next";
+import type { Translator } from "@sun/i18n";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -138,7 +138,7 @@ type KeyCardProps = {
   /**
    * i18n translation function.
    */
-  t: TFunction<"bucket">;
+  t: Translator;
   /**
    * Frontend mode for iframe-aware rendering.
    */

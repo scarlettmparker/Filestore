@@ -1,13 +1,13 @@
 import { Card, CardBody } from "@sun/components";
 import { FolderOpen } from "lucide-preact";
-import { TFunction } from "i18next";
+import type { Translator } from "@sun/i18n";
 import styles from "./key-detail-placeholder.module.css";
 
 type KeyDetailPlaceholderProps = {
   /**
    * i18n translation function.
    */
-  t: TFunction<"bucket">;
+  t: Translator;
 } & React.PropsWithChildren;
 
 /**

@@ -1,6 +1,6 @@
 import { Card, CardBody } from "@sun/components";
 import { formatDate } from "@sun/utils";
-import { TFunction } from "i18next";
+import type { Translator } from "@sun/i18n";
 import type { KeyDetail } from "~/generated/graphql";
 import styles from "./key-detail.module.css";
 
@@ -12,7 +12,7 @@ type KeyDetailProps = {
   /**
    * i18n translation function.
    */
-  t: TFunction<"bucket">;
+  t: Translator;
 } & React.PropsWithChildren;
 
 /**

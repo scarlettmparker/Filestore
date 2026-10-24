@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import type { TargetedEvent, TargetedKeyboardEvent } from "preact";
 import {
   Button,
   Input,
@@ -83,8 +84,8 @@ const VideoViewer = (props: VideoViewerProps) => {
    * @param e Input change event.
    */
   const handleVolume = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = parseFloat(e.target.value);
+    (e: TargetedEvent<HTMLInputElement, Event>) => {
+      const value = parseFloat(e.currentTarget.value);
       const v = videoRef.current;
       if (!v) return;
       v.volume = value;
@@ -105,10 +106,10 @@ const VideoViewer = (props: VideoViewerProps) => {
    *
    * @param e Input change event.
    */
-  const handleSeek = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSeek = useCallback((e: TargetedEvent<HTMLInputElement, Event>) => {
     const v = videoRef.current;
     if (!v) return;
-    v.currentTime = parseFloat(e.target.value);
+    v.currentTime = parseFloat(e.currentTarget.value);
   }, []);
 
   /**
@@ -130,7 +131,7 @@ const VideoViewer = (props: VideoViewerProps) => {
    * @param e Keyboard event.
    */
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: TargetedKeyboardEvent<HTMLDivElement>) => {
       const v = videoRef.current;
       if (!v) return;
       if (e.key === " " || e.key === "k") {

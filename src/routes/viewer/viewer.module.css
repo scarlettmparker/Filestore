@@ -1,0 +1,11 @@
+.message {
+  padding: var(--lg);
+}
+
+.prepare {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--md);
+  padding: var(--xl);
+}

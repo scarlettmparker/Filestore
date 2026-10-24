@@ -1,12 +1,12 @@
 import { Card, CardBody } from "@sun/components";
-import { TFunction } from "i18next";
+import type { Translator } from "@sun/i18n";
 import type { TorrentDownload } from "~/generated/graphql";
 import { TorrentJobStatus } from "~/generated/graphql";
 import styles from "./torrent-detail.module.css";
 
 type TorrentDetailPanelProps = {
   torrent: TorrentDownload;
-  t: TFunction<"bucket">;
+  t: Translator;
 };
 
 const TorrentDetailPanel = (props: TorrentDetailPanelProps) => {

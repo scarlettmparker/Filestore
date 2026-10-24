@@ -14,10 +14,11 @@ import { Button } from "@sun/components";
 import { ICON_SIZE } from "~/utils/const";
 import { Input } from "@sun/components";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import type { TargetedEvent, TargetedKeyboardEvent } from "preact";
 import { useNavigate, useParams } from "react-router-dom";
 import ConfirmRenameDialog from "../confirm-rename-dialog";
 import RenameContext from "~/contexts/rename-context";
-import { TFunction } from "i18next";
+import type { Translator } from "@sun/i18n";
 
 type KeyProps = {
   /**
@@ -41,7 +42,7 @@ type KeyProps = {
   /**
    * i18n translation function.
    */
-  t: TFunction<"bucket">;
+  t: Translator;
 } & React.HTMLAttributes<HTMLButtonElement> &
   React.PropsWithChildren;
 
@@ -165,8 +166,12 @@ const Key = (props: KeyProps) => {
 
   return (
     <RenameContext.Provider value={contextValue}>
-      <div className={styles.key_wrapper} onDoubleClick={handleDoubleClick}>
-        <Button variant="secondary" className={cn(styles.key_button, className)} {...rest}>
+      <div className={styles.key_wrapper} onDblClick={handleDoubleClick}>
+        <Button
+          variant="secondary"
+          className={cn(styles.key_button, typeof className === "string" ? className : undefined)}
+          {...rest}
+        >
           {getKeyIcon()}
           <span className={styles.key_hidden_spacer}>{inputValue || displayName}</span>
 
@@ -209,8 +214,10 @@ const Key = (props: KeyProps) => {
             ref={inputRef}
             className={styles.key_input_absolute}
             value={inputValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            onChange={(e: TargetedEvent<HTMLInputElement, Event>) =>
+              setInputValue(e.currentTarget.value)
+            }
+            onKeyDown={(e: TargetedKeyboardEvent<HTMLInputElement>) => {
               if (e.key === "Enter") {
                 e.currentTarget.blur();
               }
