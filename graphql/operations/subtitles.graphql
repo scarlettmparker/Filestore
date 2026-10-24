@@ -1,0 +1,15 @@
+query subtitles($bucket: String!, $keyPath: String!) {
+  filestoreQueries {
+    subtitles(bucket: $bucket, keyPath: $keyPath) {
+      id
+      bucket
+      keyPath
+      subtitleKey
+      language
+      source
+      openSubtitlesFileId
+      createdAt
+      lastUpdatedAt
+    }
+  }
+}

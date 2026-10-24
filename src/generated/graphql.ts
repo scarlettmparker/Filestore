@@ -176,6 +176,120 @@ export type AttachedText = {
   title: Scalars['String']['output'];
 };
 
+export type AuditChainVerification = {
+  __typename?: 'AuditChainVerification';
+  brokenAt?: Maybe<Scalars['DateTime']['output']>;
+  brokenId?: Maybe<Scalars['ID']['output']>;
+  checked: Scalars['Int']['output'];
+  intact: Scalars['Boolean']['output'];
+  keyed: Scalars['Boolean']['output'];
+};
+
+export type AuditEvent = {
+  __typename?: 'AuditEvent';
+  correlationId?: Maybe<Scalars['ID']['output']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  durationMs?: Maybe<Scalars['Long']['output']>;
+  endpoint?: Maybe<Scalars['String']['output']>;
+  errorMessage?: Maybe<Scalars['String']['output']>;
+  eventType?: Maybe<Scalars['String']['output']>;
+  hasEncryptedBeforePayload: Scalars['Boolean']['output'];
+  hasEncryptedPayload: Scalars['Boolean']['output'];
+  httpStatus?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  ipAddress?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+  operationName?: Maybe<Scalars['String']['output']>;
+  operationType?: Maybe<AuditOperationType>;
+  outcome?: Maybe<AuditOutcome>;
+  payloadBefore?: Maybe<Scalars['String']['output']>;
+  payloadRedacted?: Maybe<Scalars['String']['output']>;
+  prevHash?: Maybe<Scalars['String']['output']>;
+  rowHash?: Maybe<Scalars['String']['output']>;
+  targetEntity?: Maybe<Scalars['String']['output']>;
+  targetEntityId?: Maybe<Scalars['ID']['output']>;
+  userAgent?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['ID']['output']>;
+  userName?: Maybe<Scalars['String']['output']>;
+  userRoles?: Maybe<Scalars['String']['output']>;
+};
+
+export type AuditEventFilterInput = {
+  eventType?: InputMaybe<Scalars['String']['input']>;
+  eventTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  from?: InputMaybe<Scalars['DateTime']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  outcome?: InputMaybe<AuditOutcome>;
+  outcomes?: InputMaybe<Array<AuditOutcome>>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  targetEntity?: InputMaybe<Scalars['String']['input']>;
+  targetEntityId?: InputMaybe<Scalars['ID']['input']>;
+  to?: InputMaybe<Scalars['DateTime']['input']>;
+  userId?: InputMaybe<Scalars['ID']['input']>;
+  userIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
+export type AuditFacetValue = {
+  __typename?: 'AuditFacetValue';
+  count: Scalars['Long']['output'];
+  label: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type AuditFacets = {
+  __typename?: 'AuditFacets';
+  actors: Array<AuditFacetValue>;
+  eventTypes: Array<AuditFacetValue>;
+  outcomes: Array<AuditFacetValue>;
+  totalCount: Scalars['Long']['output'];
+};
+
+export enum AuditOperationType {
+  Mutation = 'MUTATION',
+  Query = 'QUERY',
+  Rest = 'REST'
+}
+
+export enum AuditOutcome {
+  Failure = 'FAILURE',
+  Success = 'SUCCESS'
+}
+
+export type AuditPage = {
+  __typename?: 'AuditPage';
+  events: PagedAuditEvents;
+  facets: AuditFacets;
+};
+
+export type AuditQueries = {
+  __typename?: 'AuditQueries';
+  auditEvent?: Maybe<AuditEvent>;
+  auditEventsByCorrelationId: Array<AuditEvent>;
+  auditPage: AuditPage;
+  verifyAuditChain: AuditChainVerification;
+};
+
+
+export type AuditQueriesAuditEventArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type AuditQueriesAuditEventsByCorrelationIdArgs = {
+  correlationId: Scalars['ID']['input'];
+};
+
+
+export type AuditQueriesAuditPageArgs = {
+  filter?: InputMaybe<AuditEventFilterInput>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type AuditQueriesVerifyAuditChainArgs = {
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type AuthResult = {
   __typename?: 'AuthResult';
   accountId: Scalars['ID']['output'];
@@ -1046,6 +1160,18 @@ export type DeleteRoleResponse = {
   message: Scalars['String']['output'];
 };
 
+export type DeleteSubtitleInput = {
+  bucket: Scalars['String']['input'];
+  subtitleKey: Scalars['String']['input'];
+};
+
+/**  Response payload for deleteSubtitle. */
+export type DeleteSubtitleResponse = {
+  __typename?: 'DeleteSubtitleResponse';
+  key: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+};
+
 /** Result of detaching a remote object from a checklist detail. */
 export type DetachObjectResponse = {
   __typename?: 'DetachObjectResponse';
@@ -1408,6 +1534,23 @@ export type FatesQueriesPlaceArgs = {
   id: Scalars['ID']['input'];
 };
 
+export type FetchSubtitleInput = {
+  bucket: Scalars['String']['input'];
+  fileId?: InputMaybe<Scalars['Int']['input']>;
+  keyPath: Scalars['String']['input'];
+  language?: InputMaybe<Scalars['String']['input']>;
+  persist?: InputMaybe<Scalars['Boolean']['input']>;
+  source: SubtitleSource;
+  subtitleKey?: InputMaybe<Scalars['String']['input']>;
+};
+
+/**  Response payload for fetchSubtitle. */
+export type FetchSubtitleResponse = {
+  __typename?: 'FetchSubtitleResponse';
+  subtitleKey?: Maybe<Scalars['String']['output']>;
+  vtt: Scalars['String']['output'];
+};
+
 /**  Represents a file object in a bucket. */
 export type File = {
   __typename?: 'File';
@@ -1427,6 +1570,10 @@ export type FilestoreMutations = {
   deleteFile: DeleteFileResponse;
   /**  Delete a key and propagate: recursively delete the key, all sub-keys and files under it. */
   deleteKey: DeleteKeyResponse;
+  /**  Deletes a subtitle object. */
+  deleteSubtitle: DeleteSubtitleResponse;
+  /**  Fetches a subtitle and optionally persists it. */
+  fetchSubtitle: FetchSubtitleResponse;
   /**  Returns a presigned GET URL for direct browser download. */
   getPresignedDownloadUrl: GetPresignedDownloadUrlResponse;
   /**  Returns a presigned PUT URL for direct browser-to-storage upload. */
@@ -1441,6 +1588,8 @@ export type FilestoreMutations = {
   renameKey: RenameKeyResponse;
   /**  Resumes a paused torrent download. */
   resumeTorrent: ResumeTorrentResponse;
+  /**  Searches OpenSubtitles for a video. */
+  searchSubtitles: Array<SubtitleSearchResult>;
 };
 
 
@@ -1465,6 +1614,18 @@ export type FilestoreMutationsDeleteFileArgs = {
 /**  Mutations for filestore operations including multipart upload support. */
 export type FilestoreMutationsDeleteKeyArgs = {
   input: BucketKeyInput;
+};
+
+
+/**  Mutations for filestore operations including multipart upload support. */
+export type FilestoreMutationsDeleteSubtitleArgs = {
+  input: DeleteSubtitleInput;
+};
+
+
+/**  Mutations for filestore operations including multipart upload support. */
+export type FilestoreMutationsFetchSubtitleArgs = {
+  input: FetchSubtitleInput;
 };
 
 
@@ -1509,6 +1670,12 @@ export type FilestoreMutationsResumeTorrentArgs = {
   jobId: Scalars['String']['input'];
 };
 
+
+/**  Mutations for filestore operations including multipart upload support. */
+export type FilestoreMutationsSearchSubtitlesArgs = {
+  input: SearchSubtitlesInput;
+};
+
 /**  Queries for filestore operations. */
 export type FilestoreQueries = {
   __typename?: 'FilestoreQueries';
@@ -1524,6 +1691,8 @@ export type FilestoreQueries = {
   locateImage?: Maybe<KeyDetail>;
   /**  Searches Prowlarr for torrents matching the query. */
   searchTorrents: Array<TorrentSearchResult>;
+  /**  Lists subtitles for a video key. */
+  subtitles: Array<Subtitle>;
   /**  Look up a single torrent download job by id. */
   torrentJob?: Maybe<TorrentJob>;
   /**  List torrent download jobs, optionally filtered by bucket and status. */
@@ -1561,6 +1730,13 @@ export type FilestoreQueriesLocateImageArgs = {
 /**  Queries for filestore operations. */
 export type FilestoreQueriesSearchTorrentsArgs = {
   query: Scalars['String']['input'];
+};
+
+
+/**  Queries for filestore operations. */
+export type FilestoreQueriesSubtitlesArgs = {
+  bucket: Scalars['String']['input'];
+  keyPath: Scalars['String']['input'];
 };
 
 
@@ -2604,6 +2780,12 @@ export type PagedAnswers = {
   pageInfo: PageInfo;
 };
 
+export type PagedAuditEvents = {
+  __typename?: 'PagedAuditEvents';
+  items: Array<AuditEvent>;
+  pageInfo: PageInfo;
+};
+
 export type PagedBlogPosts = {
   __typename?: 'PagedBlogPosts';
   items: Array<BlogPost>;
@@ -2830,6 +3012,7 @@ export type PutKeyResponse = {
 export type Query = {
   __typename?: 'Query';
   _service: _Service;
+  auditQueries: AuditQueries;
   blogQueries: BlogQueries;
   checklistQueries: ChecklistQueries;
   fatesQueries: FatesQueries;
@@ -3226,6 +3409,13 @@ export type SaveTemplateResponse = {
   template: ChecklistTemplate;
 };
 
+export type SearchSubtitlesInput = {
+  bucket: Scalars['String']['input'];
+  keyPath: Scalars['String']['input'];
+  language?: InputMaybe<Scalars['String']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SetAccountPermissionsResponse = {
   __typename?: 'SetAccountPermissionsResponse';
   accountId: Scalars['ID']['output'];
@@ -3330,6 +3520,39 @@ export type SubmitAnswerResponse = {
   answer: Answer;
   message: Scalars['String']['output'];
 };
+
+/**  A subtitle object attached to a video key. */
+export type Subtitle = {
+  __typename?: 'Subtitle';
+  bucket: Scalars['String']['output'];
+  createdAt?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
+  keyPath: Scalars['String']['output'];
+  language: Scalars['String']['output'];
+  lastUpdatedAt?: Maybe<Scalars['String']['output']>;
+  openSubtitlesFileId?: Maybe<Scalars['Int']['output']>;
+  source: SubtitleSource;
+  subtitleKey: Scalars['String']['output'];
+};
+
+/**  A subtitle returned by an OpenSubtitles search. */
+export type SubtitleSearchResult = {
+  __typename?: 'SubtitleSearchResult';
+  downloads?: Maybe<Scalars['Int']['output']>;
+  fileId?: Maybe<Scalars['Int']['output']>;
+  hearingImpaired?: Maybe<Scalars['Boolean']['output']>;
+  label: Scalars['String']['output'];
+  language: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  source: SubtitleSource;
+  subtitleKey?: Maybe<Scalars['String']['output']>;
+};
+
+/**  Where a subtitle object came from. */
+export enum SubtitleSource {
+  Local = 'LOCAL',
+  Opensubtitles = 'OPENSUBTITLES'
+}
 
 export type Summary = {
   __typename?: 'Summary';
@@ -3642,12 +3865,26 @@ export type DeleteKeyMutationVariables = Exact<{
 
 export type DeleteKeyMutation = { __typename?: 'Mutation', filestoreMutations: { __typename?: 'FilestoreMutations', deleteKey: { __typename?: 'DeleteKeyResponse', message: string, key: string } } };
 
+export type DeleteSubtitleMutationVariables = Exact<{
+  input: DeleteSubtitleInput;
+}>;
+
+
+export type DeleteSubtitleMutation = { __typename?: 'Mutation', filestoreMutations: { __typename?: 'FilestoreMutations', deleteSubtitle: { __typename?: 'DeleteSubtitleResponse', message: string, key: string } } };
+
 export type ExpireTailscaleDeviceMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
 export type ExpireTailscaleDeviceMutation = { __typename?: 'Mutation', gaiaMutations: { __typename?: 'GaiaMutations', expireTailscaleDevice: { __typename?: 'ExpireTailscaleDeviceResponse', message: string, device: { __typename?: 'TailscaleDevice', id: string, headscaleId: any, name: string, ipv4?: string | null, status: DeviceStatus, online: boolean, expiredAt?: any | null, lastSeen?: string | null, createdAt?: any | null, updatedAt?: any | null } } } };
+
+export type FetchSubtitleMutationVariables = Exact<{
+  input: FetchSubtitleInput;
+}>;
+
+
+export type FetchSubtitleMutation = { __typename?: 'Mutation', filestoreMutations: { __typename?: 'FilestoreMutations', fetchSubtitle: { __typename?: 'FetchSubtitleResponse', vtt: string, subtitleKey?: string | null } } };
 
 export type AccountQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -3770,12 +4007,27 @@ export type RenameKeyMutationVariables = Exact<{
 
 export type RenameKeyMutation = { __typename?: 'Mutation', filestoreMutations: { __typename?: 'FilestoreMutations', renameKey: { __typename?: 'RenameKeyResponse', message: string, success: boolean, hasConflicts: boolean, conflicts: Array<string> } } };
 
+export type SearchSubtitlesMutationVariables = Exact<{
+  input: SearchSubtitlesInput;
+}>;
+
+
+export type SearchSubtitlesMutation = { __typename?: 'Mutation', filestoreMutations: { __typename?: 'FilestoreMutations', searchSubtitles: Array<{ __typename?: 'SubtitleSearchResult', source: SubtitleSource, subtitleKey?: string | null, fileId?: number | null, language: string, label: string, hearingImpaired?: boolean | null, downloads?: number | null, rating?: number | null }> } };
+
 export type SearchTorrentsQueryVariables = Exact<{
   query: Scalars['String']['input'];
 }>;
 
 
 export type SearchTorrentsQuery = { __typename?: 'Query', filestoreQueries: { __typename?: 'FilestoreQueries', searchTorrents: Array<{ __typename?: 'TorrentSearchResult', name: string, seeders: number, leechers: number, size: string, sizeBytes: any, publishDate?: string | null, magnet: string }> } };
+
+export type SubtitlesQueryVariables = Exact<{
+  bucket: Scalars['String']['input'];
+  keyPath: Scalars['String']['input'];
+}>;
+
+
+export type SubtitlesQuery = { __typename?: 'Query', filestoreQueries: { __typename?: 'FilestoreQueries', subtitles: Array<{ __typename?: 'Subtitle', id?: string | null, bucket: string, keyPath: string, subtitleKey: string, language: string, source: SubtitleSource, openSubtitlesFileId?: number | null, createdAt?: string | null, lastUpdatedAt?: string | null }> } };
 
 export type TailscaleDeviceQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -3794,7 +4046,9 @@ export const AddTorrentDocument = {"kind":"Document","definitions":[{"kind":"Ope
 export const CancelTorrentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"cancelTorrent"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"jobId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cancelTorrent"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"jobId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"jobId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"job"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"bucket"}},{"kind":"Field","name":{"kind":"Name","value":"targetKeyPath"}},{"kind":"Field","name":{"kind":"Name","value":"sourceType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"infoHash"}},{"kind":"Field","name":{"kind":"Name","value":"totalBytes"}},{"kind":"Field","name":{"kind":"Name","value":"downloadedBytes"}},{"kind":"Field","name":{"kind":"Name","value":"uploadedBytes"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"downloadRateBps"}},{"kind":"Field","name":{"kind":"Name","value":"uploadRateBps"}},{"kind":"Field","name":{"kind":"Name","value":"peersConnected"}},{"kind":"Field","name":{"kind":"Name","value":"seedsConnected"}},{"kind":"Field","name":{"kind":"Name","value":"etaSeconds"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"magnetDetail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"infoHash"}},{"kind":"Field","name":{"kind":"Name","value":"infoHashVersion"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"sourceUri"}},{"kind":"Field","name":{"kind":"Name","value":"totalSize"}},{"kind":"Field","name":{"kind":"Name","value":"comment"}},{"kind":"Field","name":{"kind":"Name","value":"createdBy"}},{"kind":"Field","name":{"kind":"Name","value":"pieceLength"}},{"kind":"Field","name":{"kind":"Name","value":"pieceCount"}},{"kind":"Field","name":{"kind":"Name","value":"isPrivate"}},{"kind":"Field","name":{"kind":"Name","value":"trackers"}},{"kind":"Field","name":{"kind":"Name","value":"files"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"indexInTorrent"}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"size"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CancelTorrentMutation, CancelTorrentMutationVariables>;
 export const DeleteFileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteFile"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"BucketKeyInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteFile"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"key"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteFileMutation, DeleteFileMutationVariables>;
 export const DeleteKeyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteKey"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"BucketKeyInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteKey"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"key"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteKeyMutation, DeleteKeyMutationVariables>;
+export const DeleteSubtitleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteSubtitle"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DeleteSubtitleInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteSubtitle"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"key"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteSubtitleMutation, DeleteSubtitleMutationVariables>;
 export const ExpireTailscaleDeviceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"expireTailscaleDevice"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"gaiaMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"expireTailscaleDevice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"device"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"headscaleId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ipv4"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"online"}},{"kind":"Field","name":{"kind":"Name","value":"expiredAt"}},{"kind":"Field","name":{"kind":"Name","value":"lastSeen"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]}}]} as unknown as DocumentNode<ExpireTailscaleDeviceMutation, ExpireTailscaleDeviceMutationVariables>;
+export const FetchSubtitleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"fetchSubtitle"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"FetchSubtitleInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"fetchSubtitle"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"vtt"}},{"kind":"Field","name":{"kind":"Name","value":"subtitleKey"}}]}}]}}]}}]} as unknown as DocumentNode<FetchSubtitleMutation, FetchSubtitleMutationVariables>;
 export const AccountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"account"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"gaiaQueries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"account"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"personId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"remoteUsers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountQuery, AccountQueryVariables>;
 export const AccountsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"accounts"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"gaiaQueries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accounts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"personId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"remoteUsers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"size"}},{"kind":"Field","name":{"kind":"Name","value":"totalPages"}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}}]}}]}}]}}]}}]} as unknown as DocumentNode<AccountsQuery, AccountsQueryVariables>;
 export const CreateIpWhitelistEntryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createIpWhitelistEntry"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"IpWhitelistEntryInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"gaiaMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createIpWhitelistEntry"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"entry"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pattern"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"enabled"}},{"kind":"Field","name":{"kind":"Name","value":"immutable"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateIpWhitelistEntryMutation, CreateIpWhitelistEntryMutationVariables>;
@@ -3813,6 +4067,8 @@ export const ListKeysDocument = {"kind":"Document","definitions":[{"kind":"Opera
 export const LocateKeyDetailDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"locateKeyDetail"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"bucket"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"keyPath"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreQueries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"locate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"bucket"},"value":{"kind":"Variable","name":{"kind":"Name","value":"bucket"}}},{"kind":"Argument","name":{"kind":"Name","value":"keyPath"},"value":{"kind":"Variable","name":{"kind":"Name","value":"keyPath"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"bucket"}},{"kind":"Field","name":{"kind":"Name","value":"keyPath"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"lastUpdatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"archivedAt"}}]}}]}}]}}]} as unknown as DocumentNode<LocateKeyDetailQuery, LocateKeyDetailQueryVariables>;
 export const PutKeyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"putKey"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PutKeyInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"putKey"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"key"}}]}}]}}]}}]} as unknown as DocumentNode<PutKeyMutation, PutKeyMutationVariables>;
 export const RenameKeyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"renameKey"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RenameKeyInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"renameKey"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"hasConflicts"}},{"kind":"Field","name":{"kind":"Name","value":"conflicts"}}]}}]}}]}}]} as unknown as DocumentNode<RenameKeyMutation, RenameKeyMutationVariables>;
+export const SearchSubtitlesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"searchSubtitles"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SearchSubtitlesInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreMutations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"searchSubtitles"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"subtitleKey"}},{"kind":"Field","name":{"kind":"Name","value":"fileId"}},{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"hearingImpaired"}},{"kind":"Field","name":{"kind":"Name","value":"downloads"}},{"kind":"Field","name":{"kind":"Name","value":"rating"}}]}}]}}]}}]} as unknown as DocumentNode<SearchSubtitlesMutation, SearchSubtitlesMutationVariables>;
 export const SearchTorrentsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchTorrents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreQueries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"searchTorrents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"seeders"}},{"kind":"Field","name":{"kind":"Name","value":"leechers"}},{"kind":"Field","name":{"kind":"Name","value":"size"}},{"kind":"Field","name":{"kind":"Name","value":"sizeBytes"}},{"kind":"Field","name":{"kind":"Name","value":"publishDate"}},{"kind":"Field","name":{"kind":"Name","value":"magnet"}}]}}]}}]}}]} as unknown as DocumentNode<SearchTorrentsQuery, SearchTorrentsQueryVariables>;
+export const SubtitlesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"subtitles"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"bucket"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"keyPath"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"filestoreQueries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subtitles"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"bucket"},"value":{"kind":"Variable","name":{"kind":"Name","value":"bucket"}}},{"kind":"Argument","name":{"kind":"Name","value":"keyPath"},"value":{"kind":"Variable","name":{"kind":"Name","value":"keyPath"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"bucket"}},{"kind":"Field","name":{"kind":"Name","value":"keyPath"}},{"kind":"Field","name":{"kind":"Name","value":"subtitleKey"}},{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"openSubtitlesFileId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"lastUpdatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<SubtitlesQuery, SubtitlesQueryVariables>;
 export const TailscaleDeviceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"tailscaleDevice"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"gaiaQueries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tailscaleDevice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"headscaleId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ipv4"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"online"}},{"kind":"Field","name":{"kind":"Name","value":"expiredAt"}},{"kind":"Field","name":{"kind":"Name","value":"lastSeen"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<TailscaleDeviceQuery, TailscaleDeviceQueryVariables>;
 export const TailscaleDevicesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"tailscaleDevices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"gaiaQueries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tailscaleDevices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"headscaleId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ipv4"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"online"}},{"kind":"Field","name":{"kind":"Name","value":"expiredAt"}},{"kind":"Field","name":{"kind":"Name","value":"lastSeen"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<TailscaleDevicesQuery, TailscaleDevicesQueryVariables>;

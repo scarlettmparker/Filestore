@@ -8,6 +8,8 @@ import {
   CancelTorrentDocument,
   DeleteFileDocument,
   DeleteKeyDocument,
+  DeleteSubtitleDocument,
+  FetchSubtitleDocument,
   GetPresignedDownloadUrlDocument,
   GetPresignedUploadUrlDocument,
   HealthDocument,
@@ -16,7 +18,9 @@ import {
   LocateKeyDetailDocument,
   PutKeyDocument,
   RenameKeyDocument,
+  SearchSubtitlesDocument,
   SearchTorrentsDocument,
+  SubtitlesDocument,
   type AddTorrentResponse,
   type CancelTorrentResponse,
   type DeleteFileResponse,
@@ -30,6 +34,10 @@ import {
   type CancelTorrentMutation,
   type DeleteFileMutation,
   type DeleteKeyMutation,
+  type DeleteSubtitleMutation,
+  type DeleteSubtitleMutationVariables,
+  type FetchSubtitleMutation,
+  type FetchSubtitleMutationVariables,
   type GetPresignedUploadUrlMutation,
   type GetPresignedDownloadUrlMutation,
   type HealthQuery,
@@ -38,7 +46,11 @@ import {
   type LocateKeyDetailQuery,
   type PutKeyMutation,
   type RenameKeyMutation,
+  type SearchSubtitlesMutation,
+  type SearchSubtitlesMutationVariables,
   type SearchTorrentsQuery,
+  type SubtitlesQuery,
+  type SubtitlesQueryVariables,
 } from "~/generated/graphql";
 
 /**
@@ -488,5 +500,82 @@ defineLoader({
     const token = getCookieValue(context?.cookie, AUTH_COOKIE);
     if (!alias || !path) return null;
     return fetchBucketData(alias, path, selected, token);
+  },
+});
+
+/**
+ * Lists subtitles for a video key.
+ */
+defineMutation({
+  path: "filestore/subtitles",
+  async handler(
+    body: SubtitlesQueryVariables,
+    context: MutationContext,
+  ): Promise<SubtitlesQuery["filestoreQueries"]["subtitles"]> {
+    const result = await executeDocument<SubtitlesQuery, SubtitlesQueryVariables>(
+      SubtitlesDocument,
+      body,
+      tokenFrom(context),
+    );
+    return result.data?.filestoreQueries?.subtitles ?? [];
+  },
+});
+
+/**
+ * Searches OpenSubtitles for a video.
+ */
+defineMutation({
+  path: "filestore/search-subtitles",
+  async handler(
+    body: SearchSubtitlesMutationVariables,
+    context: MutationContext,
+  ): Promise<SearchSubtitlesMutation["filestoreMutations"]["searchSubtitles"]> {
+    const result = await executeDocument<
+      SearchSubtitlesMutation,
+      SearchSubtitlesMutationVariables
+    >(SearchSubtitlesDocument, body, tokenFrom(context));
+    return result.data?.filestoreMutations?.searchSubtitles ?? [];
+  },
+});
+
+/**
+ * Fetches a subtitle and optionally persists it.
+ */
+defineMutation({
+  path: "filestore/fetch-subtitle",
+  async handler(
+    body: FetchSubtitleMutationVariables,
+    context: MutationContext,
+  ): Promise<FetchSubtitleMutation["filestoreMutations"]["fetchSubtitle"]> {
+    const result = await executeDocument<
+      FetchSubtitleMutation,
+      FetchSubtitleMutationVariables
+    >(FetchSubtitleDocument, body, tokenFrom(context));
+    const response = result.data?.filestoreMutations?.fetchSubtitle;
+    if (response == null) {
+      throw new MutationError(result.error ?? "Failed to fetch subtitle");
+    }
+    return response;
+  },
+});
+
+/**
+ * Deletes a subtitle object.
+ */
+defineMutation({
+  path: "filestore/delete-subtitle",
+  async handler(
+    body: DeleteSubtitleMutationVariables,
+    context: MutationContext,
+  ): Promise<DeleteSubtitleMutation["filestoreMutations"]["deleteSubtitle"]> {
+    const result = await executeDocument<
+      DeleteSubtitleMutation,
+      DeleteSubtitleMutationVariables
+    >(DeleteSubtitleDocument, body, tokenFrom(context));
+    const response = result.data?.filestoreMutations?.deleteSubtitle;
+    if (response == null) {
+      throw new MutationError(result.error ?? "Failed to delete subtitle");
+    }
+    return response;
   },
 });

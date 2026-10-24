@@ -1,0 +1,8 @@
+mutation deleteSubtitle($input: DeleteSubtitleInput!) {
+  filestoreMutations {
+    deleteSubtitle(input: $input) {
+      message
+      key
+    }
+  }
+}

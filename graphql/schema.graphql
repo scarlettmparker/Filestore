@@ -158,6 +158,93 @@ type AttachedText {
   title: String!
 }
 
+type AuditChainVerification {
+  brokenAt: DateTime
+  brokenId: ID
+  checked: Int!
+  intact: Boolean!
+  keyed: Boolean!
+}
+
+type AuditEvent {
+  correlationId: ID
+  createdAt: DateTime
+  durationMs: Long
+  endpoint: String
+  errorMessage: String
+  eventType: String
+  hasEncryptedBeforePayload: Boolean!
+  hasEncryptedPayload: Boolean!
+  httpStatus: Int
+  id: ID!
+  ipAddress: String
+  namespace: String
+  operationName: String
+  operationType: AuditOperationType
+  outcome: AuditOutcome
+  payloadBefore: String
+  payloadRedacted: String
+  prevHash: String
+  rowHash: String
+  targetEntity: String
+  targetEntityId: ID
+  userAgent: String
+  userId: ID
+  userName: String
+  userRoles: String
+}
+
+input AuditEventFilterInput {
+  eventType: String
+  eventTypes: [String!]
+  from: DateTime
+  namespace: String
+  outcome: AuditOutcome
+  outcomes: [AuditOutcome!]
+  search: String
+  targetEntity: String
+  targetEntityId: ID
+  to: DateTime
+  userId: ID
+  userIds: [ID!]
+}
+
+type AuditFacetValue {
+  count: Long!
+  label: String!
+  value: String!
+}
+
+type AuditFacets {
+  actors: [AuditFacetValue!]!
+  eventTypes: [AuditFacetValue!]!
+  outcomes: [AuditFacetValue!]!
+  totalCount: Long!
+}
+
+enum AuditOperationType {
+  MUTATION
+  QUERY
+  REST
+}
+
+enum AuditOutcome {
+  FAILURE
+  SUCCESS
+}
+
+type AuditPage {
+  events: PagedAuditEvents!
+  facets: AuditFacets!
+}
+
+type AuditQueries {
+  auditEvent(id: ID!): AuditEvent
+  auditEventsByCorrelationId(correlationId: ID!): [AuditEvent!]!
+  auditPage(filter: AuditEventFilterInput, pagination: PaginationInput): AuditPage!
+  verifyAuditChain(namespace: String): AuditChainVerification!
+}
+
 type AuthResult {
   accountId: ID!
   personId: ID!
@@ -682,6 +769,17 @@ type DeleteRoleResponse {
   message: String!
 }
 
+input DeleteSubtitleInput {
+  bucket: String!
+  subtitleKey: String!
+}
+
+""" Response payload for deleteSubtitle."""
+type DeleteSubtitleResponse {
+  key: String!
+  message: String!
+}
+
 """Result of detaching a remote object from a checklist detail."""
 type DetachObjectResponse {
   id: ID!
@@ -1014,6 +1112,22 @@ type FatesQueries {
   place(id: ID!): Place
 }
 
+input FetchSubtitleInput {
+  bucket: String!
+  fileId: Int
+  keyPath: String!
+  language: String
+  persist: Boolean
+  source: SubtitleSource!
+  subtitleKey: String
+}
+
+""" Response payload for fetchSubtitle."""
+type FetchSubtitleResponse {
+  subtitleKey: String
+  vtt: String!
+}
+
 """ Represents a file object in a bucket."""
 type File {
   key: String!
@@ -1037,6 +1151,12 @@ type FilestoreMutations {
   """
   deleteKey(input: BucketKeyInput!): DeleteKeyResponse!
 
+  """ Deletes a subtitle object."""
+  deleteSubtitle(input: DeleteSubtitleInput!): DeleteSubtitleResponse!
+
+  """ Fetches a subtitle and optionally persists it."""
+  fetchSubtitle(input: FetchSubtitleInput!): FetchSubtitleResponse!
+
   """ Returns a presigned GET URL for direct browser download."""
   getPresignedDownloadUrl(input: BucketKeyInput!): GetPresignedDownloadUrlResponse!
 
@@ -1058,6 +1178,9 @@ type FilestoreMutations {
 
   """ Resumes a paused torrent download."""
   resumeTorrent(jobId: String!): ResumeTorrentResponse!
+
+  """ Searches OpenSubtitles for a video."""
+  searchSubtitles(input: SearchSubtitlesInput!): [SubtitleSearchResult!]!
 }
 
 """ Queries for filestore operations."""
@@ -1079,6 +1202,9 @@ type FilestoreQueries {
 
   """ Searches Prowlarr for torrents matching the query."""
   searchTorrents(query: String!): [TorrentSearchResult!]!
+
+  """ Lists subtitles for a video key."""
+  subtitles(bucket: String!, keyPath: String!): [Subtitle!]!
 
   """ Look up a single torrent download job by id."""
   torrentJob(jobId: String!): TorrentJob
@@ -1521,6 +1647,11 @@ type PagedAnswers {
   pageInfo: PageInfo!
 }
 
+type PagedAuditEvents {
+  items: [AuditEvent!]!
+  pageInfo: PageInfo!
+}
+
 type PagedBlogPosts {
   items: [BlogPost!]!
   pageInfo: PageInfo!
@@ -1727,6 +1858,7 @@ type PutKeyResponse {
 
 type Query {
   _service: _Service!
+  auditQueries: AuditQueries!
   blogQueries: BlogQueries!
   checklistQueries: ChecklistQueries!
   fatesQueries: FatesQueries!
@@ -2054,6 +2186,13 @@ type SaveTemplateResponse {
   template: ChecklistTemplate!
 }
 
+input SearchSubtitlesInput {
+  bucket: String!
+  keyPath: String!
+  language: String
+  query: String
+}
+
 type SetAccountPermissionsResponse {
   accountId: ID!
   message: String!
@@ -2142,6 +2281,37 @@ type StemPlayerQueries {
 type SubmitAnswerResponse {
   answer: Answer!
   message: String!
+}
+
+""" A subtitle object attached to a video key."""
+type Subtitle {
+  bucket: String!
+  createdAt: String
+  id: ID
+  keyPath: String!
+  language: String!
+  lastUpdatedAt: String
+  openSubtitlesFileId: Int
+  source: SubtitleSource!
+  subtitleKey: String!
+}
+
+""" A subtitle returned by an OpenSubtitles search."""
+type SubtitleSearchResult {
+  downloads: Int
+  fileId: Int
+  hearingImpaired: Boolean
+  label: String!
+  language: String!
+  rating: Float
+  source: SubtitleSource!
+  subtitleKey: String
+}
+
+""" Where a subtitle object came from."""
+enum SubtitleSource {
+  LOCAL
+  OPENSUBTITLES
 }
 
 type Summary {

@@ -1,0 +1,14 @@
+mutation searchSubtitles($input: SearchSubtitlesInput!) {
+  filestoreMutations {
+    searchSubtitles(input: $input) {
+      source
+      subtitleKey
+      fileId
+      language
+      label
+      hearingImpaired
+      downloads
+      rating
+    }
+  }
+}

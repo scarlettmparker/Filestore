@@ -1,0 +1,8 @@
+mutation fetchSubtitle($input: FetchSubtitleInput!) {
+  filestoreMutations {
+    fetchSubtitle(input: $input) {
+      vtt
+      subtitleKey
+    }
+  }
+}
