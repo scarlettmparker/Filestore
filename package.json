@@ -11,6 +11,7 @@
     "graphql:generate": "bunx graphql-codegen --config codegen.ts",
     "schema:pull": "bunx graphql-codegen --config codegen.ts",
     "lint": "bunx oxlint",
+    "typecheck": "bunx tsc --noEmit",
     "preview": "NODE_ENV=production bun --preload ./css-plugin.ts server.js",
     "test": "bunx vitest run --passWithNoTests",
     "test:watch": "bunx vitest",
