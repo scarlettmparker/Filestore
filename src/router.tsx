@@ -1,5 +1,6 @@
 import { RouteObject, useRoutes, Navigate } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
+import { preloadableLazy as lazy } from "@sun/ssr";
 import BucketSkeleton from "~/components/bucket-skeleton";
 import HomeSkeleton from "~/components/home-skeleton";
 import { AdminPageSkeleton, IpDetailSkeleton } from "~/components/admin/skeletons";
